@@ -7,6 +7,9 @@ import { ImportLogView } from './components/ImportLogView';
 import { HelpModal } from './components/HelpModal';
 import { AliasConfigModal } from './components/AliasConfigModal';
 import { GithubDeployModal } from './components/GithubDeployModal';
+import { EditRowModal } from './components/EditRowModal';
+import { OutlookEmailModal } from './components/OutlookEmailModal';
+import { OutlookEmailContext, RowEditChange } from './utils/outlookMailer';
 import {
   DEFAULT_MASTER_COLUMNS,
   DEFAULT_HEADER_ALIASES,
@@ -72,6 +75,9 @@ export default function App() {
   const [isHelpOpen, setIsHelpOpen] = useState(false);
   const [isAliasModalOpen, setIsAliasModalOpen] = useState(false);
   const [isGithubModalOpen, setIsGithubModalOpen] = useState(false);
+  const [editingRow, setEditingRow] = useState<MasterRowData | null>(null);
+  const [isOutlookMailOpen, setIsOutlookMailOpen] = useState(false);
+  const [outlookContext, setOutlookContext] = useState<OutlookEmailContext | null>(null);
   const [toastMessage, setToastMessage] = useState<{
     type: 'success' | 'warning' | 'error' | 'info';
     text: string;
@@ -181,6 +187,75 @@ export default function App() {
     setMasterRows((prev) => prev.filter((r) => r._id !== rowId));
   };
 
+  // Edit individual row
+  const handleStartEditRow = (row: MasterRowData) => {
+    setEditingRow(row);
+  };
+
+  // Save edited row & auto trigger Outlook draft
+  const handleSaveRow = (
+    updatedRow: MasterRowData,
+    changes: RowEditChange[],
+    autoComposeMail: boolean
+  ) => {
+    setMasterRows((prev) =>
+      prev.map((r) => (r._id === updatedRow._id ? updatedRow : r))
+    );
+    setEditingRow(null);
+
+    if (changes.length > 0) {
+      showToast(
+        'success',
+        `Đã lưu cập nhật van ${updatedRow.TAG || 'được chọn'} (${changes.length} thay đổi)!`
+      );
+    } else {
+      showToast('info', 'Đã lưu thông tin.');
+    }
+
+    // Automatically trigger Outlook draft if requested
+    if (autoComposeMail) {
+      setOutlookContext({
+        type: 'row_edited',
+        rowTag: updatedRow.TAG,
+        supplier: updatedRow.SUPPLIER,
+        sourceFile: updatedRow._sourceFile,
+        changes,
+        rowData: updatedRow,
+      });
+      setIsOutlookMailOpen(true);
+    }
+  };
+
+  // Mail single row
+  const handleMailRow = (row: MasterRowData) => {
+    setOutlookContext({
+      type: 'row_edited',
+      rowTag: row.TAG,
+      supplier: row.SUPPLIER,
+      sourceFile: row._sourceFile,
+      changes: [],
+      rowData: row,
+    });
+    setIsOutlookMailOpen(true);
+  };
+
+  // Batch Mail Outlook (from header or table toolbar)
+  const handleOpenBatchMail = () => {
+    const uniqueSuppliers = Array.from(
+      new Set(masterRows.map((r) => r.SUPPLIER).filter(Boolean))
+    ) as string[];
+
+    setOutlookContext({
+      type: 'batch_report',
+      summaryStats: {
+        totalRows: masterRows.length,
+        totalFiles: files.length,
+        suppliers: uniqueSuppliers,
+      },
+    });
+    setIsOutlookMailOpen(true);
+  };
+
   // Remove single file
   const handleRemoveFile = (fileId: string) => {
     setFiles((prev) => prev.filter((f) => f.id !== fileId));
@@ -235,6 +310,7 @@ export default function App() {
         onOpenAliases={() => setIsAliasModalOpen(true)}
         onOpenHelp={() => setIsHelpOpen(true)}
         onOpenGithubDeploy={() => setIsGithubModalOpen(true)}
+        onOpenOutlookMail={handleOpenBatchMail}
         activeTab={activeTab}
         setActiveTab={setActiveTab}
       />
@@ -278,6 +354,9 @@ export default function App() {
             data={masterRows}
             masterHeaders={masterHeaders}
             onDeleteRow={handleDeleteRow}
+            onEditRow={handleStartEditRow}
+            onMailRow={handleMailRow}
+            onOpenBatchMail={handleOpenBatchMail}
             onExportExcel={handleExportExcel}
             onExportCSV={handleExportCSV}
           />
@@ -350,6 +429,18 @@ export default function App() {
       <GithubDeployModal
         isOpen={isGithubModalOpen}
         onClose={() => setIsGithubModalOpen(false)}
+      />
+      <EditRowModal
+        isOpen={Boolean(editingRow)}
+        onClose={() => setEditingRow(null)}
+        row={editingRow}
+        masterHeaders={masterHeaders}
+        onSave={handleSaveRow}
+      />
+      <OutlookEmailModal
+        isOpen={isOutlookMailOpen}
+        onClose={() => setIsOutlookMailOpen(false)}
+        context={outlookContext}
       />
     </div>
   );

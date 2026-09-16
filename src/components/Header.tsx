@@ -8,6 +8,7 @@ import {
   FileText,
   SlidersHorizontal,
   Github,
+  Mail,
 } from 'lucide-react';
 import { downloadMasterTemplate } from '../utils/sampleData';
 
@@ -21,6 +22,7 @@ interface HeaderProps {
   onOpenAliases: () => void;
   onOpenHelp: () => void;
   onOpenGithubDeploy: () => void;
+  onOpenOutlookMail: () => void;
   activeTab: 'table' | 'files' | 'mapping' | 'logs';
   setActiveTab: (tab: 'table' | 'files' | 'mapping' | 'logs') => void;
 }
@@ -35,6 +37,7 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenAliases,
   onOpenHelp,
   onOpenGithubDeploy,
+  onOpenOutlookMail,
   activeTab,
   setActiveTab,
 }) => {
@@ -119,6 +122,17 @@ export const Header: React.FC<HeaderProps> = ({
             >
               <Download className="w-3.5 h-3.5" />
               <span>Xuất Excel (.xlsx)</span>
+            </button>
+
+            {/* Outlook Email Button */}
+            <button
+              id="btn-header-outlook-mail"
+              onClick={onOpenOutlookMail}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-blue-700 hover:bg-blue-600 text-white shadow-sm transition-all"
+              title="Soạn thảo và gửi email báo cáo qua Outlook"
+            >
+              <Mail className="w-3.5 h-3.5" />
+              <span>Mail Outlook</span>
             </button>
 
             {/* Help / Guide */}

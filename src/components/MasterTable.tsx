@@ -12,6 +12,8 @@ import {
   ChevronLeft,
   ChevronRight,
   Sparkles,
+  Edit3,
+  Mail,
 } from 'lucide-react';
 import { MasterRowData } from '../types';
 
@@ -19,6 +21,9 @@ interface MasterTableProps {
   data: MasterRowData[];
   masterHeaders: string[];
   onDeleteRow: (rowId: string) => void;
+  onEditRow: (row: MasterRowData) => void;
+  onMailRow: (row: MasterRowData) => void;
+  onOpenBatchMail: () => void;
   onExportExcel: () => void;
   onExportCSV: () => void;
 }
@@ -27,6 +32,9 @@ export const MasterTable: React.FC<MasterTableProps> = ({
   data,
   masterHeaders,
   onDeleteRow,
+  onEditRow,
+  onMailRow,
+  onOpenBatchMail,
   onExportExcel,
   onExportCSV,
 }) => {
@@ -164,8 +172,17 @@ export const MasterTable: React.FC<MasterTableProps> = ({
             )}
           </div>
 
-          {/* Export & Page Size */}
-          <div className="flex items-center gap-2 justify-end">
+          {/* Export & Mail & Page Size */}
+          <div className="flex items-center gap-2 justify-end flex-wrap">
+            <button
+              id="btn-table-compose-outlook"
+              onClick={onOpenBatchMail}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-blue-700 hover:bg-blue-600 text-white shadow-xs transition-colors cursor-pointer"
+              title="Soạn email báo cáo hoặc gửi đối tác qua Outlook"
+            >
+              <Mail className="w-3.5 h-3.5" />
+              <span>Soạn Mail Outlook</span>
+            </button>
             <button
               id="btn-table-export-excel"
               onClick={onExportExcel}
@@ -247,7 +264,7 @@ export const MasterTable: React.FC<MasterTableProps> = ({
                     </th>
                   );
                 })}
-                <th className="py-3 px-3 text-center w-12">Xoá</th>
+                <th className="py-3 px-3 text-center w-28 whitespace-nowrap">Thao tác</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800 font-normal">
@@ -281,24 +298,44 @@ export const MasterTable: React.FC<MasterTableProps> = ({
                             isEmpty
                               ? 'text-slate-300 dark:text-slate-600 italic'
                               : isTag
-                              ? 'font-bold text-blue-600 dark:text-blue-400'
+                              ? 'font-bold text-blue-600 dark:text-blue-400 cursor-pointer hover:underline'
                               : isSupplier
                               ? 'font-medium text-emerald-700 dark:text-emerald-400'
                               : 'text-slate-800 dark:text-slate-200'
                           }`}
+                          onClick={() => {
+                            if (isTag) onEditRow(row);
+                          }}
+                          title={isTag ? 'Nhấp để chỉnh sửa van này' : undefined}
                         >
                           {isEmpty ? '—' : String(val)}
                         </td>
                       );
                     })}
                     <td className="py-2.5 px-3 text-center">
-                      <button
-                        onClick={() => onDeleteRow(row._id)}
-                        className="text-slate-400 hover:text-rose-500 transition-colors p-1"
-                        title="Xoá hàng này"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </button>
+                      <div className="flex items-center justify-center gap-1">
+                        <button
+                          onClick={() => onEditRow(row)}
+                          className="text-slate-500 hover:text-blue-600 dark:text-slate-400 dark:hover:text-blue-400 transition-colors p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-800"
+                          title="Chỉnh sửa thông số van (Tự động soạn mail Outlook)"
+                        >
+                          <Edit3 className="w-3.5 h-3.5" />
+                        </button>
+                        <button
+                          onClick={() => onMailRow(row)}
+                          className="text-slate-500 hover:text-sky-600 dark:text-slate-400 dark:hover:text-sky-400 transition-colors p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-800"
+                          title="Soạn mail Outlook về van này"
+                        >
+                          <Mail className="w-3.5 h-3.5" />
+                        </button>
+                        <button
+                          onClick={() => onDeleteRow(row._id)}
+                          className="text-slate-400 hover:text-rose-500 transition-colors p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-800"
+                          title="Xoá hàng này"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 );
