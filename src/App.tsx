@@ -6,6 +6,7 @@ import { MappingViewer } from './components/MappingViewer';
 import { ImportLogView } from './components/ImportLogView';
 import { HelpModal } from './components/HelpModal';
 import { AliasConfigModal } from './components/AliasConfigModal';
+import { GithubDeployModal } from './components/GithubDeployModal';
 import {
   DEFAULT_MASTER_COLUMNS,
   DEFAULT_HEADER_ALIASES,
@@ -70,6 +71,7 @@ export default function App() {
 
   const [isHelpOpen, setIsHelpOpen] = useState(false);
   const [isAliasModalOpen, setIsAliasModalOpen] = useState(false);
+  const [isGithubModalOpen, setIsGithubModalOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState<{
     type: 'success' | 'warning' | 'error' | 'info';
     text: string;
@@ -232,6 +234,7 @@ export default function App() {
         onClearData={handleClearMaster}
         onOpenAliases={() => setIsAliasModalOpen(true)}
         onOpenHelp={() => setIsHelpOpen(true)}
+        onOpenGithubDeploy={() => setIsGithubModalOpen(true)}
         activeTab={activeTab}
         setActiveTab={setActiveTab}
       />
@@ -324,6 +327,13 @@ export default function App() {
             >
               Tài liệu & Đối chiếu thuật toán VBA
             </button>
+            <span className="text-slate-300 dark:text-slate-700">&bull;</span>
+            <button
+              onClick={() => setIsGithubModalOpen(true)}
+              className="text-slate-600 dark:text-slate-300 hover:text-blue-500 flex items-center gap-1"
+            >
+              Hướng dẫn Deploy GitHub Pages
+            </button>
           </div>
         </div>
       </footer>
@@ -336,6 +346,10 @@ export default function App() {
         aliases={aliases}
         setAliases={setAliases}
         masterHeaders={masterHeaders}
+      />
+      <GithubDeployModal
+        isOpen={isGithubModalOpen}
+        onClose={() => setIsGithubModalOpen(false)}
       />
     </div>
   );

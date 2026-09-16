@@ -7,6 +7,7 @@ import {
   HelpCircle,
   FileText,
   SlidersHorizontal,
+  Github,
 } from 'lucide-react';
 import { downloadMasterTemplate } from '../utils/sampleData';
 
@@ -19,6 +20,7 @@ interface HeaderProps {
   onClearData: () => void;
   onOpenAliases: () => void;
   onOpenHelp: () => void;
+  onOpenGithubDeploy: () => void;
   activeTab: 'table' | 'files' | 'mapping' | 'logs';
   setActiveTab: (tab: 'table' | 'files' | 'mapping' | 'logs') => void;
 }
@@ -32,6 +34,7 @@ export const Header: React.FC<HeaderProps> = ({
   onClearData,
   onOpenAliases,
   onOpenHelp,
+  onOpenGithubDeploy,
   activeTab,
   setActiveTab,
 }) => {
@@ -126,6 +129,17 @@ export const Header: React.FC<HeaderProps> = ({
               title="Xem hướng dẫn nguyên lý macro VBA"
             >
               <HelpCircle className="w-4 h-4" />
+            </button>
+
+            {/* GitHub Deploy Guide Button */}
+            <button
+              id="btn-open-github-deploy"
+              onClick={onOpenGithubDeploy}
+              className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition-colors"
+              title="Xem hướng dẫn và lệnh Deploy lên GitHub Pages"
+            >
+              <Github className="w-3.5 h-3.5" />
+              <span className="hidden md:inline">Deploy GitHub</span>
             </button>
 
             {/* Clear button */}
