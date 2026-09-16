@@ -221,6 +221,9 @@ export default function App() {
         sourceFile: updatedRow._sourceFile,
         changes,
         rowData: updatedRow,
+        masterHeaders,
+        allRows: masterRows.map((r) => (r._id === updatedRow._id ? updatedRow : r)),
+        logs,
       });
       setIsOutlookMailOpen(true);
     }
@@ -235,6 +238,9 @@ export default function App() {
       sourceFile: row._sourceFile,
       changes: [],
       rowData: row,
+      masterHeaders,
+      allRows: masterRows,
+      logs,
     });
     setIsOutlookMailOpen(true);
   };
@@ -252,6 +258,9 @@ export default function App() {
         totalFiles: files.length,
         suppliers: uniqueSuppliers,
       },
+      masterHeaders,
+      allRows: masterRows,
+      logs,
     });
     setIsOutlookMailOpen(true);
   };

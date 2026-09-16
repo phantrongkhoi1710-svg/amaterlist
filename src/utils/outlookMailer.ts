@@ -1,4 +1,4 @@
-import { MasterRowData } from '../types';
+import { MasterRowData, ImportLogRow } from '../types';
 
 export interface RowEditChange {
   field: string;
@@ -19,6 +19,9 @@ export interface OutlookEmailContext {
     totalFiles: number;
     suppliers: string[];
   };
+  masterHeaders?: string[];
+  allRows?: MasterRowData[];
+  logs?: ImportLogRow[];
 }
 
 export interface EmailDraft {
@@ -44,12 +47,13 @@ export function generateEmailDraft(context: OutlookEmailContext): EmailDraft {
     const tag = context.rowTag || context.rowData?.TAG || 'N/A';
     const supplier = context.supplier || context.rowData?.SUPPLIER || 'Chưa rõ';
     const sourceFile = context.sourceFile || context.rowData?._sourceFile || 'Master Total';
+    const excelAttachmentName = `Phieu_CapNhat_Van_${String(tag).replace(/[^a-zA-Z0-9_-]/g, '_')}.xlsx`;
 
     const changeLines = (context.changes || []).map(
       (c) => `  • [${c.field}]: từ "${c.oldValue ?? ''}" ➔ "${c.newValue ?? ''}"`
     );
 
-    const subject = `[ARMATURE THAY ĐỔI] Cập nhật thông số van ${tag} (${supplier}) - Dự án Armature`;
+    const subject = `[ARMATURE KÈM EXCEL] Cập nhật thông số van ${tag} (${supplier}) - Dự án Armature`;
 
     const body = `Kính gửi Quý Đội ngũ Kỹ thuật & Quản lý Dự án,
 
@@ -74,6 +78,10 @@ THÔNG SỐ KỸ THUẬT HIỆN TẠI:
 - Actuator Tag: ${context.rowData?.['ACTUATOR TAG'] || 'N/A'}
 - PO Number: ${context.rowData?.['PO NUMBER'] || 'N/A'}
 
+📎 TỆP ĐÍNH KÈM (ATTACHMENT):
+- Tên file đính kèm: ${excelAttachmentName}
+  (Bao gồm phiếu xác nhận các mục thay đổi được highlight màu sắc và bảng toàn bộ thông số van)
+
 Vui lòng rà soát và phản hồi nếu có bất kỳ sai lệch nào.
 
 Trân trọng,
@@ -92,6 +100,7 @@ Dự án Armature Consolidator`;
     const supplier = context.supplier || 'Quý Nhà cung cấp';
     const tag = context.rowTag || context.rowData?.TAG || '';
     const missing = (context.missingFields || []).join(', ') || 'PO NUMBER, ACTUATOR TAG, CLASS CERTIFICATE';
+    const safeSupplier = supplier.replace(/[^a-zA-Z0-9_-]/g, '_');
 
     const subject = `[YÊU CẦU BỔ SUNG DỮ LIỆU] Làm rõ thông số van Armature - NCC: ${supplier}`;
 
@@ -102,6 +111,9 @@ Trong quá trình import và chuẩn hoá cơ sở dữ liệu vật tư Armatur
 - Nhà cung cấp: ${supplier}
 ${tag ? `- Mã thiết bị (TAG): ${tag}\n` : ''}- Các trường thông tin cần làm rõ/còn thiếu: ${missing}
 - File bảng kê đối chiếu: ${context.sourceFile || 'Bảng kê đệ trình'}
+
+📎 TỆP ĐÍNH KÈM (ATTACHMENT):
+- Tên file đính kèm: BangKe_Armature_CanXacNhan_${safeSupplier}.xlsx
 
 Kính đề nghị Quý công ty phản hồi cập nhật các thông số trên để chúng tôi hoàn thiện hồ sơ vật tư và tiến hành các bước tiếp theo của dự án.
 
@@ -124,7 +136,7 @@ Dự án Armature Master`;
   const totalFiles = context.summaryStats?.totalFiles ?? 0;
   const suppliers = context.summaryStats?.suppliers?.join(', ') || 'Nhiều nhà thầu/NCC';
 
-  const subject = `[BÁO CÁO NHẬP LIỆU] Tổng hợp dữ liệu Armature Master (${totalRows} van)`;
+  const subject = `[BÁO CÁO NHẬP LIỆU KÈM EXCEL] Tổng hợp dữ liệu Armature Master (${totalRows} van)`;
 
   const body = `Kính gửi Ban Quản lý Dự án & Trưởng bộ phận,
 
@@ -136,7 +148,10 @@ TỔNG QUAN HỒ SƠ:
 - Tổng số lượng thiết bị van trong Master: ${totalRows} dòng
 - Danh sách nhà cung cấp đã ghi nhận: ${suppliers}
 
-Tình trạng cơ sở dữ liệu đã sẵn sàng để xuất file Excel chuẩn (Total + Import_Log) phục vụ công tác kiểm tra và bàn giao.
+📎 TỆP ĐÍNH KÈM (ATTACHMENT):
+- Tên file đính kèm: Armature_Master_Export.xlsx (gồm Sheet 'Total' Master và Sheet 'Import_Log')
+
+Tình trạng cơ sở dữ liệu đã sẵn sàng để kiểm tra và bàn giao.
 
 Trân trọng,
 Bộ phận Quản lý Dữ liệu Armature`;

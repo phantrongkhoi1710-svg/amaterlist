@@ -383,3 +383,217 @@ export function exportToCSV(
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
 }
+
+/**
+ * Export a single updated valve details & changes into a dedicated Excel file
+ */
+export async function exportValveChangeToExcel(
+  masterHeaders: string[],
+  row: MasterRowData,
+  changes: { field: string; oldValue: any; newValue: any }[],
+  customFileName?: string
+): Promise<string> {
+  const tag = row.TAG || 'Armature';
+  const outName =
+    customFileName ||
+    `Phieu_CapNhat_Van_${String(tag).replace(/[^a-zA-Z0-9_-]/g, '_')}.xlsx`;
+
+  const workbook = new ExcelJS.Workbook();
+  workbook.creator = 'Armature Import Tool';
+  workbook.created = new Date();
+
+  const ws = workbook.addWorksheet('ChiTiet_CapNhat', {
+    views: [{ showGridLines: true }],
+  });
+
+  // Row 1: Title
+  const titleRow = ws.addRow(['PHIẾU XÁC NHẬN CẬP NHẬT THÔNG SỐ VẬT TƯ VAN']);
+  titleRow.height = 36;
+  ws.mergeCells(1, 1, 1, 4);
+  const titleCell = ws.getCell(1, 1);
+  titleCell.font = { name: 'Segoe UI', size: 14, bold: true, color: { argb: 'FFFFFFFF' } };
+  titleCell.fill = {
+    type: 'pattern',
+    pattern: 'solid',
+    fgColor: { argb: 'FF1E3A8A' }, // Deep Blue
+  };
+  titleCell.alignment = { horizontal: 'center', vertical: 'middle' };
+
+  // Row 2: Subtitle
+  const subRow = ws.addRow([
+    `Mã TAG: ${tag}  |  Nhà cung cấp: ${row.SUPPLIER || 'Chưa rõ'}  |  Thời gian: ${new Date().toLocaleString('vi-VN')}  |  Nguồn: ${row._sourceFile || 'Master Data'}`,
+  ]);
+  subRow.height = 22;
+  ws.mergeCells(2, 1, 2, 4);
+  const subCell = ws.getCell(2, 1);
+  subCell.font = { name: 'Segoe UI', size: 9.5, italic: true, color: { argb: 'FF1E293B' } };
+  subCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF1F5F9' } };
+  subCell.alignment = { horizontal: 'left', vertical: 'middle' };
+
+  ws.addRow([]); // Blank line
+
+  // Section 1: Changes table (if any)
+  if (changes && changes.length > 0) {
+    const sec1 = ws.addRow(['1. DANH SÁCH THÔNG SỐ VỪA THAY ĐỔI (RECENT CHANGES)']);
+    sec1.font = { name: 'Segoe UI', size: 11, bold: true, color: { argb: 'FFB45309' } };
+    ws.addRow([]);
+
+    const chgHeader = ws.addRow([
+      'STT',
+      'TÊN THÔNG SỐ (FIELD)',
+      'GIÁ TRỊ TRƯỚC ĐÓ (OLD)',
+      'GIÁ TRỊ CẬP NHẬT MỚI (NEW)',
+    ]);
+    chgHeader.height = 26;
+    chgHeader.eachCell((cell) => {
+      cell.font = { name: 'Segoe UI', size: 10, bold: true, color: { argb: 'FFFFFFFF' } };
+      cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFD97706' } }; // Amber 600
+      cell.alignment = { horizontal: 'center', vertical: 'middle' };
+      cell.border = {
+        top: { style: 'thin', color: { argb: 'FFB45309' } },
+        bottom: { style: 'thin', color: { argb: 'FFB45309' } },
+        left: { style: 'thin', color: { argb: 'FFB45309' } },
+        right: { style: 'thin', color: { argb: 'FFB45309' } },
+      };
+    });
+
+    changes.forEach((c, idx) => {
+      const r = ws.addRow([
+        idx + 1,
+        c.field,
+        String(c.oldValue ?? '—'),
+        String(c.newValue ?? '—'),
+      ]);
+      r.height = 22;
+      r.eachCell((cell, colNum) => {
+        cell.font = {
+          name: 'Segoe UI',
+          size: 10,
+          bold: colNum === 4,
+          color: colNum === 4 ? { argb: 'FF15803D' } : { argb: 'FF334155' },
+        };
+        cell.fill = {
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: { argb: colNum === 4 ? 'FFECFDF5' : 'FFFFFBEB' },
+        };
+        cell.border = {
+          top: { style: 'thin', color: { argb: 'FFE2E8F0' } },
+          bottom: { style: 'thin', color: { argb: 'FFE2E8F0' } },
+          left: { style: 'thin', color: { argb: 'FFE2E8F0' } },
+          right: { style: 'thin', color: { argb: 'FFE2E8F0' } },
+        };
+        if (colNum === 1) cell.alignment = { horizontal: 'center' };
+      });
+    });
+
+    ws.addRow([]); // Blank line
+  }
+
+  // Section 2: All Specifications of this valve
+  const sec2 = ws.addRow([
+    changes && changes.length > 0
+      ? '2. BẢNG TOÀN BỘ THÔNG SỐ KỸ THUẬT HIỆN TẠI (SPECIFICATIONS)'
+      : '1. BẢNG TOÀN BỘ THÔNG SỐ KỸ THUẬT HIỆN TẠI (SPECIFICATIONS)',
+  ]);
+  sec2.font = { name: 'Segoe UI', size: 11, bold: true, color: { argb: 'FF1E3A8A' } };
+  ws.addRow([]);
+
+  const specHeader = ws.addRow([
+    'STT',
+    'TÊN TRƯỜNG DỮ LIỆU (HEADER)',
+    'GIÁ TRỊ THIẾT KẾ (SPEC VALUE)',
+    'GHI CHÚ',
+  ]);
+  specHeader.height = 26;
+  specHeader.eachCell((cell) => {
+    cell.font = { name: 'Segoe UI', size: 10, bold: true, color: { argb: 'FFFFFFFF' } };
+    cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1E3A8A' } };
+    cell.alignment = { horizontal: 'center', vertical: 'middle' };
+    cell.border = {
+      top: { style: 'thin', color: { argb: 'FF0F172A' } },
+      bottom: { style: 'thin', color: { argb: 'FF0F172A' } },
+      left: { style: 'thin', color: { argb: 'FF0F172A' } },
+      right: { style: 'thin', color: { argb: 'FF0F172A' } },
+    };
+  });
+
+  masterHeaders.forEach((h, idx) => {
+    const val = row[h];
+    const isModified = changes?.some((c) => c.field === h);
+    const r = ws.addRow([
+      idx + 1,
+      h,
+      val !== undefined && val !== null ? String(val) : '—',
+      isModified ? 'Vừa điều chỉnh' : '',
+    ]);
+    r.height = 20;
+    r.eachCell((cell, colNum) => {
+      cell.font = {
+        name: 'Segoe UI',
+        size: 9.5,
+        bold: isModified || colNum === 2,
+        color: isModified
+          ? { argb: 'FF1E40AF' }
+          : colNum === 4
+          ? { argb: 'FFD97706' }
+          : { argb: 'FF334155' },
+      };
+      cell.fill = {
+        type: 'pattern',
+        pattern: 'solid',
+        fgColor: {
+          argb: isModified
+            ? 'FFEFF6FF'
+            : idx % 2 === 0
+            ? 'FFFFFFFF'
+            : 'FFF8FAFC',
+        },
+      };
+      cell.border = {
+        top: { style: 'thin', color: { argb: 'FFE2E8F0' } },
+        bottom: { style: 'thin', color: { argb: 'FFE2E8F0' } },
+        left: { style: 'thin', color: { argb: 'FFE2E8F0' } },
+        right: { style: 'thin', color: { argb: 'FFE2E8F0' } },
+      };
+      if (colNum === 1 || colNum === 4) cell.alignment = { horizontal: 'center' };
+    });
+  });
+
+  ws.columns = [
+    { width: 8 },
+    { width: 34 },
+    { width: 36 },
+    { width: 22 },
+  ];
+
+  const buffer = await workbook.xlsx.writeBuffer();
+  downloadBlob(buffer, outName);
+  return outName;
+}
+
+/**
+ * Copies rich HTML table to clipboard so it can be pasted with colors & borders directly into Outlook
+ */
+export async function copyHtmlTableToClipboard(htmlString: string, plainText: string): Promise<boolean> {
+  try {
+    if (typeof ClipboardItem !== 'undefined' && navigator.clipboard && navigator.clipboard.write) {
+      const blobHtml = new Blob([htmlString], { type: 'text/html' });
+      const blobText = new Blob([plainText], { type: 'text/plain' });
+      await navigator.clipboard.write([
+        new ClipboardItem({
+          'text/html': blobHtml,
+          'text/plain': blobText,
+        }),
+      ]);
+      return true;
+    } else {
+      await navigator.clipboard.writeText(plainText);
+      return true;
+    }
+  } catch (err) {
+    console.warn('ClipboardItem write failed, fallback to plain text:', err);
+    await navigator.clipboard.writeText(plainText);
+    return true;
+  }
+}
