@@ -1,0 +1,6 @@
+{
+  "name": "Armature Import Tool",
+  "description": "Web tool for batch importing, matching, and consolidating Armature Excel files into a Master sheet with automated column mapping, alias detection, and import logs.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
