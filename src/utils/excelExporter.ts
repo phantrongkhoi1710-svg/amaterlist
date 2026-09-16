@@ -44,7 +44,7 @@ export async function exportToExcel(
       {
         showGridLines: true,
         state: 'frozen',
-        ySplit: 3, // Freeze rows 1-3 so header stays visible
+        ySplit: 4, // Freeze rows 1-4 so super-header and column headers stay visible
       },
     ],
   });
@@ -53,19 +53,19 @@ export async function exportToExcel(
 
   // --- ROW 1: TITLE BANNER ---
   const titleRow = wsTotal.addRow(['BẢNG TỔNG HỢP VẬT TƯ ARMATURE (MASTER DATA)']);
-  titleRow.height = 36;
+  titleRow.height = 34;
   wsTotal.mergeCells(1, 1, 1, totalCols);
   const titleCell = wsTotal.getCell(1, 1);
   titleCell.font = {
     name: 'Segoe UI',
-    size: 14,
+    size: 13,
     bold: true,
     color: { argb: 'FFFFFFFF' },
   };
   titleCell.fill = {
     type: 'pattern',
     pattern: 'solid',
-    fgColor: { argb: 'FF1E3A8A' }, // Deep Royal Navy
+    fgColor: { argb: 'FF1E293B' }, // Slate 800
   };
   titleCell.alignment = {
     vertical: 'middle',
@@ -81,21 +81,21 @@ export async function exportToExcel(
     minute: '2-digit',
   });
   const infoRow = wsTotal.addRow([
-    `Thời gian xuất: ${dateStr}  |  Tổng số thiết bị: ${rows.length} hàng  |  Trạng thái: Đã chuẩn hoá & khớp cột`,
+    `Thời gian xuất: ${dateStr}  |  Tổng số thiết bị: ${rows.length} hàng  |  Phân tích từ Catalog & Đặc tính kỹ thuật ống`,
   ]);
-  infoRow.height = 22;
+  infoRow.height = 20;
   wsTotal.mergeCells(2, 1, 2, totalCols);
   const infoCell = wsTotal.getCell(2, 1);
   infoCell.font = {
     name: 'Segoe UI',
-    size: 9.5,
+    size: 9,
     italic: true,
     color: { argb: 'FF475569' }, // Slate 600
   };
   infoCell.fill = {
     type: 'pattern',
     pattern: 'solid',
-    fgColor: { argb: 'FFF1F5F9' }, // Light Slate
+    fgColor: { argb: 'FFF8FAFC' }, // Light Slate
   };
   infoCell.alignment = {
     vertical: 'middle',
@@ -105,53 +105,85 @@ export async function exportToExcel(
     bottom: { style: 'thin', color: { argb: 'FFCBD5E1' } },
   };
 
-  // --- ROW 3: TABLE HEADERS ---
-  const headerRow = wsTotal.addRow([...masterHeaders]);
-  headerRow.height = 30; // Generous height for header
+  // --- ROW 3: TWO GROUPED SUPER-HEADERS (YELLOW & GRAY AS IN PIPE SPECIFICATION) ---
+  // Determine split point (where Pipe Specification begins, e.g. STD DRW NORMALE N° or column 5)
+  const specColIdx = masterHeaders.findIndex(
+    (h) =>
+      h.toUpperCase().includes('STD DRW') ||
+      h.toUpperCase().includes('NORMALE') ||
+      h.toUpperCase() === 'EXECUTION'
+  );
+  const splitCol = specColIdx !== -1 ? specColIdx : 5; // Default 5 columns for functional design
 
-  // Define border styles
-  const thinBorder: Partial<ExcelJS.Borders> = {
-    top: { style: 'thin', color: { argb: 'FFCBD5E1' } },
+  const superHeaderRow = wsTotal.addRow(new Array(totalCols).fill(''));
+  superHeaderRow.height = 26;
+
+  // Group 1: Functional Design (Yellow)
+  const functionalDesignCols = Math.min(splitCol, totalCols);
+  if (functionalDesignCols > 0) {
+    wsTotal.mergeCells(3, 1, 3, functionalDesignCols);
+    const g1Cell = wsTotal.getCell(3, 1);
+    g1Cell.value = 'TO BE COMPLETED BY FUNCTIONAL DESIGN';
+    g1Cell.font = { name: 'Segoe UI', size: 10, bold: true, color: { argb: 'FF000000' } };
+    g1Cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFFFF00' } }; // Pure Yellow #FFFF00
+    g1Cell.alignment = { vertical: 'middle', horizontal: 'center' };
+    g1Cell.border = {
+      top: { style: 'medium', color: { argb: 'FF000000' } },
+      left: { style: 'medium', color: { argb: 'FF000000' } },
+      bottom: { style: 'thin', color: { argb: 'FF000000' } },
+      right: { style: 'medium', color: { argb: 'FF000000' } },
+    };
+  }
+
+  // Group 2: Armature info from pipe specification (Gray)
+  if (totalCols > functionalDesignCols) {
+    wsTotal.mergeCells(3, functionalDesignCols + 1, 3, totalCols);
+    const g2Cell = wsTotal.getCell(3, functionalDesignCols + 1);
+    g2Cell.value = 'ARMATURE INFO FROM PIPE SPECIFICATION';
+    g2Cell.font = { name: 'Segoe UI', size: 10, bold: true, color: { argb: 'FF000000' } };
+    g2Cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFBFBFBF' } }; // Metallic Gray #BFBFBF
+    g2Cell.alignment = { vertical: 'middle', horizontal: 'center' };
+    g2Cell.border = {
+      top: { style: 'medium', color: { argb: 'FF000000' } },
+      left: { style: 'medium', color: { argb: 'FF000000' } },
+      bottom: { style: 'thin', color: { argb: 'FF000000' } },
+      right: { style: 'medium', color: { argb: 'FF000000' } },
+    };
+  }
+
+  // --- ROW 4: INDIVIDUAL COLUMN HEADERS ---
+  const headerRow = wsTotal.addRow([...masterHeaders]);
+  headerRow.height = 28;
+
+  const headerBorder: Partial<ExcelJS.Borders> = {
+    top: { style: 'thin', color: { argb: 'FF000000' } },
     left: { style: 'thin', color: { argb: 'FFCBD5E1' } },
-    bottom: { style: 'medium', color: { argb: 'FF1E3A8A' } },
+    bottom: { style: 'medium', color: { argb: 'FF000000' } },
     right: { style: 'thin', color: { argb: 'FFCBD5E1' } },
   };
 
-  // Style header cells with distinctive color groups
   masterHeaders.forEach((header, idx) => {
     const colNumber = idx + 1;
     const cell = headerRow.getCell(colNumber);
-
-    // Color grouping for clarity
-    const isKeyField = ['TAG', 'SUPPLIER', 'SFI', 'DESCRIPTION'].includes(header);
-    const isActuatorOrOrder = ['ACTUATOR TAG', 'PO NUMBER', 'DESTINATION YARD'].includes(header);
-
-    let bgColor = 'FF2563EB'; // Vibrant Blue
-    if (isKeyField) {
-      bgColor = 'FF1E3A8A'; // Deep Navy for primary ID keys
-    } else if (isActuatorOrOrder) {
-      bgColor = 'FF0D9488'; // Teal for logistics / order
-    } else {
-      bgColor = 'FF334155'; // Slate for technical specs
-    }
+    const isFunctionalCol = colNumber <= functionalDesignCols;
 
     cell.font = {
       name: 'Segoe UI',
-      size: 10.5,
+      size: 9.5,
       bold: true,
-      color: { argb: 'FFFFFFFF' },
+      color: { argb: 'FF000000' },
     };
     cell.fill = {
       type: 'pattern',
       pattern: 'solid',
-      fgColor: { argb: bgColor },
+      fgColor: { argb: isFunctionalCol ? 'FFFFFF55' : 'FFD9D9D9' }, // Light yellow vs soft gray
     };
     cell.alignment = {
       vertical: 'middle',
-      horizontal: isKeyField ? 'left' : 'center',
+      horizontal: 'center',
       wrapText: false,
     };
-    cell.border = thinBorder;
+    cell.border = headerBorder;
   });
 
   // --- ROW 4+: DATA ROWS ---
@@ -161,6 +193,7 @@ export async function exportToExcel(
     bottom: { style: 'thin', color: { argb: 'FFE2E8F0' } },
     right: { style: 'thin', color: { argb: 'FFE2E8F0' } },
   };
+  const thinBorder = dataBorder;
 
   rows.forEach((row, rIdx) => {
     const rowValues = masterHeaders.map((header) => {

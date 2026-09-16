@@ -257,3 +257,80 @@ export async function downloadMasterTemplate() {
   const buffer = await workbook.xlsx.writeBuffer();
   downloadBlob(buffer, 'Armature_Master_Template.xlsx');
 }
+
+/**
+ * Creates the sample rows shown in the reference image (without SAP CODE in master):
+ * Row 1: Spectacle flange NI505122
+ * Row 2: Empty/dashed row
+ * Row 3: Hose coupling VNE551831 (Camlock Type D)
+ */
+export function generateImageArmatureSampleRows(): any[] {
+  return [
+    {
+      _id: 'sample-armature-img-1',
+      _sourceFile: 'Functional_Design_PipeSpec.xlsx',
+      TAG: '',
+      'ACTUATOR TAG': '',
+      'P.O. NUMBER': '',
+      'SUPPLIER': '',
+      'DESTINATION (YARD)': '',
+      'STD DRW NORMALE N°': 'NI505122',
+      'EXECUTION': '',
+      'NRF N°': '',
+      'SFI': '',
+      'DESCRIPTION': 'SPECTACLE FLANGE',
+      'SIZE': 'DN15',
+      'CONNECTION': 'Flanged',
+      'PRESSURE RATING': 'PN16',
+      'HOUSING /BODY': 'Steel',
+      'TYPE': '',
+      'PIPE CLASS': 'LR',
+      'CLASS CERTIFICATE': 'YES',
+      'REMARKS': '',
+    },
+    {
+      _id: 'sample-armature-img-2',
+      _sourceFile: 'Functional_Design_PipeSpec.xlsx',
+      TAG: '',
+      'ACTUATOR TAG': '',
+      'P.O. NUMBER': '',
+      'SUPPLIER': '',
+      'DESTINATION (YARD)': '',
+      'STD DRW NORMALE N°': '-',
+      'EXECUTION': '-',
+      'NRF N°': '-',
+      'SFI': '',
+      'DESCRIPTION': '-',
+      'SIZE': '-',
+      'CONNECTION': '-',
+      'PRESSURE RATING': '-',
+      'HOUSING /BODY': '-',
+      'TYPE': '-',
+      'PIPE CLASS': '-',
+      'CLASS CERTIFICATE': 'NO',
+      'REMARKS': '',
+    },
+    {
+      _id: 'sample-armature-img-3',
+      _sourceFile: 'Functional_Design_PipeSpec.xlsx',
+      TAG: '',
+      'ACTUATOR TAG': '',
+      'P.O. NUMBER': '',
+      'SUPPLIER': '',
+      'DESTINATION (YARD)': '',
+      'STD DRW NORMALE N°': 'VNE551831',
+      'EXECUTION': 'D',
+      'NRF N°': '',
+      'SFI': '',
+      'DESCRIPTION': 'HOSE COUPLING',
+      'SIZE': 'DN50',
+      'CONNECTION': 'Threaded BSP',
+      'PRESSURE RATING': 'PN10',
+      'HOUSING /BODY': 'AISI 316',
+      'TYPE': 'Camlock Type D',
+      'PIPE CLASS': 'None',
+      'CLASS CERTIFICATE': 'NO',
+      'REMARKS': '',
+    },
+  ];
+}

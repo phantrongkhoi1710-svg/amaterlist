@@ -9,12 +9,17 @@ import {
   SlidersHorizontal,
   Github,
   Mail,
+  Table,
+  BookOpen,
 } from 'lucide-react';
 import { downloadMasterTemplate } from '../utils/sampleData';
+import { downloadCatalogTemplate } from '../utils/catalogManager';
 
 interface HeaderProps {
   totalRows: number;
   totalFiles: number;
+  catalogCount?: number;
+  activeShipName?: string;
   onExportExcel: () => void;
   onExportCSV: () => void;
   onLoadSampleData: () => void;
@@ -23,13 +28,14 @@ interface HeaderProps {
   onOpenHelp: () => void;
   onOpenGithubDeploy: () => void;
   onOpenOutlookMail: () => void;
-  activeTab: 'table' | 'files' | 'mapping' | 'logs';
-  setActiveTab: (tab: 'table' | 'files' | 'mapping' | 'logs') => void;
+  onOpenCatalogManager: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
   totalRows,
   totalFiles,
+  catalogCount = 0,
+  activeShipName = 'Tàu Mẫu',
   onExportExcel,
   onExportCSV,
   onLoadSampleData,
@@ -38,8 +44,7 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenHelp,
   onOpenGithubDeploy,
   onOpenOutlookMail,
-  activeTab,
-  setActiveTab,
+  onOpenCatalogManager,
 }) => {
   return (
     <header className="bg-slate-900 border-b border-slate-800 text-white sticky top-0 z-30 shadow-md">
@@ -63,11 +68,11 @@ export const Header: React.FC<HeaderProps> = ({
           {/* Quick Metrics & Actions */}
           <div className="flex flex-wrap items-center gap-2">
             <div className="flex items-center bg-slate-800/90 rounded-lg px-3 py-1.5 border border-slate-700/60 text-xs">
-              <span className="text-slate-400 mr-1.5">Master:</span>
+              <span className="text-slate-400 mr-1.5">Armature List:</span>
               <span className="font-bold text-emerald-400">{totalRows} hàng</span>
               <span className="mx-2 text-slate-600">|</span>
-              <span className="text-slate-400 mr-1.5">File nguồn:</span>
-              <span className="font-semibold text-slate-200">{totalFiles}</span>
+              <span className="text-slate-400 mr-1.5">Catalog ngầm:</span>
+              <span className="font-semibold text-amber-300">{catalogCount} mã</span>
             </div>
 
             {/* Test Sample Data */}
@@ -89,7 +94,18 @@ export const Header: React.FC<HeaderProps> = ({
               title="Tải về file Excel mẫu Total + Import_Log trống"
             >
               <FileText className="w-3.5 h-3.5 text-slate-300" />
-              <span className="hidden sm:inline">Mẫu Template</span>
+              <span className="hidden sm:inline">Mẫu Master</span>
+            </button>
+
+            {/* Hidden Catalog Manager Button */}
+            <button
+              id="btn-open-catalog-manager-header"
+              onClick={onOpenCatalogManager}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-800 hover:bg-slate-700 text-amber-300 border border-slate-700 transition-colors"
+              title="Quản lý / Nạp file Catalog Excel nền theo từng tàu"
+            >
+              <BookOpen className="w-3.5 h-3.5 text-amber-400" />
+              <span>Catalog Nền ({catalogCount})</span>
             </button>
 
             {/* Config Aliases */}
@@ -157,60 +173,12 @@ export const Header: React.FC<HeaderProps> = ({
                 id="btn-clear-master"
                 onClick={onClearData}
                 className="p-1.5 rounded-lg text-rose-400 hover:text-rose-300 hover:bg-rose-950/40 transition-colors"
-                title="Xoá toàn bộ dữ liệu bảng Master"
+                title="Xoá toàn bộ dữ liệu bảng Armature"
               >
                 <Trash2 className="w-4 h-4" />
               </button>
             )}
           </div>
-        </div>
-
-        {/* Navigation Tabs */}
-        <div className="flex items-center gap-1 mt-3 border-t border-slate-800/80 pt-2.5">
-          <button
-            id="nav-tab-table"
-            onClick={() => setActiveTab('table')}
-            className={`px-3.5 py-1.5 rounded-md text-xs font-medium transition-all ${
-              activeTab === 'table'
-                ? 'bg-blue-600 text-white shadow'
-                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
-            }`}
-          >
-            Bảng Master (Total) {totalRows > 0 && `(${totalRows})`}
-          </button>
-          <button
-            id="nav-tab-files"
-            onClick={() => setActiveTab('files')}
-            className={`px-3.5 py-1.5 rounded-md text-xs font-medium transition-all ${
-              activeTab === 'files'
-                ? 'bg-blue-600 text-white shadow'
-                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
-            }`}
-          >
-            Quản lý File & Import {totalFiles > 0 && `(${totalFiles})`}
-          </button>
-          <button
-            id="nav-tab-mapping"
-            onClick={() => setActiveTab('mapping')}
-            className={`px-3.5 py-1.5 rounded-md text-xs font-medium transition-all ${
-              activeTab === 'mapping'
-                ? 'bg-blue-600 text-white shadow'
-                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
-            }`}
-          >
-            Quy tắc Ánh xạ Cột
-          </button>
-          <button
-            id="nav-tab-logs"
-            onClick={() => setActiveTab('logs')}
-            className={`px-3.5 py-1.5 rounded-md text-xs font-medium transition-all ${
-              activeTab === 'logs'
-                ? 'bg-blue-600 text-white shadow'
-                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
-            }`}
-          >
-            Nhật ký Import_Log
-          </button>
         </div>
       </div>
     </header>

@@ -25,8 +25,8 @@ export function normalizeHeader(val: any): string {
   s = s.replace(/\./g, '');
   s = s.replace(/°/g, '');
 
-  // Replace separators with space
-  s = s.replace(/[_\-\/]/g, ' ');
+  // Replace separators and brackets with space
+  s = s.replace(/[_\-\/\(\)]/g, ' ');
 
   // Collapse multiple spaces
   s = s.replace(/\s+/g, ' ');
@@ -35,9 +35,20 @@ export function normalizeHeader(val: any): string {
 }
 
 /**
- * Default standard aliases from VBA Armature Import macro
+ * Default standard aliases from VBA Armature Import macro and pipe specs
  */
 export const DEFAULT_HEADER_ALIASES: Record<string, string[]> = {
+  'SAP CODE': [
+    'SAP',
+    'SAP_CODE',
+    'MATERIAL CODE',
+    'PART NUMBER',
+    'PART NO',
+    'VALVE CODE',
+    'ITEM CODE',
+    'NAME',
+  ],
+  'TAG': ['TAG NO', 'TAG NUMBER', 'VALVE TAG', 'EQUIPMENT TAG'],
   'ACTUATOR TAG': [
     'ACTUATOR',
     'ACTUATOR TAG NO',
@@ -46,42 +57,74 @@ export const DEFAULT_HEADER_ALIASES: Record<string, string[]> = {
   ],
   'PO NUMBER': [
     'PO NO',
+    'PO',
     'PURCHASE ORDER',
     'PURCHASE ORDER NUMBER',
     'PURCHASE ORDER NO',
+    'PO NUMBER',
   ],
-  'DESTINATION YARD': ['DESTINATION', 'DESTINATION YARD ACTUATOR'],
-  'STD DRW NORMALE N': ['STD DRAWING', 'STANDARD DRAWING', 'STANDARD DRW'],
-  'PRESSURE RATING': ['PRESSURE', 'PRESSURE CLASS', 'RATING'],
-  'HOUSING BODY': ['HOUSING', 'BODY'],
+  'SUPPLIER': ['MANUFACTURER', 'VENDOR', 'MAKER', 'BRAND'],
+  'DESTINATION YARD': ['DESTINATION', 'YARD', 'DESTINATION YARD ACTUATOR', 'DESTINATION YARD'],
+  'STD DRW NORMALE N': [
+    'STD DRAWING',
+    'STANDARD DRAWING',
+    'STANDARD DRW',
+    'NORMALE NR',
+    'NORMALE NO',
+    'NORMALE N',
+    'STD DRW NORMALE',
+    'DRAWING NO',
+  ],
+  'EXECUTION': ['EXEC', 'EXE', 'EXECUTION TYPE'],
+  'NRF N': ['NRF', 'NRF NO', 'NRF NR', 'NRF NUMBER'],
+  'SFI': ['SFI CODE', 'SFI GROUP', 'SYSTEM'],
+  'DESCRIPTION': ['DESC', 'VALVE DESCRIPTION', 'ITEM DESCRIPTION'],
+  'SIZE': ['PIPE SIZE', 'DN', 'DIAMETER', 'VALVE SIZE', 'NOMINAL SIZE'],
+  'CONNECTION': ['CONN', 'END CONNECTION', 'CONNECTION TYPE'],
+  'PRESSURE RATING': [
+    'PRESSURE',
+    'PRESSURE CLASS',
+    'RATING',
+    'PRESSURE NOMINAL',
+    'PN',
+    'CLASS RATING',
+  ],
+  'HOUSING BODY': ['HOUSING', 'BODY', 'BODY MATERIAL', 'MATERIAL BODY'],
+  'TYPE': ['MODEL NUMBER', 'MODEL', 'VALVE TYPE', 'CAMLOCK TYPE', 'SIGN TYPE', 'SIGNTYPE'],
   'PIPE CLASS': ['PIPE CLASSIFICATION', 'CLASS'],
-  'CLASS CERTIFICATE': ['CLASS CERT', 'CERTIFICATE', 'CLASS CERTIFICATION'],
-  'SIGN TYPE': ['SIGNTYPE'],
-  'SIGN TEXT': ['SIGNTEXT'],
-  'INPUT SIGN TEXT': ['INPUT SIGN', 'SIGN INPUT TEXT', 'INPUT SIGNTEXT'],
+  'CLASS CERTIFICATE': [
+    'CLASS CERT',
+    'CERTIFICATE',
+    'CLASS CERTIFICATION',
+    'TESTING CERTIFICATE',
+    'CERT',
+  ],
+  'REMARKS': ['COMMENT', 'COMMENTS', 'NOTE', 'NOTES', 'REMARK'],
   'REV HIS': ['REVISION', 'REV', 'REV HISTORY', 'REVISION HISTORY'],
 };
 
 /**
- * Standard default master columns in Armature projects
+ * Standard default master columns in Armature projects matching pipe specification
  */
 export const DEFAULT_MASTER_COLUMNS: string[] = [
   'TAG',
+  'ACTUATOR TAG',
+  'P.O. NUMBER',
   'SUPPLIER',
+  'DESTINATION (YARD)',
+  'STD DRW NORMALE N°',
+  'EXECUTION',
+  'NRF N°',
   'SFI',
   'DESCRIPTION',
-  'ACTUATOR TAG',
-  'PO NUMBER',
-  'DESTINATION YARD',
-  'STD DRW NORMALE N',
+  'SIZE',
+  'CONNECTION',
   'PRESSURE RATING',
-  'HOUSING BODY',
+  'HOUSING /BODY',
+  'TYPE',
   'PIPE CLASS',
   'CLASS CERTIFICATE',
-  'SIGN TYPE',
-  'SIGN TEXT',
-  'INPUT SIGN TEXT',
-  'REV HIS',
+  'REMARKS',
 ];
 
 /**
