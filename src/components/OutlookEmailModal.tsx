@@ -55,7 +55,6 @@ export const OutlookEmailModal: React.FC<OutlookEmailModalProps> = ({
   const [copiedTable, setCopiedTable] = useState(false);
   const [downloadSuccess, setDownloadSuccess] = useState<string | null>(null);
   const [isExporting, setIsExporting] = useState(false);
-  const [showAttachGuide, setShowAttachGuide] = useState(true);
 
   // Initialize draft whenever context changes
   useEffect(() => {
@@ -177,9 +176,6 @@ export const OutlookEmailModal: React.FC<OutlookEmailModalProps> = ({
                   Kèm file Excel (.xlsx)
                 </span>
               </div>
-              <p className="text-xs text-blue-100/80">
-                Tự động chuẩn bị nội dung và file bảng tính Excel để gửi qua Microsoft Outlook
-              </p>
             </div>
           </div>
           <button
@@ -240,14 +236,9 @@ export const OutlookEmailModal: React.FC<OutlookEmailModalProps> = ({
         <div className="p-5 sm:p-6 overflow-y-auto space-y-4 text-xs">
           {/* Notification banner if file downloaded or message */}
           {downloadSuccess && (
-            <div className="p-3 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 flex items-start gap-2.5 shadow-xs">
-              <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-              <div className="space-y-0.5">
-                <span className="font-semibold block">{downloadSuccess}</span>
-                <span className="text-[11px] text-emerald-700 dark:text-emerald-400">
-                  Mẹo: File đã nằm ở thanh tải xuống của trình duyệt. Kéo thả trực tiếp vào cửa sổ Outlook để gửi kèm.
-                </span>
-              </div>
+            <div className="p-2.5 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 flex items-center gap-2 shadow-xs">
+              <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+              <span className="font-semibold text-xs">{downloadSuccess}</span>
             </div>
           )}
 
@@ -310,32 +301,6 @@ export const OutlookEmailModal: React.FC<OutlookEmailModalProps> = ({
                 </button>
               </div>
             </div>
-
-            {/* Quick How-to-attach Explanation */}
-            {showAttachGuide && (
-              <div className="mt-2.5 pt-2.5 border-t border-emerald-200/60 dark:border-emerald-900/40 text-[11px] text-slate-600 dark:text-slate-400 flex items-start gap-2">
-                <HelpCircle className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
-                <div className="flex-1">
-                  <strong>Cách đính kèm vào Outlook:</strong> Nhấn nút{' '}
-                  <span className="font-semibold text-blue-700 dark:text-blue-400">
-                    "1-Click: Tải Excel & Mở Outlook"
-                  </span>{' '}
-                  ở góc dưới. File Excel sẽ tự động tải về thanh tải xuống của trình duyệt; bạn chỉ
-                  cần <em>kéo thả (drag & drop)</em> file đó vào cửa sổ Outlook vừa mở, hoặc bấm{' '}
-                  <span className="font-semibold text-emerald-700 dark:text-emerald-400">
-                    Copy bảng vào thư
-                  </span>{' '}
-                  để dán (Ctrl+V) bảng tính trực tiếp vào email!
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setShowAttachGuide(false)}
-                  className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 text-[10px] cursor-pointer"
-                >
-                  Ẩn
-                </button>
-              </div>
-            )}
           </div>
 
           {/* Recipients Row */}

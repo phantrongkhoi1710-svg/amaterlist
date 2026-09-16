@@ -86,15 +86,10 @@ export const MappingViewer: React.FC<MappingViewerProps> = ({
       {/* Introduction Card */}
       <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-5 shadow-sm">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div>
-            <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-              <Layers className="w-4 h-4 text-blue-500" />
-              Cấu trúc Cột Bảng Master & Quy tắc Bí danh (Aliases)
-            </h3>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-              Hệ thống tự động chuẩn hoá tên cột (viết hoa, xoá dấu gạch/chấm/khoảng trắng thừa) và đối chiếu với danh sách bí danh được khai báo từ macro VBA.
-            </p>
-          </div>
+          <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+            <Layers className="w-4 h-4 text-blue-500" />
+            Cấu trúc Cột Bảng Master & Quy tắc Bí danh (Aliases)
+          </h3>
 
           <div className="flex items-center gap-2">
             <button

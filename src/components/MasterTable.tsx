@@ -43,7 +43,7 @@ export const MasterTable: React.FC<MasterTableProps> = ({
   const [sortColumn, setSortColumn] = useState<string | null>(null);
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(25);
+  const [pageSize, setPageSize] = useState(50);
 
   // Get unique source files
   const sourceFiles = useMemo(() => {
@@ -202,69 +202,42 @@ export const MasterTable: React.FC<MasterTableProps> = ({
         </div>
       </div>
 
-      {/* Color Legend Bar */}
-      <div className="flex flex-wrap items-center gap-3 px-2 text-[11px] text-slate-500 dark:text-slate-400">
-        <span className="font-semibold text-slate-700 dark:text-slate-300">Phân nhóm cột:</span>
-        <span className="inline-flex items-center gap-1">
-          <span className="w-2.5 h-2.5 rounded-full bg-blue-600"></span>
-          <span>Định danh cốt lõi (TAG, SUPPLIER, SFI, DESC)</span>
-        </span>
-        <span className="inline-flex items-center gap-1">
-          <span className="w-2.5 h-2.5 rounded-full bg-teal-600"></span>
-          <span>Truy xuất đơn hàng / Actuator</span>
-        </span>
-        <span className="inline-flex items-center gap-1">
-          <span className="w-2.5 h-2.5 rounded-full bg-slate-600"></span>
-          <span>Thông số kỹ thuật van</span>
-        </span>
-      </div>
-
-      {/* Table Container */}
-      <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
-        <div className="overflow-x-auto max-h-[600px]">
+      {/* Table Container - Maximized Frame */}
+      <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden flex flex-col flex-1">
+        <div className="overflow-x-auto max-h-[calc(100vh-210px)] min-h-[550px]">
           <table className="w-full text-left text-xs text-slate-700 dark:text-slate-300 border-collapse">
             <thead className="bg-slate-100 dark:bg-slate-800/95 text-slate-800 dark:text-slate-200 sticky top-0 z-20 border-b border-slate-200 dark:border-slate-700 font-semibold shadow-xs">
               <tr>
-                <th className="py-3 px-3 w-10 text-center text-slate-400 font-mono">#</th>
-                <th className="py-3 px-3 text-slate-500 font-mono text-[11px] whitespace-nowrap">File Nguồn</th>
+                <th className="py-2.5 px-3 w-10 text-center text-slate-400 font-mono">#</th>
+                <th className="py-2.5 px-3 text-slate-500 font-mono text-[11px] whitespace-nowrap">File Nguồn</th>
                 {masterHeaders.map((header) => {
                   const isSorted = sortColumn === header;
                   const isKeyField = ['TAG', 'SUPPLIER', 'SFI', 'DESCRIPTION'].includes(header);
-                  const isActuator = ['ACTUATOR TAG', 'PO NUMBER', 'DESTINATION YARD'].includes(header);
 
                   return (
                     <th
                       key={header}
                       onClick={() => handleSort(header)}
-                      className="py-3 px-3.5 cursor-pointer hover:bg-slate-200/60 dark:hover:bg-slate-700/60 transition-colors whitespace-nowrap select-none"
+                      className="py-2.5 px-3 cursor-pointer hover:bg-slate-200/60 dark:hover:bg-slate-700/60 transition-colors whitespace-nowrap select-none"
                     >
                       <div className="flex items-center gap-1.5">
-                        <span
-                          className={`w-1.5 h-3.5 rounded-full mr-0.5 ${
-                            isKeyField
-                              ? 'bg-blue-600'
-                              : isActuator
-                              ? 'bg-teal-600'
-                              : 'bg-slate-500'
-                          }`}
-                        ></span>
-                        <span className={isKeyField ? 'font-bold text-blue-900 dark:text-blue-300' : ''}>
+                        <span className={isKeyField ? 'font-bold text-blue-900 dark:text-blue-300' : 'text-slate-700 dark:text-slate-300'}>
                           {header}
                         </span>
                         {isSorted ? (
                           sortDirection === 'asc' ? (
-                            <ArrowUp className="w-3 h-3 text-blue-500" />
+                            <ArrowUp className="w-3 h-3 text-blue-500 shrink-0" />
                           ) : (
-                            <ArrowDown className="w-3 h-3 text-blue-500" />
+                            <ArrowDown className="w-3 h-3 text-blue-500 shrink-0" />
                           )
                         ) : (
-                          <ArrowUpDown className="w-3 h-3 text-slate-400 opacity-40 hover:opacity-100" />
+                          <ArrowUpDown className="w-3 h-3 text-slate-400 opacity-40 hover:opacity-100 shrink-0" />
                         )}
                       </div>
                     </th>
                   );
                 })}
-                <th className="py-3 px-3 text-center w-28 whitespace-nowrap">Thao tác</th>
+                <th className="py-2.5 px-3 text-center w-28 whitespace-nowrap">Thao tác</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800 font-normal">

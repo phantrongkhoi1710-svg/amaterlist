@@ -43,25 +43,20 @@ export const Header: React.FC<HeaderProps> = ({
 }) => {
   return (
     <header className="bg-slate-900 border-b border-slate-800 text-white sticky top-0 z-30 shadow-md">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+      <div className="w-full px-3 sm:px-5 lg:px-6 py-2.5">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
           {/* Logo & Title */}
-          <div className="flex items-center space-x-3.5">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center shadow-inner shadow-white/20">
-              <FileSpreadsheet className="w-6 h-6 text-white" />
+          <div className="flex items-center space-x-3">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center shadow-inner shadow-white/20 shrink-0">
+              <FileSpreadsheet className="w-5 h-5 text-white" />
             </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h1 className="text-lg font-bold tracking-tight text-white flex items-center gap-2">
-                  ARMATURE IMPORT TOOL
-                  <span className="text-xs px-2 py-0.5 rounded-full font-medium bg-blue-500/20 text-blue-300 border border-blue-500/30">
-                    VBA Web Edition
-                  </span>
-                </h1>
-              </div>
-              <p className="text-xs text-slate-400">
-                Tự động gom nhóm, ánh xạ cột & hợp nhất file Excel vào bảng Master (Total)
-              </p>
+            <div className="flex items-center gap-2">
+              <h1 className="text-base font-bold tracking-tight text-white flex items-center gap-2">
+                ARMATURE IMPORT TOOL
+                <span className="text-[11px] px-2 py-0.5 rounded-full font-medium bg-blue-500/20 text-blue-300 border border-blue-500/30">
+                  VBA Web Edition
+                </span>
+              </h1>
             </div>
           </div>
 

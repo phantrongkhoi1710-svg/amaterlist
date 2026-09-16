@@ -100,9 +100,6 @@ export const EditRowModal: React.FC<EditRowModalProps> = ({
                   {row._sourceFile}
                 </span>
               </div>
-              <p className="text-xs text-slate-500 dark:text-slate-400">
-                Chỉnh sửa các trường dữ liệu và tự động tạo thông báo Outlook cho nhà cung cấp/dự án
-              </p>
             </div>
           </div>
           <button

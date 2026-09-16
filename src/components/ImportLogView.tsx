@@ -56,14 +56,9 @@ export const ImportLogView: React.FC<ImportLogViewProps> = ({
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="flex items-center gap-2">
             <Clock className="w-5 h-5 text-blue-500" />
-            <div>
-              <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-100">
-                Nhật ký Quá trình Import (Sheet: Import_Log)
-              </h3>
-              <p className="text-xs text-slate-500 dark:text-slate-400">
-                Tự động ghi lại kết quả xử lý từng file nguồn, số dòng nhập và cảnh báo lỗi
-              </p>
-            </div>
+            <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-100">
+              Nhật ký Quá trình Import (Import_Log)
+            </h3>
           </div>
 
           <div className="flex items-center gap-2">

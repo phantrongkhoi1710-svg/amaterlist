@@ -324,8 +324,8 @@ export default function App() {
         setActiveTab={setActiveTab}
       />
 
-      {/* Main Container */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      {/* Main Container - Full Width Expanded */}
+      <main className="flex-1 w-full px-3 sm:px-5 lg:px-6 py-3">
         {/* Toast Notification */}
         {toastMessage && (
           <div className="mb-4 animate-in fade-in slide-in-from-top-2 duration-200">
