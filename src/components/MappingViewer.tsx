@@ -127,21 +127,43 @@ export const MappingViewer: React.FC<MappingViewerProps> = ({
           const norm = normalizeHeader(header);
           const headerAliases = aliases[norm] || [];
           const isCoreRequired = ['TAG', 'SUPPLIER', 'SFI', 'DESCRIPTION'].includes(norm);
+          const isGroup1 = index < 5;
+          const isGroup2 = index >= 5 && index < 21;
+          const isGroup3 = index >= 21 && index < 26;
 
           return (
             <div
               key={header}
-              className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-4 shadow-sm flex flex-col justify-between"
+              className={`rounded-xl border p-4 shadow-sm flex flex-col justify-between ${
+                isGroup1
+                  ? 'bg-yellow-50/50 dark:bg-yellow-950/20 border-yellow-200 dark:border-yellow-900/40'
+                  : isGroup2
+                  ? 'bg-slate-50/70 dark:bg-slate-900/60 border-slate-200 dark:border-slate-800'
+                  : isGroup3
+                  ? 'bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-700'
+                  : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800'
+              }`}
             >
               <div>
                 <div className="flex items-start justify-between gap-2 mb-2">
                   <div className="flex items-center gap-2">
-                    <span className="w-5 h-5 rounded-full bg-slate-100 dark:bg-slate-800 text-[11px] font-mono text-slate-500 flex items-center justify-center">
+                    <span className={`w-5 h-5 rounded-full text-[11px] font-mono flex items-center justify-center font-bold ${
+                      isGroup1
+                        ? 'bg-yellow-300 text-slate-900'
+                        : isGroup2
+                        ? 'bg-slate-300 text-slate-800 dark:bg-slate-700 dark:text-slate-200'
+                        : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400'
+                    }`}>
                       {index + 1}
                     </span>
-                    <h4 className="text-xs font-bold text-slate-900 dark:text-slate-100 tracking-wide">
-                      {header}
-                    </h4>
+                    <div>
+                      <h4 className="text-xs font-bold text-slate-900 dark:text-slate-100 tracking-wide">
+                        {header}
+                      </h4>
+                      <span className="text-[10px] text-slate-400 block">
+                        {isGroup1 ? 'Vàng (Functional)' : isGroup2 ? 'Xám (Pipe Spec)' : isGroup3 ? 'Trắng (Revision)' : 'Tuỳ chỉnh'}
+                      </span>
+                    </div>
                   </div>
 
                   <div className="flex items-center gap-1">

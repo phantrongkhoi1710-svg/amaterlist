@@ -105,26 +105,22 @@ export async function exportToExcel(
     bottom: { style: 'thin', color: { argb: 'FFCBD5E1' } },
   };
 
-  // --- ROW 3: TWO GROUPED SUPER-HEADERS (YELLOW & GRAY AS IN PIPE SPECIFICATION) ---
-  // Determine split point (where Pipe Specification begins, e.g. STD DRW NORMALE N° or column 5)
-  const specColIdx = masterHeaders.findIndex(
-    (h) =>
-      h.toUpperCase().includes('STD DRW') ||
-      h.toUpperCase().includes('NORMALE') ||
-      h.toUpperCase() === 'EXECUTION'
-  );
-  const splitCol = specColIdx !== -1 ? specColIdx : 5; // Default 5 columns for functional design
+  // --- ROW 3: THREE GROUPED SUPER-HEADERS (YELLOW, GRAY & WHITE AS IN USER IMAGE) ---
+  // Group 1: Functional Design (Yellow, cols 1-5)
+  // Group 2: Armature Info from Pipe Spec (Grey, cols 6-21)
+  // Group 3: Revision & Signature (White, cols 22-26)
+  const g1End = Math.min(5, totalCols);
+  const g2End = Math.min(21, totalCols);
 
   const superHeaderRow = wsTotal.addRow(new Array(totalCols).fill(''));
   superHeaderRow.height = 26;
 
   // Group 1: Functional Design (Yellow)
-  const functionalDesignCols = Math.min(splitCol, totalCols);
-  if (functionalDesignCols > 0) {
-    wsTotal.mergeCells(3, 1, 3, functionalDesignCols);
+  if (g1End > 0) {
+    wsTotal.mergeCells(3, 1, 3, g1End);
     const g1Cell = wsTotal.getCell(3, 1);
     g1Cell.value = 'TO BE COMPLETED BY FUNCTIONAL DESIGN';
-    g1Cell.font = { name: 'Segoe UI', size: 10, bold: true, color: { argb: 'FF000000' } };
+    g1Cell.font = { name: 'Segoe UI', size: 9.5, bold: true, color: { argb: 'FF000000' } };
     g1Cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFFFF00' } }; // Pure Yellow #FFFF00
     g1Cell.alignment = { vertical: 'middle', horizontal: 'center' };
     g1Cell.border = {
@@ -136,14 +132,30 @@ export async function exportToExcel(
   }
 
   // Group 2: Armature info from pipe specification (Gray)
-  if (totalCols > functionalDesignCols) {
-    wsTotal.mergeCells(3, functionalDesignCols + 1, 3, totalCols);
-    const g2Cell = wsTotal.getCell(3, functionalDesignCols + 1);
+  if (g2End > g1End) {
+    wsTotal.mergeCells(3, g1End + 1, 3, g2End);
+    const g2Cell = wsTotal.getCell(3, g1End + 1);
     g2Cell.value = 'ARMATURE INFO FROM PIPE SPECIFICATION';
-    g2Cell.font = { name: 'Segoe UI', size: 10, bold: true, color: { argb: 'FF000000' } };
+    g2Cell.font = { name: 'Segoe UI', size: 9.5, bold: true, color: { argb: 'FF000000' } };
     g2Cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFBFBFBF' } }; // Metallic Gray #BFBFBF
     g2Cell.alignment = { vertical: 'middle', horizontal: 'center' };
     g2Cell.border = {
+      top: { style: 'medium', color: { argb: 'FF000000' } },
+      left: { style: 'medium', color: { argb: 'FF000000' } },
+      bottom: { style: 'thin', color: { argb: 'FF000000' } },
+      right: { style: 'medium', color: { argb: 'FF000000' } },
+    };
+  }
+
+  // Group 3: Revision & Signature (White)
+  if (totalCols > g2End) {
+    wsTotal.mergeCells(3, g2End + 1, 3, totalCols);
+    const g3Cell = wsTotal.getCell(3, g2End + 1);
+    g3Cell.value = 'REVISION & SIGNATURE';
+    g3Cell.font = { name: 'Segoe UI', size: 9.5, bold: true, color: { argb: 'FF000000' } };
+    g3Cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF8FAFC' } };
+    g3Cell.alignment = { vertical: 'middle', horizontal: 'center' };
+    g3Cell.border = {
       top: { style: 'medium', color: { argb: 'FF000000' } },
       left: { style: 'medium', color: { argb: 'FF000000' } },
       bottom: { style: 'thin', color: { argb: 'FF000000' } },
@@ -158,14 +170,19 @@ export async function exportToExcel(
   const headerBorder: Partial<ExcelJS.Borders> = {
     top: { style: 'thin', color: { argb: 'FF000000' } },
     left: { style: 'thin', color: { argb: 'FFCBD5E1' } },
-    bottom: { style: 'medium', color: { argb: 'FF000000' } },
+    bottom: { style: 'medium', color: { argb: 'FF0F172A' } },
     right: { style: 'thin', color: { argb: 'FFCBD5E1' } },
   };
 
   masterHeaders.forEach((header, idx) => {
     const colNumber = idx + 1;
     const cell = headerRow.getCell(colNumber);
-    const isFunctionalCol = colNumber <= functionalDesignCols;
+    let cellBg = 'FFBFBFBF'; // Grey
+    if (colNumber <= 5) {
+      cellBg = 'FFFFFF00'; // Yellow
+    } else if (colNumber >= 22) {
+      cellBg = 'FFFFFFFF'; // White
+    }
 
     cell.font = {
       name: 'Segoe UI',
@@ -176,7 +193,7 @@ export async function exportToExcel(
     cell.fill = {
       type: 'pattern',
       pattern: 'solid',
-      fgColor: { argb: isFunctionalCol ? 'FFFFFF55' : 'FFD9D9D9' }, // Light yellow vs soft gray
+      fgColor: { argb: cellBg },
     };
     cell.alignment = {
       vertical: 'middle',
@@ -205,9 +222,27 @@ export async function exportToExcel(
     // Generous row height so items never look crowded or stuck together
     dataRow.height = 24;
 
-    // Alternating zebra color
+    // Check revision status according to PRINCIPLE FOR REVISION DESCRIPTIONS:
+    // 1. New or updated valve/armature: Yellow coloured row
+    // 2. Deleted valve/armature: Red colour with strikethrough
+    // 3. Next revision after deleted: Keep SFI and TAG (rest empty)
+    const isNewUpdated = row._revisionStatus === 'new_updated';
+    const isDeleted = row._revisionStatus === 'deleted';
+    const isNextRev = row._revisionStatus === 'next_rev_after_deleted';
+
+    // Alternating zebra color or revision color
     const isEven = rIdx % 2 === 0;
-    const rowBg = isEven ? 'FFFFFFFF' : 'FFF8FAFC'; // Clean white vs very soft ice-slate
+    let rowBg = isEven ? 'FFFFFFFF' : 'FFF8FAFC'; // Default zebra
+    if (isNewUpdated) {
+      rowBg = 'FFFFFF00'; // Pure Yellow #FFFF00
+    } else if (isDeleted) {
+      rowBg = 'FFFF4D4D'; // Bright Red #FF4D4D
+    } else if (isNextRev) {
+      rowBg = 'FFF1F5F9'; // Soft Slate
+    } else if (row._detectedColor && row._detectedColor !== '#FFFFFF') {
+      const clean = row._detectedColor.replace('#', '').toUpperCase();
+      rowBg = clean.length === 6 ? `FF${clean}` : clean;
+    }
 
     masterHeaders.forEach((header, cIdx) => {
       const cell = dataRow.getCell(cIdx + 1);
@@ -224,8 +259,14 @@ export async function exportToExcel(
       cell.font = {
         name: 'Segoe UI',
         size: 10,
-        bold: isTag,
-        color: isTag
+        bold: isTag || isNewUpdated,
+        italic: isNextRev,
+        strike: isDeleted || !!row._hasStrikethrough,
+        color: isDeleted
+          ? { argb: 'FF000000' }
+          : isNewUpdated
+          ? { argb: 'FF000000' }
+          : isTag
           ? { argb: 'FF1D4ED8' } // Bold Blue for Tag
           : isSupplier
           ? { argb: 'FF047857' } // Emerald for Supplier

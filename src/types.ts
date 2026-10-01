@@ -23,11 +23,16 @@ export interface ImportLogRow {
   warnings?: string[];
 }
 
+export type RowRevisionStatus = 'normal' | 'new_updated' | 'deleted' | 'next_rev_after_deleted';
+
 export interface MasterRowData {
   _id: string;
   _sourceFile: string;
   _sourceSheet: string;
   _importedAt: string;
+  _revisionStatus?: RowRevisionStatus; // 'normal' | 'new_updated' | 'deleted' | 'next_rev_after_deleted'
+  _detectedColor?: string; // e.g. '#FFFF00', '#EF4444'
+  _hasStrikethrough?: boolean;
   [key: string]: any;
 }
 

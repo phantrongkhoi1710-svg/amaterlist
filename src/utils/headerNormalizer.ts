@@ -35,76 +35,11 @@ export function normalizeHeader(val: any): string {
 }
 
 /**
- * Default standard aliases from VBA Armature Import macro and pipe specs
- */
-export const DEFAULT_HEADER_ALIASES: Record<string, string[]> = {
-  'SAP CODE': [
-    'SAP',
-    'SAP_CODE',
-    'MATERIAL CODE',
-    'PART NUMBER',
-    'PART NO',
-    'VALVE CODE',
-    'ITEM CODE',
-    'NAME',
-  ],
-  'TAG': ['TAG NO', 'TAG NUMBER', 'VALVE TAG', 'EQUIPMENT TAG'],
-  'ACTUATOR TAG': [
-    'ACTUATOR',
-    'ACTUATOR TAG NO',
-    'ACTUATOR TAG NUMBER',
-    'ACTUATOR NO',
-  ],
-  'PO NUMBER': [
-    'PO NO',
-    'PO',
-    'PURCHASE ORDER',
-    'PURCHASE ORDER NUMBER',
-    'PURCHASE ORDER NO',
-    'PO NUMBER',
-  ],
-  'SUPPLIER': ['MANUFACTURER', 'VENDOR', 'MAKER', 'BRAND'],
-  'DESTINATION YARD': ['DESTINATION', 'YARD', 'DESTINATION YARD ACTUATOR', 'DESTINATION YARD'],
-  'STD DRW NORMALE N': [
-    'STD DRAWING',
-    'STANDARD DRAWING',
-    'STANDARD DRW',
-    'NORMALE NR',
-    'NORMALE NO',
-    'NORMALE N',
-    'STD DRW NORMALE',
-    'DRAWING NO',
-  ],
-  'EXECUTION': ['EXEC', 'EXE', 'EXECUTION TYPE'],
-  'NRF N': ['NRF', 'NRF NO', 'NRF NR', 'NRF NUMBER'],
-  'SFI': ['SFI CODE', 'SFI GROUP', 'SYSTEM'],
-  'DESCRIPTION': ['DESC', 'VALVE DESCRIPTION', 'ITEM DESCRIPTION'],
-  'SIZE': ['PIPE SIZE', 'DN', 'DIAMETER', 'VALVE SIZE', 'NOMINAL SIZE'],
-  'CONNECTION': ['CONN', 'END CONNECTION', 'CONNECTION TYPE'],
-  'PRESSURE RATING': [
-    'PRESSURE',
-    'PRESSURE CLASS',
-    'RATING',
-    'PRESSURE NOMINAL',
-    'PN',
-    'CLASS RATING',
-  ],
-  'HOUSING BODY': ['HOUSING', 'BODY', 'BODY MATERIAL', 'MATERIAL BODY'],
-  'TYPE': ['MODEL NUMBER', 'MODEL', 'VALVE TYPE', 'CAMLOCK TYPE', 'SIGN TYPE', 'SIGNTYPE'],
-  'PIPE CLASS': ['PIPE CLASSIFICATION', 'CLASS'],
-  'CLASS CERTIFICATE': [
-    'CLASS CERT',
-    'CERTIFICATE',
-    'CLASS CERTIFICATION',
-    'TESTING CERTIFICATE',
-    'CERT',
-  ],
-  'REMARKS': ['COMMENT', 'COMMENTS', 'NOTE', 'NOTES', 'REMARK'],
-  'REV HIS': ['REVISION', 'REV', 'REV HISTORY', 'REVISION HISTORY'],
-};
-
-/**
- * Standard default master columns in Armature projects matching pipe specification
+ * Standard default master columns in Armature projects matching pipe specification and uploaded image:
+ * Total: 26 columns
+ * 1-5: TO BE COMPLETED BY FUNCTIONAL DESIGN (Yellow)
+ * 6-21: ARMATURE INFO FROM PIPE SPECIFICATION (Grey)
+ * 22-26: REVISION / SIGN-OFF HISTORY (White)
  */
 export const DEFAULT_MASTER_COLUMNS: string[] = [
   'TAG',
@@ -112,6 +47,7 @@ export const DEFAULT_MASTER_COLUMNS: string[] = [
   'P.O. NUMBER',
   'SUPPLIER',
   'DESTINATION (YARD)',
+  'SAP CODE',
   'STD DRW NORMALE N°',
   'EXECUTION',
   'NRF N°',
@@ -125,7 +61,193 @@ export const DEFAULT_MASTER_COLUMNS: string[] = [
   'PIPE CLASS',
   'CLASS CERTIFICATE',
   'REMARKS',
+  'SIGN TYPE',
+  'SIGN TEXT',
+  'INPUT - SIGN TEXT',
+  'REV. HIS.',
+  'DATE',
+  'REV. DESCRIPTION',
+  'SIGNATURE',
 ];
+
+/**
+ * Super Header Groups definition matching the user's specification image
+ */
+export const SUPER_HEADER_GROUPS = [
+  {
+    name: 'TO BE COMPLETED BY FUNCTIONAL DESIGN',
+    color: '#FFFF00', // Yellow
+    textColor: '#000000',
+    columns: [
+      'TAG',
+      'ACTUATOR TAG',
+      'P.O. NUMBER',
+      'SUPPLIER',
+      'DESTINATION (YARD)',
+    ],
+  },
+  {
+    name: 'ARMATURE INFO FROM PIPE SPECIFICATION',
+    color: '#BFBFBF', // Metallic Grey
+    textColor: '#000000',
+    columns: [
+      'SAP CODE',
+      'STD DRW NORMALE N°',
+      'EXECUTION',
+      'NRF N°',
+      'SFI',
+      'DESCRIPTION',
+      'SIZE',
+      'CONNECTION',
+      'PRESSURE RATING',
+      'HOUSING /BODY',
+      'TYPE',
+      'PIPE CLASS',
+      'CLASS CERTIFICATE',
+      'REMARKS',
+      'SIGN TYPE',
+      'SIGN TEXT',
+    ],
+  },
+  {
+    name: 'REVISION & SIGNATURE',
+    color: '#FFFFFF', // White
+    textColor: '#000000',
+    columns: [
+      'INPUT - SIGN TEXT',
+      'REV. HIS.',
+      'DATE',
+      'REV. DESCRIPTION',
+      'SIGNATURE',
+    ],
+  },
+];
+
+/**
+ * Default standard aliases from VBA Armature Import macro and pipe specs
+ */
+export const DEFAULT_HEADER_ALIASES: Record<string, string[]> = {
+  'TAG': ['TAG NO', 'TAG NUMBER', 'VALVE TAG', 'EQUIPMENT TAG', 'TAGNAME', 'TAG_NO', 'ITEM TAG'],
+  'ACTUATOR TAG': [
+    'ACTUATOR',
+    'ACTUATOR TAG NO',
+    'ACTUATOR TAG NUMBER',
+    'ACTUATOR NO',
+    'ACTUATOR_TAG',
+  ],
+  'PO NUMBER': [
+    'PO NO',
+    'PO',
+    'P.O. NUMBER',
+    'P.O. NO',
+    'PURCHASE ORDER',
+    'PURCHASE ORDER NUMBER',
+    'PURCHASE ORDER NO',
+    'PO NUMBER',
+    'P O NUMBER',
+    'P.O.',
+  ],
+  'SUPPLIER': [
+    'MANUFACTURER',
+    'VENDOR',
+    'MAKER',
+    'BRAND',
+    'HERSTELLER',
+    'MANUFACTURER NAME',
+    'MAKER NAME',
+    'SUPPLIER',
+  ],
+  'DESTINATION YARD': ['DESTINATION', 'YARD', 'DESTINATION YARD ACTUATOR', 'DESTINATION (YARD)', 'SHIPYARD', 'YARD DESTINATION'],
+  'SAP CODE': [
+    'SAP',
+    'SAP_CODE',
+    'SAP CODE',
+    'SAP NAME',
+    'SAP_NAME',
+    'SAPNAME',
+    'SAPCODE',
+    'SAP-NAME',
+    'MATERIAL CODE',
+    'MATERIAL NO',
+    'MATERIAL NUMBER',
+    'MATERIAL-NO',
+    'MATERIAL',
+    'PART NUMBER',
+    'PART NO',
+    'VALVE CODE',
+    'VALVE NAME',
+    'ITEM CODE',
+    'ITEM NO',
+    'NAME',
+    'SAP NO',
+    'SAP NUMBER',
+  ],
+  'STD DRW NORMALE N': [
+    'STD DRAWING',
+    'STANDARD DRAWING',
+    'STANDARD DRW',
+    'NORMALE NR',
+    'NORMALE NO',
+    'NORMALE N',
+    'NORMALE N°',
+    'NORMALE NR.',
+    'NORMALE NO.',
+    'NORMALE',
+    'NORMALE NUMBER',
+    'STD DRW NORMALE',
+    'STD DRW NORMALE N°',
+    'DRAWING NO',
+    'STD DRW',
+    'DRAWING NUMBER',
+  ],
+  'EXECUTION': ['EXEC', 'EXE', 'EXECUTION TYPE', 'EXECUTION'],
+  'NRF N': ['NRF', 'NRF NO', 'NRF NR', 'NRF NUMBER', 'NRF N°', 'NRF NR.', 'NRF NO.'],
+  'SFI': ['SFI CODE', 'SFI GROUP', 'SYSTEM', 'SFI NO', 'SFI-NR'],
+  'DESCRIPTION': ['DESC', 'VALVE DESCRIPTION', 'ITEM DESCRIPTION', 'SHORT TEXT', 'MATERIAL DESCRIPTION', 'ITEM NAME'],
+  'SIZE': ['PIPE SIZE', 'DN', 'DIAMETER', 'VALVE SIZE', 'NOMINAL SIZE', 'SIZE', 'DIMENSION'],
+  'CONNECTION': ['CONN', 'END CONNECTION', 'CONNECTION TYPE', 'CONNECTION'],
+  'PRESSURE RATING': [
+    'PRESSURE',
+    'PRESSURE CLASS',
+    'RATING',
+    'PRESSURE NOMINAL',
+    'PN',
+    'CLASS RATING',
+    'NOMINAL PRESSURE',
+    'PRESSURE RATING',
+  ],
+  'HOUSING BODY': [
+    'HOUSING',
+    'BODY',
+    'BODY MATERIAL',
+    'MATERIAL BODY',
+    'HOUSING /BODY',
+    'HOUSING/BODY',
+    'BODY MAT',
+    'BODY MAT.',
+    'HOUSING BODY',
+    'MATERIAL',
+  ],
+  'TYPE': ['MODEL NUMBER', 'MODEL', 'VALVE TYPE', 'CAMLOCK TYPE', 'MODEL NO', 'MODEL NR', 'SIGN TYPE'],
+  'PIPE CLASS': ['PIPE CLASSIFICATION', 'CLASS', 'PIPE CLASS', 'PIPING CLASS'],
+  'CLASS CERTIFICATE': [
+    'CLASS CERT',
+    'CERTIFICATE',
+    'CLASS CERTIFICATION',
+    'TESTING CERTIFICATE',
+    'CERT',
+    'TEST CERTIFICATE',
+    'CERTIFICATE TYPE',
+  ],
+  'REMARKS': ['COMMENT', 'COMMENTS', 'NOTE', 'NOTES', 'REMARK', 'REMARKS'],
+  'SIGN TYPE': ['SIGN_TYPE', 'SIGNTYPE', 'SIGN', 'TAG TYPE', 'LABEL TYPE'],
+  'SIGN TEXT': ['SIGN_TEXT', 'SIGNTEXT', 'SIGN CONTENT', 'LABEL TEXT', 'ENGRAVING TEXT', 'PLATE TEXT'],
+  'INPUT SIGN TEXT': ['INPUT - SIGN TEXT', 'INPUT SIGN TEXT', 'INPUT_SIGN_TEXT', 'SIGN INPUT', 'SIGN TEXT INPUT'],
+  'REV HIS': ['REV. HIS.', 'REV HIS', 'REV. HIST.', 'REV HIST', 'REVISION HISTORY', 'REV', 'REVISION', 'REV NO', 'REV HIST.'],
+  'DATE': ['REV DATE', 'REVISION DATE', 'MODIFIED DATE', 'UPDATE DATE', 'ISSUE DATE'],
+  'REV DESCRIPTION': ['REV. DESCRIPTION', 'REV DESCRIPTION', 'REV DESC', 'REVISION DESCRIPTION', 'CHANGE DESCRIPTION', 'REV. DESC.'],
+  'SIGNATURE': ['SIGN', 'SIGNED BY', 'BY', 'APPROVED BY', 'CHECKED BY', 'SIG', 'SIGN BY', 'SIGN OFF'],
+};
 
 /**
  * Get aliases for a normalized header name

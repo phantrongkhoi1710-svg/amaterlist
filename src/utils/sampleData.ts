@@ -28,7 +28,6 @@ export function generateSampleExcelFile(
 ): File {
   const wb = XLSX.utils.book_new();
 
-  let headerRow = 1;
   let headers: string[] = [];
   let rows: any[][] = [];
 
@@ -48,20 +47,24 @@ export function generateSampleExcelFile(
       'ACTUATOR TAG NO', // Alias for ACTUATOR TAG
       'PO NO', // Alias for PO NUMBER
       'DESTINATION', // Alias for DESTINATION YARD
+      'SAP CODE',
+      'STD DRW NORMALE N°',
       'PRESSURE CLASS', // Alias for PRESSURE RATING
       'BODY', // Alias for HOUSING BODY
       'PIPE CLASS',
       'CLASS CERT', // Alias for CLASS CERTIFICATE
+      'SIGN TYPE',
+      'SIGN TEXT',
       'REV', // Alias for REV HIS
     ];
     rows = [
       ...introRows,
       headers,
-      ['V-101-BV', 'EMERSON', '512.01', 'BALL VALVE 4" FLANGED 150#', 'ACT-101-A', 'PO-98210', 'VUNG TAU', '150#', 'A105 CS', '150-CS-01', 'DNV', '0'],
-      ['V-102-BV', 'EMERSON', '512.01', 'BALL VALVE 6" FLANGED 300#', 'ACT-102-A', 'PO-98210', 'VUNG TAU', '300#', 'A105 CS', '300-CS-01', 'DNV', 'A'],
-      ['V-103-GV', 'EMERSON', '512.02', 'GLOBE VALVE 2" NPT 800#', '', 'PO-98210', 'VUNG TAU', '800#', 'F316 SS', '800-SS-02', 'DNV', '0'],
-      ['', '', '', '', '', '', '', '', '', '', '', ''], // Blank row to test IsDataRow filtering
-      ['V-104-CK', 'EMERSON', '512.03', 'CHECK VALVE DUAL PLATE 8"', '', 'PO-98211', 'QUANG NGAI', '150#', 'WCB CS', '150-CS-01', 'ABS', 'B'],
+      ['V-101-BV', 'EMERSON', '512.01', 'BALL VALVE 4" FLANGED 150#', 'ACT-101-A', 'PO-98210', 'VUNG TAU', 'A4010320608F', 'NE401130', '150#', 'A105 CS', '150-CS-01', 'DNV', 'TAG-A', 'BALL VALVE 4"', '0'],
+      ['V-102-BV', 'EMERSON', '512.01', 'BALL VALVE 6" FLANGED 300#', 'ACT-102-A', 'PO-98210', 'VUNG TAU', 'A401032060PF', 'NE401130', '300#', 'A105 CS', '300-CS-01', 'DNV', 'TAG-A', 'BALL VALVE 6"', 'A'],
+      ['V-103-GV', 'EMERSON', '512.02', 'GLOBE VALVE 2" NPT 800#', '', 'PO-98210', 'VUNG TAU', 'A4010320708T', 'NE401130', '800#', 'F316 SS', '800-SS-02', 'DNV', 'TAG-B', 'GLOBE VALVE 2"', '0'],
+      ['', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''], // Blank row to test IsDataRow filtering
+      ['V-104-CK', 'EMERSON', '512.03', 'CHECK VALVE DUAL PLATE 8"', '', 'PO-98211', 'QUANG NGAI', 'A401032070PT', 'NE401130', '150#', 'WCB CS', '150-CS-01', 'ABS', 'TAG-C', 'CHECK VALVE 8"', 'B'],
     ];
   } else if (variant === 'vendor_b') {
     // Uses standard headers and aliases like "STD DRAWING", "SIGNTYPE", "SIGNTEXT"
@@ -71,38 +74,53 @@ export function generateSampleExcelFile(
     ];
     headers = [
       'TAG',
+      'ACTUATOR',
+      'PURCHASE ORDER NUMBER',
       'SUPPLIER',
-      'DESCRIPTION',
+      'DESTINATION YARD ACTUATOR',
+      'SAP CODE',
+      'STD DRAWING',
+      'EXECUTION',
+      'NRF NUMBER',
       'SFI',
-      'ACTUATOR', // Alias
-      'PURCHASE ORDER NUMBER', // Alias
-      'DESTINATION YARD ACTUATOR', // Alias
-      'STD DRAWING', // Alias
-      'PRESSURE', // Alias
-      'HOUSING', // Alias
+      'DESCRIPTION',
+      'SIZE',
+      'CONNECTION',
+      'PRESSURE',
+      'HOUSING',
+      'TYPE',
+      'PIPE CLASS',
+      'CLASS CERTIFICATE',
+      'REMARKS',
       'SIGN TYPE',
       'SIGN TEXT',
-      'INPUT SIGN TEXT',
-      'REVISION HISTORY', // Alias
+      'INPUT - SIGN TEXT',
+      'REV. HIS.',
+      'DATE',
+      'REV. DESCRIPTION',
+      'SIGNATURE',
     ];
     rows = [
       ...introRows,
       headers,
-      ['CV-201-P', 'KITZ CORP', 'CONTROL VALVE 3" PNEUMATIC', '514.10', 'ACT-KITZ-01', 'PO-55440', 'HAI PHONG', 'STD-DWG-514', '600#', 'CF8M', 'TYPE-1', 'DANGER HIGH PRESSURE', 'WARN-01', 'REV-1'],
-      ['BV-202-M', 'KITZ CORP', 'BUTTERFLY VALVE 10" WAFER', '514.12', '', 'PO-55440', 'HAI PHONG', 'STD-DWG-514', '150#', 'DUCTILE IRON', 'TYPE-2', 'WATER INLET', 'INFO-02', 'REV-0'],
-      ['', '', '', '', '', '', '', '', '', '', '', '', '', ''], // Blank row
-      ['SV-203-S', 'KITZ CORP', 'SAFETY RELIEF VALVE 2"x3"', '514.15', '', 'PO-55442', 'HAI PHONG', 'STD-DWG-518', '900#', 'INCONEL 625', 'TYPE-1', 'CRITICAL RELIEF', 'ALERT-03', 'REV-2'],
+      ['CV-201-P', 'ACT-KITZ-01', 'PO-55440', 'KITZ CORP', 'HAI PHONG', 'A5051220602A', 'NI505122', '', '', '514.10', 'SPECTACLE FLANGE', 'DN15', 'Flanged', 'PN16', 'Steel', '', 'LR', 'YES', 'Spectacle isolation', 'TYPE-1', 'DANGER HIGH PRESSURE', 'WARN-01', 'REV-1', '2026-03-10', 'Approved for prod', 'KHOI'],
+      ['BV-202-M', '', 'PO-55440', 'KITZ CORP', 'HAI PHONG', 'V5518319100B', 'VNE551831', 'D', '', '514.12', 'HOSE COUPLING', 'DN50', 'Threaded BSP', 'PN10', 'AISI 316', 'Camlock Type D', 'None', 'NO', 'Cargo connection', 'TYPE-2', 'WATER INLET', 'INFO-02', 'REV-0', '2026-03-10', 'First issue', 'KHOI'],
+      ['', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''], // Blank row
+      ['SV-203-S', '', 'PO-55442', 'KITZ CORP', 'HAI PHONG', 'A4010320608F', 'NE401130', '', '', '514.15', 'SAFETY RELIEF VALVE', 'DN25', 'Flanged', 'PN25', 'AISI 316', 'TAB 126.1', 'LR', 'YES', 'High pressure relief', 'TYPE-1', 'CRITICAL RELIEF', 'ALERT-03', 'REV-2', '2026-03-11', 'Size revised', 'KHOI'],
     ];
   } else {
     // Subsea C
     headers = [
       'TAG',
-      'SUPPLIER',
-      'SFI',
-      'DESCRIPTION',
       'ACTUATOR NO',
       'PO NO',
+      'SUPPLIER',
       'DESTINATION',
+      'SAP CODE',
+      'STD DRW NORMALE N°',
+      'DESCRIPTION',
+      'SIZE',
+      'CONNECTION',
       'PRESSURE RATING',
       'HOUSING BODY',
       'PIPE CLASSIFICATION',
@@ -112,8 +130,8 @@ export function generateSampleExcelFile(
     rows = [
       ['SUBSEA PIPING ARMATURE PACKAGE 2026'],
       headers,
-      ['SB-301-BV', 'CAMERON', '611.01', 'SUBSEA BALL VALVE 12" 5000 PSI', 'HYD-ACT-301', 'PO-77190', 'DUNG QUAT', '5000 PSI', 'DUPLEX 2205', 'API-5000', 'DNV-GL', 'C'],
-      ['SB-302-CK', 'CAMERON', '611.02', 'SUBSEA NON-RETURN VALVE 8"', '', 'PO-77190', 'DUNG QUAT', '5000 PSI', 'SUPER DUPLEX', 'API-5000', 'DNV-GL', 'B'],
+      ['SB-301-BV', 'HYD-ACT-301', 'PO-77190', 'CAMERON', 'DUNG QUAT', 'A4010320708T', 'NE401130', 'SUBSEA BALL VALVE 12" 5000 PSI', 'DN300', 'Flanged', '5000 PSI', 'DUPLEX 2205', 'API-5000', 'DNV-GL', 'C'],
+      ['SB-302-CK', '', 'PO-77190', 'CAMERON', 'DUNG QUAT', 'A401032070PT', 'NE401130', 'SUBSEA NON-RETURN VALVE 8"', 'DN200', 'Flanged', '5000 PSI', 'SUPER DUPLEX', 'API-5000', 'DNV-GL', 'B'],
     ];
   }
 
@@ -131,7 +149,7 @@ export function generateSampleExcelFile(
 }
 
 /**
- * Generates an empty / formatted Master template file for download with beautiful colors and row spacing
+ * Generates an empty / formatted Master template file for download with beautiful colors and row spacing matching the 26 columns in the image
  */
 export async function downloadMasterTemplate() {
   const workbook = new ExcelJS.Workbook();
@@ -140,23 +158,23 @@ export async function downloadMasterTemplate() {
 
   // 1. Total Sheet
   const wsTotal = workbook.addWorksheet('Total', {
-    views: [{ showGridLines: true, state: 'frozen', ySplit: 3 }],
+    views: [{ showGridLines: true, state: 'frozen', ySplit: 4 }],
   });
 
-  const colsCount = DEFAULT_MASTER_COLUMNS.length;
+  const colsCount = DEFAULT_MASTER_COLUMNS.length; // 26
 
   // Title Banner
-  const titleRow = wsTotal.addRow(['ARMATURE MASTER TEMPLATE (FORM CHUẨN DỰ ÁN)']);
+  const titleRow = wsTotal.addRow(['ARMATURE MASTER TEMPLATE (CHUẨN 26 CỘT THEO PIPE SPECIFICATION)']);
   titleRow.height = 36;
   wsTotal.mergeCells(1, 1, 1, colsCount);
   const titleCell = wsTotal.getCell(1, 1);
   titleCell.font = { name: 'Segoe UI', size: 14, bold: true, color: { argb: 'FFFFFFFF' } };
-  titleCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1E3A8A' } };
+  titleCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF0F172A' } };
   titleCell.alignment = { vertical: 'middle', horizontal: 'center' };
 
   // Subtitle / Guide Row
   const subRow = wsTotal.addRow([
-    'Dòng 2: Hướng dẫn - Vui lòng nhập dữ liệu từ dòng 4 trở đi | Dòng 3 là tiêu đề chuẩn để macro và web tool nhận diện',
+    'Vàng (Cột 1-5): Functional Design  |  Xám (Cột 6-21): Armature Pipe Spec & Catalog  |  Trắng (Cột 22-26): Revision & Sign-off History',
   ]);
   subRow.height = 22;
   wsTotal.mergeCells(2, 1, 2, colsCount);
@@ -166,30 +184,59 @@ export async function downloadMasterTemplate() {
   subCell.alignment = { vertical: 'middle', horizontal: 'center' };
   subCell.border = { bottom: { style: 'thin', color: { argb: 'FFCBD5E1' } } };
 
-  // Headers
+  // Row 3: Super Headers (3 Groups matching the uploaded image)
+  const superHeaderRow = wsTotal.addRow(new Array(colsCount).fill(''));
+  superHeaderRow.height = 26;
+
+  // Group 1: Cols 1-5 (Yellow)
+  wsTotal.mergeCells(3, 1, 3, 5);
+  const g1 = wsTotal.getCell(3, 1);
+  g1.value = 'TO BE COMPLETED BY FUNCTIONAL DESIGN';
+  g1.font = { name: 'Segoe UI', size: 9.5, bold: true, color: { argb: 'FF000000' } };
+  g1.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFFFF00' } }; // Yellow #FFFF00
+  g1.alignment = { vertical: 'middle', horizontal: 'center' };
+
+  // Group 2: Cols 6-21 (Grey)
+  wsTotal.mergeCells(3, 6, 3, 21);
+  const g2 = wsTotal.getCell(3, 6);
+  g2.value = 'ARMATURE INFO FROM PIPE SPECIFICATION';
+  g2.font = { name: 'Segoe UI', size: 9.5, bold: true, color: { argb: 'FF000000' } };
+  g2.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFBFBFBF' } }; // Metallic Grey #BFBFBF
+  g2.alignment = { vertical: 'middle', horizontal: 'center' };
+
+  // Group 3: Cols 22-26 (White)
+  wsTotal.mergeCells(3, 22, 3, 26);
+  const g3 = wsTotal.getCell(3, 22);
+  g3.value = 'REVISION & SIGNATURE';
+  g3.font = { name: 'Segoe UI', size: 9.5, bold: true, color: { argb: 'FF000000' } };
+  g3.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF8FAFC' } };
+  g3.alignment = { vertical: 'middle', horizontal: 'center' };
+
+  // Row 4: Individual Column Headers (Row 4)
   const headerRow = wsTotal.addRow([...DEFAULT_MASTER_COLUMNS]);
   headerRow.height = 30;
 
   const thinBorder: Partial<ExcelJS.Borders> = {
-    top: { style: 'thin', color: { argb: 'FFCBD5E1' } },
-    left: { style: 'thin', color: { argb: 'FFCBD5E1' } },
-    bottom: { style: 'medium', color: { argb: 'FF1E3A8A' } },
-    right: { style: 'thin', color: { argb: 'FFCBD5E1' } },
+    top: { style: 'thin', color: { argb: 'FF94A3B8' } },
+    left: { style: 'thin', color: { argb: 'FF94A3B8' } },
+    bottom: { style: 'medium', color: { argb: 'FF0F172A' } },
+    right: { style: 'thin', color: { argb: 'FF94A3B8' } },
   };
 
   DEFAULT_MASTER_COLUMNS.forEach((header, idx) => {
-    const cell = headerRow.getCell(idx + 1);
-    const isKeyField = ['TAG', 'SUPPLIER', 'SFI', 'DESCRIPTION'].includes(header);
-    const isActuator = ['ACTUATOR TAG', 'PO NUMBER', 'DESTINATION YARD'].includes(header);
+    const colNum = idx + 1;
+    const cell = headerRow.getCell(colNum);
 
-    let bgColor = 'FF2563EB';
-    if (isKeyField) bgColor = 'FF1E3A8A';
-    else if (isActuator) bgColor = 'FF0D9488';
-    else bgColor = 'FF334155';
+    let bgColor = 'FFBFBFBF'; // Grey for cols 6-21
+    if (colNum <= 5) {
+      bgColor = 'FFFFFF00'; // Yellow for cols 1-5
+    } else if (colNum >= 22) {
+      bgColor = 'FFFFFFFF'; // White for cols 22-26
+    }
 
-    cell.font = { name: 'Segoe UI', size: 10.5, bold: true, color: { argb: 'FFFFFFFF' } };
+    cell.font = { name: 'Segoe UI', size: 9.5, bold: true, color: { argb: 'FF000000' } };
     cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: bgColor } };
-    cell.alignment = { vertical: 'middle', horizontal: isKeyField ? 'left' : 'center' };
+    cell.alignment = { vertical: 'middle', horizontal: 'center', wrapText: true };
     cell.border = thinBorder;
   });
 
@@ -216,7 +263,7 @@ export async function downloadMasterTemplate() {
   // Set widths
   DEFAULT_MASTER_COLUMNS.forEach((header, idx) => {
     const column = wsTotal.getColumn(idx + 1);
-    column.width = Math.max(header.length + 6, 18);
+    column.width = Math.max(header.length + 5, 16);
   });
 
   // 2. Import_Log Sheet
@@ -255,11 +302,11 @@ export async function downloadMasterTemplate() {
   ];
 
   const buffer = await workbook.xlsx.writeBuffer();
-  downloadBlob(buffer, 'Armature_Master_Template.xlsx');
+  downloadBlob(buffer, 'Armature_Master_Template_26_Columns.xlsx');
 }
 
 /**
- * Creates the sample rows shown in the reference image (without SAP CODE in master):
+ * Creates the sample rows shown in the reference image with all 26 columns:
  * Row 1: Spectacle flange NI505122
  * Row 2: Empty/dashed row
  * Row 3: Hose coupling VNE551831 (Camlock Type D)
@@ -269,15 +316,19 @@ export function generateImageArmatureSampleRows(): any[] {
     {
       _id: 'sample-armature-img-1',
       _sourceFile: 'Functional_Design_PipeSpec.xlsx',
-      TAG: '',
+      _revisionStatus: 'new_updated',
+      _detectedColor: '#FFFF00',
+      _hasStrikethrough: false,
+      TAG: 'V-101-FL',
       'ACTUATOR TAG': '',
-      'P.O. NUMBER': '',
-      'SUPPLIER': '',
-      'DESTINATION (YARD)': '',
+      'P.O. NUMBER': 'PO-2026-001',
+      'SUPPLIER': 'Standard Flange Corp',
+      'DESTINATION (YARD)': 'YARD-A',
+      'SAP CODE': 'A5051220602A',
       'STD DRW NORMALE N°': 'NI505122',
       'EXECUTION': '',
       'NRF N°': '',
-      'SFI': '',
+      'SFI': '512.01',
       'DESCRIPTION': 'SPECTACLE FLANGE',
       'SIZE': 'DN15',
       'CONNECTION': 'Flanged',
@@ -286,42 +337,62 @@ export function generateImageArmatureSampleRows(): any[] {
       'TYPE': '',
       'PIPE CLASS': 'LR',
       'CLASS CERTIFICATE': 'YES',
-      'REMARKS': '',
+      'REMARKS': 'Isolation flange',
+      'SIGN TYPE': 'TAG-STD',
+      'SIGN TEXT': 'FLANGE DN15 PN16',
+      'INPUT - SIGN TEXT': 'SP-01',
+      'REV. HIS.': '0',
+      'DATE': '2026-03-15',
+      'REV. DESCRIPTION': 'New or updated valve (Yellow)',
+      'SIGNATURE': 'PTK',
     },
     {
       _id: 'sample-armature-img-2',
       _sourceFile: 'Functional_Design_PipeSpec.xlsx',
-      TAG: '',
+      _revisionStatus: 'deleted',
+      _detectedColor: '#EF4444',
+      _hasStrikethrough: true,
+      TAG: 'V-102-OLD',
       'ACTUATOR TAG': '',
-      'P.O. NUMBER': '',
-      'SUPPLIER': '',
-      'DESTINATION (YARD)': '',
-      'STD DRW NORMALE N°': '-',
-      'EXECUTION': '-',
-      'NRF N°': '-',
-      'SFI': '',
-      'DESCRIPTION': '-',
-      'SIZE': '-',
-      'CONNECTION': '-',
-      'PRESSURE RATING': '-',
-      'HOUSING /BODY': '-',
-      'TYPE': '-',
-      'PIPE CLASS': '-',
+      'P.O. NUMBER': 'PO-2026-001',
+      'SUPPLIER': 'Standard Flange Corp',
+      'DESTINATION (YARD)': 'YARD-A',
+      'SAP CODE': 'A5051220602A',
+      'STD DRW NORMALE N°': 'NI505122',
+      'EXECUTION': '',
+      'NRF N°': '',
+      'SFI': '512.01',
+      'DESCRIPTION': 'GATE VALVE 2" (DELETED LINE)',
+      'SIZE': 'DN50',
+      'CONNECTION': 'Flanged',
+      'PRESSURE RATING': 'PN16',
+      'HOUSING /BODY': 'Steel',
+      'TYPE': '',
+      'PIPE CLASS': 'LR',
       'CLASS CERTIFICATE': 'NO',
-      'REMARKS': '',
+      'REMARKS': 'Deleted valve/armature: Red colour with strikethrough',
+      'SIGN TYPE': 'TAG-DEL',
+      'SIGN TEXT': 'DELETED VALVE',
+      'INPUT - SIGN TEXT': '-',
+      'REV. HIS.': '1',
+      'DATE': '2026-03-18',
+      'REV. DESCRIPTION': 'Deleted valve/armature',
+      'SIGNATURE': 'PTK',
     },
     {
       _id: 'sample-armature-img-3',
       _sourceFile: 'Functional_Design_PipeSpec.xlsx',
-      TAG: '',
+      _revisionStatus: 'normal',
+      TAG: 'V-202-CK',
       'ACTUATOR TAG': '',
-      'P.O. NUMBER': '',
-      'SUPPLIER': '',
-      'DESTINATION (YARD)': '',
+      'P.O. NUMBER': 'PO-2026-002',
+      'SUPPLIER': 'Camlock Systems',
+      'DESTINATION (YARD)': 'YARD-B',
+      'SAP CODE': 'V5518319100B',
       'STD DRW NORMALE N°': 'VNE551831',
       'EXECUTION': 'D',
       'NRF N°': '',
-      'SFI': '',
+      'SFI': '514.02',
       'DESCRIPTION': 'HOSE COUPLING',
       'SIZE': 'DN50',
       'CONNECTION': 'Threaded BSP',
@@ -330,7 +401,45 @@ export function generateImageArmatureSampleRows(): any[] {
       'TYPE': 'Camlock Type D',
       'PIPE CLASS': 'None',
       'CLASS CERTIFICATE': 'NO',
+      'REMARKS': 'Cargo hose coupling',
+      'SIGN TYPE': 'LABEL-B',
+      'SIGN TEXT': 'CARGO COUPLING DN50',
+      'INPUT - SIGN TEXT': 'CK-02',
+      'REV. HIS.': 'A',
+      'DATE': '2026-03-20',
+      'REV. DESCRIPTION': 'Material verified',
+      'SIGNATURE': 'PTK',
+    },
+    {
+      _id: 'sample-armature-img-4',
+      _sourceFile: 'Functional_Design_PipeSpec.xlsx',
+      _revisionStatus: 'next_rev_after_deleted',
+      TAG: 'V-303-DEL',
+      'ACTUATOR TAG': '',
+      'P.O. NUMBER': '',
+      'SUPPLIER': '',
+      'DESTINATION (YARD)': '',
+      'SAP CODE': '',
+      'STD DRW NORMALE N°': '',
+      'EXECUTION': '',
+      'NRF N°': '',
+      'SFI': '514.99',
+      'DESCRIPTION': '',
+      'SIZE': '',
+      'CONNECTION': '',
+      'PRESSURE RATING': '',
+      'HOUSING /BODY': '',
+      'TYPE': '',
+      'PIPE CLASS': '',
+      'CLASS CERTIFICATE': '',
       'REMARKS': '',
+      'SIGN TYPE': '',
+      'SIGN TEXT': '',
+      'INPUT - SIGN TEXT': '',
+      'REV. HIS.': '2',
+      'DATE': '2026-03-25',
+      'REV. DESCRIPTION': 'Next rev after deleted (Keep SFI & TAG)',
+      'SIGNATURE': 'PTK',
     },
   ];
 }

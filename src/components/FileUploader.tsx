@@ -143,13 +143,13 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
           </div>
           <div>
             <p className="text-base font-medium text-slate-800 dark:text-slate-200">
-              Kéo thả các file Excel Armature vào đây, hoặc{' '}
+              Kéo thả các file Excel Armature hoặc <strong>SAP Name Catalog</strong> vào đây, hoặc{' '}
               <span className="text-blue-600 dark:text-blue-400 font-semibold hover:underline">
                 duyệt từ máy tính
               </span>
             </p>
             <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-              Định dạng: <strong>.xlsx, .xls, .xlsm, .xlsb, .csv</strong> (Hỗ trợ chọn nhiều file)
+              Định dạng: <strong>.xlsx, .xls, .xlsm, .csv</strong> &bull; Tự động nhận diện cấu trúc file SAP Name Catalog và chuyển đổi chuẩn sang bảng Armature List 26 cột mới
             </p>
           </div>
         </div>

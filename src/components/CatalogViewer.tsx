@@ -31,6 +31,7 @@ interface CatalogViewerProps {
   onSaveProfile: (profile: CatalogProfile) => void;
   onDeleteProfile: (id: string) => void;
   onAutoFillMaster?: (catalogItems: CatalogItem[]) => void;
+  onExportToMaster?: (catalogItems: CatalogItem[], mode: 'replace' | 'append') => void;
 }
 
 export const CatalogViewer: React.FC<CatalogViewerProps> = ({
@@ -40,6 +41,7 @@ export const CatalogViewer: React.FC<CatalogViewerProps> = ({
   onSaveProfile,
   onDeleteProfile,
   onAutoFillMaster,
+  onExportToMaster,
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
@@ -212,11 +214,25 @@ export const CatalogViewer: React.FC<CatalogViewerProps> = ({
 
           {/* Right: Actions */}
           <div className="flex flex-wrap items-center gap-2">
+            {/* Export all to Armature Master Table */}
+            {onExportToMaster && (
+              <button
+                id="btn-catalog-export-to-master"
+                type="button"
+                onClick={() => onExportToMaster(items, 'append')}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-blue-600 hover:bg-blue-500 text-white shadow-sm transition-colors cursor-pointer"
+                title="Chuyển toàn bộ danh sách van trong Catalog này sang bảng Armature List (chuẩn cấu trúc mới 26 cột)"
+              >
+                <ArrowRight className="w-3.5 h-3.5" />
+                <span>Xuất Catalog sang Armature List</span>
+              </button>
+            )}
+
             {/* Auto-fill Master */}
             <button
               id="btn-catalog-autofill-master"
               type="button"
-              onClick={() => onAutoFillMaster(items)}
+              onClick={() => onAutoFillMaster && onAutoFillMaster(items)}
               className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white shadow-sm transition-colors"
               title="Đối chiếu TAG / Model / Normale Nr để tự động điền thông số vật tư van vào bảng Master"
             >

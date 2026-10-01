@@ -1,4 +1,5 @@
 import * as XLSX from 'xlsx';
+import ExcelJS from 'exceljs';
 import {
   normalizeHeader,
   getSourceColumnIndex,
@@ -6,6 +7,7 @@ import {
   DEFAULT_HEADER_ALIASES,
 } from './headerNormalizer';
 import { MasterRowData, SourceFileInfo, ImportLogRow } from '../types';
+import { isYellowColor, isRedColor, extractHexColor } from './revisionManager';
 
 export const MAX_HEADER_SEARCH_ROW = 60;
 
@@ -16,8 +18,10 @@ export interface SheetDetectionResult {
 }
 
 /**
- * Checks a row array to see if it meets the criteria of an Armature source header:
- * Has TAG and SUPPLIER and (SFI or DESCRIPTION)
+ * Checks a row array to see if it meets the criteria of an Armature source header or SAP Name Catalog:
+ * 1. Standard Armature header: Has TAG and (SUPPLIER or SFI or DESCRIPTION or SAP CODE)
+ * 2. SAP Name / Catalog header: Has SAP Name/Code and at least one spec column (Description, Normale Nr, Pipe Size, Manufacturer, Body Material, etc.)
+ * 3. General header: Has 3 or more recognized columns from Armature master or Catalog specs
  */
 export function isSourceHeaderRow(row: any[]): boolean {
   if (!row || !Array.isArray(row)) return false;
@@ -26,18 +30,80 @@ export function isSourceHeaderRow(row: any[]): boolean {
   let hasSupplier = false;
   let hasSFI = false;
   let hasDescription = false;
+  let hasSapCodeOrName = false;
+  let hasNormaleNr = false;
+  let hasPipeSize = false;
+  let hasPressure = false;
+  let hasBodyMaterial = false;
+  let hasModelNumber = false;
+  let matchCount = 0;
 
   const maxCols = Math.min(row.length, 150);
 
+  const sapNameAliases = [
+    'SAP', 'SAP CODE', 'SAP NAME', 'SAP_NAME', 'SAPNAME', 'SAPCODE', 'SAP-NAME',
+    'MATERIAL CODE', 'MATERIAL NO', 'MATERIAL NUMBER', 'MATERIAL', 'PART NUMBER', 'PART NO', 'VALVE CODE', 'VALVE NAME'
+  ];
+
+  const normaleAliases = [
+    'NORMALE NR', 'NORMALE NO', 'NORMALE N', 'NORMALE N°', 'NORMALE', 'STD DRAWING', 'STANDARD DRAWING', 'STD DRW NORMALE'
+  ];
+
+  const sizeAliases = ['PIPE SIZE', 'DN', 'DIAMETER', 'VALVE SIZE', 'SIZE', 'NOMINAL SIZE'];
+  const pressureAliases = ['PRESSURE', 'PRESSURE NOMINAL', 'PRESSURE CLASS', 'PRESSURE RATING', 'PN', 'RATING'];
+  const bodyAliases = ['BODY MATERIAL', 'MATERIAL BODY', 'HOUSING /BODY', 'HOUSING/BODY', 'HOUSING BODY', 'BODY', 'BODY MAT'];
+
   for (let c = 0; c < maxCols; c++) {
     const val = normalizeHeader(row[c]);
-    if (val === 'TAG') hasTag = true;
-    else if (val === 'SUPPLIER') hasSupplier = true;
-    else if (val === 'SFI') hasSFI = true;
-    else if (val === 'DESCRIPTION') hasDescription = true;
+    if (!val) continue;
+
+    if (val === 'TAG' || val === 'TAG NO' || val === 'VALVE TAG' || val === 'TAG NUMBER') hasTag = true;
+    if (val === 'SUPPLIER' || val === 'MANUFACTURER' || val === 'VENDOR' || val === 'MAKER') hasSupplier = true;
+    if (val === 'SFI' || val === 'SFI CODE' || val === 'SYSTEM') hasSFI = true;
+    if (val === 'DESCRIPTION' || val === 'DESC' || val === 'VALVE DESCRIPTION' || val === 'ITEM DESCRIPTION') hasDescription = true;
+
+    if (sapNameAliases.includes(val)) {
+      hasSapCodeOrName = true;
+      matchCount++;
+    } else if (normaleAliases.includes(val)) {
+      hasNormaleNr = true;
+      matchCount++;
+    } else if (sizeAliases.includes(val)) {
+      hasPipeSize = true;
+      matchCount++;
+    } else if (pressureAliases.includes(val)) {
+      hasPressure = true;
+      matchCount++;
+    } else if (bodyAliases.includes(val)) {
+      hasBodyMaterial = true;
+      matchCount++;
+    } else if (val === 'MODEL NUMBER' || val === 'MODEL' || val === 'MODEL NO' || val === 'MODEL NR') {
+      hasModelNumber = true;
+      matchCount++;
+    } else if (val === 'EXECUTION' || val === 'CONNECTION' || val === 'NRF N' || val === 'NRF NR' || val === 'PIPE CLASS' || val === 'REMARKS') {
+      matchCount++;
+    }
   }
 
-  return hasTag && hasSupplier && (hasSFI || hasDescription);
+  // Case 1: Standard Armature List with TAG
+  if (hasTag && (hasSupplier || hasSFI || hasDescription || hasSapCodeOrName)) {
+    return true;
+  }
+
+  // Case 2: SAP Name / Catalog Export (doesn't have TAG column yet)
+  if (
+    hasSapCodeOrName &&
+    (hasDescription || hasNormaleNr || hasPipeSize || hasPressure || hasBodyMaterial || hasSupplier || hasModelNumber)
+  ) {
+    return true;
+  }
+
+  // Case 3: Recognized at least 3 distinct pipe specification/catalog columns
+  if (matchCount >= 3) {
+    return true;
+  }
+
+  return false;
 }
 
 /**
@@ -106,16 +172,20 @@ export function buildHeaderMap(headers: any[]): Map<string, number[]> {
 export function isDataRow(row: any[], mappedColIndices: number[]): boolean {
   if (!row || !Array.isArray(row)) return false;
 
-  for (const colIdx of mappedColIndices) {
-    if (colIdx < row.length) {
-      const val = row[colIdx];
-      if (val !== null && val !== undefined && String(val).trim().length > 0) {
-        return true;
+  if (mappedColIndices.length > 0) {
+    for (const colIdx of mappedColIndices) {
+      if (colIdx < row.length) {
+        const val = row[colIdx];
+        if (val !== null && val !== undefined && String(val).trim().length > 0) {
+          return true;
+        }
       }
     }
+    return false;
   }
 
-  return false;
+  // Fallback if mappedColIndices is empty: check if any cell has meaningful text
+  return row.some((val) => val !== null && val !== undefined && String(val).trim().length > 0);
 }
 
 export interface ParseFileResult {
@@ -235,7 +305,7 @@ export async function parseSourceFile(
       sourceRows: sheetData.length,
       importedRows: 0,
       skippedRows: sheetData.length,
-      status: 'ERROR - HEADER ROW NOT FOUND (Requires TAG, SUPPLIER, and SFI/DESCRIPTION)',
+      status: 'ERROR - HEADER ROW NOT FOUND (Requires TAG, SUPPLIER, and SFI/DESCRIPTION or SAP Name/Catalog headers)',
     };
     fileInfo.status = 'error';
     fileInfo.statusMessage = logRow.status;
@@ -278,6 +348,92 @@ export async function parseSourceFile(
 
   fileInfo.matchedColumns = matchedColumns;
   fileInfo.missingFields = missingFields;
+
+  // Extract cell styling information (colors and strikethroughs) using ExcelJS for .xlsx/.xlsm files
+  const rowStylesMap = new Map<number, { isYellow: boolean; isRed: boolean; hasStrike: boolean; customColor?: string }>();
+  const rowStylesByTagMap = new Map<string, { isYellow: boolean; isRed: boolean; hasStrike: boolean; customColor?: string }>();
+
+  if (file.name.toLowerCase().endsWith('.xlsx') || file.name.toLowerCase().endsWith('.xlsm')) {
+    try {
+      const buffer = await file.arrayBuffer();
+      const excelWorkbook = new ExcelJS.Workbook();
+      await excelWorkbook.xlsx.load(buffer);
+      const ws =
+        excelWorkbook.getWorksheet(chosenSheetName) ||
+        excelWorkbook.worksheets.find(
+          (s) => s.name.trim().toLowerCase() === chosenSheetName.trim().toLowerCase()
+        ) ||
+        excelWorkbook.worksheets[0];
+
+      if (ws) {
+        ws.eachRow({ includeEmpty: false }, (row, rowNumber) => {
+          let hasYellow = false;
+          let hasRed = false;
+          let hasStrike = false;
+          let foundCustomColor: string | undefined = undefined;
+          let rowTagValue = '';
+
+          row.eachCell({ includeEmpty: false }, (cell, colNumber) => {
+            // Check strikethrough in font
+            if (cell.font?.strike) {
+              hasStrike = true;
+            }
+
+            // Check font color for red
+            if (cell.font?.color) {
+              const fontArgb = (cell.font.color as any).argb || '';
+              if (isRedColor(fontArgb)) {
+                hasRed = true;
+              }
+            }
+
+            // Check cell fill colors
+            if (cell.fill && cell.fill.type === 'pattern') {
+              const fg = cell.fill.fgColor;
+              const bg = (cell.fill as any).bgColor;
+              const fgArgb = (fg as any)?.argb || '';
+              const bgArgb = (bg as any)?.argb || '';
+
+              if (isYellowColor(fgArgb) || isYellowColor(bgArgb)) {
+                hasYellow = true;
+              }
+              if (isRedColor(fgArgb) || isRedColor(bgArgb)) {
+                hasRed = true;
+              }
+
+              const extracted = extractHexColor(fgArgb) || extractHexColor(bgArgb);
+              if (extracted && !['#FFFFFF', '#000000', '#00000000'].includes(extracted)) {
+                foundCustomColor = extracted;
+              }
+            }
+
+            // Check cell value for TAG matching
+            const cellText = String(cell.value || '').trim();
+            if (cellText && (/^V-?\d+/i.test(cellText) || /^[A-Z0-9]+-[A-Z0-9]+/i.test(cellText))) {
+              rowTagValue = cellText.toUpperCase();
+            }
+          });
+
+          // Also check row-level fill if applied
+          if ((row as any).fill && (row as any).fill.type === 'pattern') {
+            const rFg = (row as any).fill.fgColor?.argb || '';
+            if (isYellowColor(rFg)) hasYellow = true;
+            if (isRedColor(rFg)) hasRed = true;
+          }
+
+          if (hasYellow || hasRed || hasStrike || foundCustomColor) {
+            const styleObj = { isYellow: hasYellow, isRed: hasRed, hasStrike, customColor: foundCustomColor };
+            rowStylesMap.set(rowNumber, styleObj);
+            if (rowTagValue) {
+              rowStylesByTagMap.set(rowTagValue, styleObj);
+            }
+          }
+        });
+      }
+    } catch (e) {
+      console.warn('Could not extract styles via ExcelJS:', e);
+    }
+  }
 
   const dataRows = sheetData.slice(headerRowIndex + 1);
   const totalSourceRows = dataRows.length;
@@ -331,6 +487,52 @@ export async function parseSourceFile(
           masterRow[masterHeader] = rawVal !== undefined && rawVal !== null ? rawVal : '';
         } else {
           masterRow[masterHeader] = '';
+        }
+      }
+
+      // If TAG is missing (e.g. from SAP Name Catalog file), auto-generate standard TAG
+      if (!masterRow.TAG || String(masterRow.TAG).trim() === '') {
+        masterRow.TAG = `V-${String(r + 1).padStart(3, '0')}`;
+      }
+
+      // If DESTINATION (YARD) is missing, default to Yard A
+      if (!masterRow['DESTINATION (YARD)'] || String(masterRow['DESTINATION (YARD)']).trim() === '') {
+        masterRow['DESTINATION (YARD)'] = 'Yard A';
+      }
+
+      // Detect Revision Status based on Excel styling & content principles
+      const excelRowNum = headerRowIndex + 1 + (r + 1);
+      const tagKey = String(masterRow.TAG || '').trim().toUpperCase();
+      const styleInfo = rowStylesMap.get(excelRowNum) || (tagKey ? rowStylesByTagMap.get(tagKey) : undefined);
+
+      const revDesc = String(masterRow['REV. DESCRIPTION'] || '').toUpperCase();
+      const remarks = String(masterRow['REMARKS'] || '').toUpperCase();
+      const isExplicitlyDeleted = revDesc.includes('DELETE') || remarks.includes('DELETE') || remarks.includes('DELETED');
+
+      if (styleInfo?.hasStrike || styleInfo?.isRed || isExplicitlyDeleted) {
+        // Rule 2: Deleted valve/armature -> Red colour with strikethrough (delete line)
+        masterRow._revisionStatus = 'deleted';
+        masterRow._detectedColor = '#EF4444';
+        masterRow._hasStrikethrough = true;
+      } else if (styleInfo?.isYellow || revDesc.includes('NEW') || revDesc.includes('UPDATE')) {
+        // Rule 1: New or updated valve/armature -> Yellow coloured row
+        masterRow._revisionStatus = 'new_updated';
+        masterRow._detectedColor = '#FFFF00';
+        masterRow._hasStrikethrough = false;
+      } else if (styleInfo?.customColor) {
+        masterRow._revisionStatus = 'normal';
+        masterRow._detectedColor = styleInfo.customColor;
+        masterRow._hasStrikethrough = false;
+      } else {
+        // Rule 3: Next revision after deleted valve/armature -> Keep SFI and TAG (rest of cells are empty)
+        const hasTagOrSfi = !!(masterRow.TAG || masterRow.SFI);
+        const specKeys = ['DESCRIPTION', 'SIZE', 'CONNECTION', 'PRESSURE RATING', 'HOUSING /BODY', 'TYPE', 'PIPE CLASS'];
+        const isRestEmpty = specKeys.every((k) => !masterRow[k] || String(masterRow[k]).trim() === '' || String(masterRow[k]).trim() === '-');
+
+        if (hasTagOrSfi && isRestEmpty && (revDesc.includes('REV') || revDesc.includes('DELETE') || !masterRow['DESCRIPTION'])) {
+          masterRow._revisionStatus = 'next_rev_after_deleted';
+        } else {
+          masterRow._revisionStatus = 'normal';
         }
       }
 

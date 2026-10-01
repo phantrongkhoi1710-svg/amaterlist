@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef } from 'react';
 import {
   Sparkles,
   ClipboardPaste,
@@ -13,7 +13,10 @@ import {
   Layers,
   ChevronDown,
   ChevronUp,
+  Upload,
+  Check,
 } from 'lucide-react';
+import * as XLSX from 'xlsx';
 import { CatalogItem, MasterRowData } from '../types';
 import { lookupCatalogBySapCode } from '../utils/catalogManager';
 
@@ -58,6 +61,9 @@ export function SapBatchInputTable({
   const [commonSupplier, setCommonSupplier] = useState('');
   const [commonPo, setCommonPo] = useState('');
   const [isBatchConfigOpen, setIsBatchConfigOpen] = useState(false);
+  const [uploadNotification, setUploadNotification] = useState<string | null>(null);
+
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   // Evaluate matches in real-time
   const evaluatedEntries = useMemo(() => {
@@ -84,7 +90,7 @@ export function SapBatchInputTable({
     [evaluatedEntries]
   );
 
-  // Build MasterRowData objects
+  // Build MasterRowData objects with the complete new 26-column specification structure
   const buildMasterRows = (): MasterRowData[] => {
     return evaluatedEntries
       .filter((e) => e.trimmed)
@@ -95,17 +101,148 @@ export function SapBatchInputTable({
         const newRow: MasterRowData = {
           _id: rowId,
           _sourceFile: `SAP_Batch_Import`,
+          _importedAt: new Date().toLocaleString('vi-VN'),
+          _revisionStatus: 'normal',
           _rowNumber: idx + 1,
-          TAG: e.tag?.trim() || `VALVE-${String(idx + 1).padStart(3, '0')}`,
+          TAG: e.tag?.trim() || `V-${String(idx + 1).padStart(3, '0')}`,
           'ACTUATOR TAG': '',
           'P.O. NUMBER': e.poNumber?.trim() || commonPo.trim() || '',
           'SUPPLIER': e.supplier?.trim() || specFields['SUPPLIER'] || commonSupplier.trim() || '',
           'DESTINATION (YARD)': e.yard?.trim() || commonYard.trim() || 'Yard A',
+          'SAP CODE': specFields['SAP CODE'] || e.trimmed,
+          'STD DRW NORMALE N°': specFields['STD DRW NORMALE N°'] || '',
+          'EXECUTION': specFields['EXECUTION'] || '',
+          'NRF N°': specFields['NRF N°'] || '',
+          'SFI': specFields['SFI'] || '',
+          'DESCRIPTION': specFields['DESCRIPTION'] || '',
+          'SIZE': specFields['SIZE'] || '',
+          'CONNECTION': specFields['CONNECTION'] || '',
+          'PRESSURE RATING': specFields['PRESSURE RATING'] || '',
+          'HOUSING /BODY': specFields['HOUSING /BODY'] || '',
+          'TYPE': specFields['TYPE'] || '',
+          'PIPE CLASS': specFields['PIPE CLASS'] || '',
+          'CLASS CERTIFICATE': specFields['CLASS CERTIFICATE'] || '',
+          'REMARKS': specFields['REMARKS'] || '',
+          'SIGN TYPE': specFields['SIGN TYPE'] || '',
+          'SIGN TEXT': '',
+          'INPUT - SIGN TEXT': '',
+          'REV. HIS.': '',
+          'DATE': '',
+          'REV. DESCRIPTION': '',
+          'SIGNATURE': '',
           ...specFields,
         };
 
         return newRow;
       });
+  };
+
+  // Upload Excel or CSV file with SAP Names or Catalog
+  const handleFileUpload = async (file: File) => {
+    try {
+      const buffer = await file.arrayBuffer();
+      const workbook = XLSX.read(buffer, { type: 'array' });
+      if (!workbook.SheetNames || workbook.SheetNames.length === 0) {
+        setUploadNotification('File Excel không có bất kỳ sheet nào.');
+        return;
+      }
+
+      const ws = workbook.Sheets[workbook.SheetNames[0]];
+      const rawRows: any[][] = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
+      if (rawRows.length === 0) {
+        setUploadNotification('File Excel không có dòng dữ liệu nào.');
+        return;
+      }
+
+      // Detect header row and column positions
+      let headerRowIdx = 0;
+      let sapColIdx = -1;
+      let tagColIdx = -1;
+      let yardColIdx = -1;
+      let supplierColIdx = -1;
+      let poColIdx = -1;
+
+      for (let r = 0; r < Math.min(rawRows.length, 20); r++) {
+        const row = rawRows[r];
+        if (!Array.isArray(row)) continue;
+        for (let c = 0; c < row.length; c++) {
+          const val = String(row[c] || '').trim().toUpperCase().replace(/[\r\n\t_.\-]/g, ' ');
+          if (
+            val.includes('SAP') ||
+            val === 'NAME' ||
+            val.includes('MATERIAL') ||
+            val.includes('PART NUMBER') ||
+            val.includes('VALVE CODE')
+          ) {
+            if (sapColIdx === -1) {
+              sapColIdx = c;
+              headerRowIdx = r;
+            }
+          }
+          if (val === 'TAG' || val.includes('TAG NO') || val.includes('TAG NUMBER') || val.includes('VALVE TAG')) {
+            tagColIdx = c;
+          }
+          if (val.includes('YARD') || val.includes('DESTINATION')) {
+            yardColIdx = c;
+          }
+          if (val.includes('SUPPLIER') || val.includes('MANUFACTURER') || val.includes('MAKER')) {
+            supplierColIdx = c;
+          }
+          if (val.includes('PO') || val.includes('PURCHASE')) {
+            poColIdx = c;
+          }
+        }
+        if (sapColIdx !== -1) break;
+      }
+
+      if (sapColIdx === -1) {
+        sapColIdx = 0;
+        headerRowIdx = 0;
+      }
+
+      const newEntries: SapInputEntry[] = [];
+      const startR =
+        headerRowIdx === 0 &&
+        !String(rawRows[0][sapColIdx]).toUpperCase().includes('SAP') &&
+        !String(rawRows[0][sapColIdx]).toUpperCase().includes('NAME')
+          ? 0
+          : headerRowIdx + 1;
+
+      for (let r = startR; r < rawRows.length; r++) {
+        const row = rawRows[r];
+        if (!Array.isArray(row)) continue;
+        const code = String(row[sapColIdx] || '').trim();
+        if (!code || code.toUpperCase() === 'SAP NAME' || code.toUpperCase() === 'SAP CODE') continue;
+
+        const tag =
+          tagColIdx >= 0 && row[tagColIdx]
+            ? String(row[tagColIdx]).trim()
+            : `V-${String(newEntries.length + 1).padStart(2, '0')}`;
+        const yard = yardColIdx >= 0 && row[yardColIdx] ? String(row[yardColIdx]).trim() : commonYard;
+        const supplier = supplierColIdx >= 0 && row[supplierColIdx] ? String(row[supplierColIdx]).trim() : commonSupplier;
+        const poNumber = poColIdx >= 0 && row[poColIdx] ? String(row[poColIdx]).trim() : commonPo;
+
+        newEntries.push({
+          id: `up-${Date.now()}-${r}`,
+          sapName: code,
+          tag,
+          yard,
+          supplier,
+          poNumber,
+        });
+      }
+
+      if (newEntries.length > 0) {
+        setEntries(newEntries);
+        setUploadNotification(`Đã tải lên thành công ${newEntries.length} mã SAP từ file [${file.name}]!`);
+        setTimeout(() => setUploadNotification(null), 6000);
+      } else {
+        setUploadNotification(`Không trích xuất được mã SAP nào từ file [${file.name}].`);
+      }
+    } catch (e: any) {
+      console.error(e);
+      setUploadNotification(`Lỗi đọc file: ${e.message}`);
+    }
   };
 
   // Handlers
@@ -271,6 +408,30 @@ export function SapBatchInputTable({
 
         {/* Top Control Buttons */}
         <div className="flex flex-wrap items-center gap-2">
+          {/* Upload Excel Button */}
+          <button
+            id="btn-upload-sap-file"
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-emerald-600 hover:bg-emerald-500 text-white shadow-sm transition-all cursor-pointer active:scale-95"
+            title="Tải lên file Excel (.xlsx, .xls, .xlsm, .csv) chứa danh sách SAP Name hoặc Catalog"
+          >
+            <Upload className="w-3.5 h-3.5" />
+            <span>Upload File Excel SAP</span>
+          </button>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept=".xlsx,.xls,.xlsm,.csv"
+            onChange={(e) => {
+              if (e.target.files && e.target.files.length > 0) {
+                handleFileUpload(e.target.files[0]);
+                e.target.value = '';
+              }
+            }}
+            className="hidden"
+          />
+
           {/* Quick Paste Button */}
           <button
             id="btn-open-paste-modal"
@@ -330,6 +491,23 @@ export function SapBatchInputTable({
           )}
         </div>
       </div>
+
+      {/* Upload file notification banner */}
+      {uploadNotification && (
+        <div className="bg-emerald-600/15 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-200 border-b border-emerald-300 dark:border-emerald-800 px-4 py-2.5 text-xs flex items-center justify-between animate-in fade-in duration-200">
+          <div className="flex items-center gap-2">
+            <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+            <span className="font-medium">{uploadNotification}</span>
+          </div>
+          <button
+            type="button"
+            onClick={() => setUploadNotification(null)}
+            className="text-emerald-600 hover:text-emerald-900 dark:text-emerald-400 dark:hover:text-white text-base leading-none cursor-pointer px-1"
+          >
+            &times;
+          </button>
+        </div>
+      )}
 
       {/* Batch defaults config accordion (optional) */}
       <div className="bg-slate-50 dark:bg-slate-850 border-b border-slate-200 dark:border-slate-800 px-4 py-2">

@@ -315,6 +315,7 @@ export function lookupCatalogBySapCode(
 
   // Map to armature columns matching the user's pipe specification
   const fields: Record<string, string> = {
+    'SAP CODE': matched['SAP Name'] || matched.Name || cleanCode,
     'STD DRW NORMALE N°': matched['Normale Nr.'] ? String(matched['Normale Nr.']) : '',
     'EXECUTION': matched.Execution ? String(matched.Execution) : '',
     'NRF N°': matched['NRF Nr.'] ? String(matched['NRF Nr.']) : '',
@@ -329,6 +330,7 @@ export function lookupCatalogBySapCode(
     'PIPE CLASS': matched['Pipe Class'] ? String(matched['Pipe Class']) : '',
     'CLASS CERTIFICATE': matched['Testing Certificate'] ? String(matched['Testing Certificate']) : '',
     'REMARKS': matched.Comment ? String(matched.Comment) : '',
+    'SIGN TYPE': matched['Sign Type'] ? String(matched['Sign Type']) : '',
   };
 
   if (matched.Manufacturer) {
@@ -700,13 +702,15 @@ export function autoFillMasterFromCatalog(
   let fieldsUpdatedCount = 0;
 
   const updatedRows = masterRows.map((row) => {
+    const sapCode = String(row['SAP CODE'] || row['SAP'] || '').trim().toUpperCase();
     const tag = String(row['TAG'] || '').trim().toUpperCase();
     const desc = String(row['DESCRIPTION'] || '').trim().toUpperCase();
     const sfi = String(row['SFI'] || '').trim().toUpperCase();
     const stdDwg = String(row['STD DRW NORMALE N°'] || row['STD DRAWING'] || '').trim().toUpperCase();
 
-    // Match priority: TAG === SAP Name -> TAG === Model -> SFI/STD DRAWING === Normale Nr. -> TAG in SAP Name
+    // Match priority: SAP CODE === SAP Name -> TAG === SAP Name -> TAG === Model -> SFI/STD DRAWING === Normale Nr. -> TAG in SAP Name
     let matchedItem: CatalogItem | undefined =
+      (sapCode ? (catalogByName.get(sapCode) || catalogByModel.get(sapCode) || catalogByNormale.get(sapCode)) : undefined) ||
       catalogByName.get(tag) ||
       catalogByModel.get(tag) ||
       catalogByNormale.get(sfi) ||
@@ -748,6 +752,7 @@ export function autoFillMasterFromCatalog(
     };
 
     // Enrich specifications according to pipe specification
+    updateFieldIfEmpty('SAP CODE', matchedItem['SAP Name'] || matchedItem.Name);
     updateFieldIfEmpty('STD DRW NORMALE N°', matchedItem['Normale Nr.']);
     updateFieldIfEmpty('EXECUTION', matchedItem.Execution);
     updateFieldIfEmpty('NRF N°', matchedItem['NRF Nr.']);
@@ -760,6 +765,7 @@ export function autoFillMasterFromCatalog(
     updateFieldIfEmpty('PIPE CLASS', matchedItem['Pipe Class']);
     updateFieldIfEmpty('CLASS CERTIFICATE', matchedItem['Testing Certificate']);
     updateFieldIfEmpty('REMARKS', matchedItem.Comment);
+    updateFieldIfEmpty('SIGN TYPE', matchedItem['Sign Type']);
 
     // Also support legacy column names if present in table
     updateFieldIfEmpty('HOUSING BODY', matchedItem['Body Material']);

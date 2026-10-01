@@ -91,10 +91,10 @@ export const Header: React.FC<HeaderProps> = ({
               id="btn-download-template"
               onClick={downloadMasterTemplate}
               className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition-colors"
-              title="Tải về file Excel mẫu Total + Import_Log trống"
+              title="Tải về file Excel mẫu Total (26 cột chuẩn theo ảnh) + Import_Log trống"
             >
               <FileText className="w-3.5 h-3.5 text-slate-300" />
-              <span className="hidden sm:inline">Mẫu Master</span>
+              <span className="hidden sm:inline">Mẫu Master (26 cột)</span>
             </button>
 
             {/* Hidden Catalog Manager Button */}

@@ -15,6 +15,7 @@ import { OutlookEmailContext, RowEditChange } from './utils/outlookMailer';
 import {
   DEFAULT_MASTER_COLUMNS,
   DEFAULT_HEADER_ALIASES,
+  normalizeHeader,
 } from './utils/headerNormalizer';
 import { parseSourceFile } from './utils/excelParser';
 import { exportToExcel, exportToCSV } from './utils/excelExporter';
@@ -25,6 +26,7 @@ import {
 import {
   DEFAULT_SAMPLE_CATALOG_ITEMS,
   autoFillMasterFromCatalog,
+  lookupCatalogBySapCode,
 } from './utils/catalogManager';
 import {
   MasterRowData,
@@ -48,14 +50,24 @@ export default function App() {
     try {
       const saved = localStorage.getItem(STORAGE_KEY_HEADERS);
       if (saved) {
-        const parsed = JSON.parse(saved);
-        // Exclude any legacy 'SAP CODE' or 'SAP' from masterHeaders as SAP Name belongs strictly to Catalog
-        return parsed.filter(
-          (h: string) =>
-            h.toUpperCase().replace(/\s+/g, '') !== 'SAPCODE' &&
-            h.toUpperCase() !== 'SAP' &&
-            h.toUpperCase() !== 'SAP NAME'
-        );
+        const parsed: string[] = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          // Verify if user's saved headers have all 26 standard columns from the reference image
+          const hasAllStandard = DEFAULT_MASTER_COLUMNS.every((col) =>
+            parsed.some((p) => normalizeHeader(p) === normalizeHeader(col))
+          );
+          if (hasAllStandard && parsed.length >= 26) {
+            return parsed;
+          }
+          // Merge standard 26 columns in exact order and preserve custom columns at the end
+          const merged = [...DEFAULT_MASTER_COLUMNS];
+          parsed.forEach((customCol) => {
+            if (!merged.some((m) => normalizeHeader(m) === normalizeHeader(customCol))) {
+              merged.push(customCol);
+            }
+          });
+          return merged;
+        }
       }
       return DEFAULT_MASTER_COLUMNS;
     } catch {
@@ -66,7 +78,11 @@ export default function App() {
   const [aliases, setAliases] = useState<Record<string, string[]>>(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY_ALIASES);
-      return saved ? JSON.parse(saved) : DEFAULT_HEADER_ALIASES;
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        return { ...DEFAULT_HEADER_ALIASES, ...parsed };
+      }
+      return DEFAULT_HEADER_ALIASES;
     } catch {
       return DEFAULT_HEADER_ALIASES;
     }
@@ -241,6 +257,72 @@ export default function App() {
     );
   };
 
+  // Export all Catalog items to Armature List Master Table (Cấu trúc mới 26 cột)
+  const handleExportCatalogToMaster = (items: CatalogItem[], mode: 'replace' | 'append') => {
+    if (!items || items.length === 0) {
+      showToast('warning', 'Catalog hiện không có mã van nào để xuất sang Armature List.');
+      return;
+    }
+
+    const convertedRows: MasterRowData[] = items.map((item, idx) => {
+      const lookup = lookupCatalogBySapCode(item['SAP Name'] || item.Name || '', items);
+      const spec = lookup.armatureFields || {};
+      const rowId = `cat-import-${Date.now()}-${idx}-${Math.random().toString(36).substring(2, 6)}`;
+
+      const newRow: MasterRowData = {
+        _id: rowId,
+        _sourceFile: `Catalog_${activeProfile?.shipName || 'Ship'}`,
+        _importedAt: new Date().toLocaleString('vi-VN'),
+        _revisionStatus: 'normal',
+        _rowNumber: idx + 1,
+        TAG: `V-${String(idx + 1).padStart(3, '0')}`,
+        'ACTUATOR TAG': '',
+        'P.O. NUMBER': '',
+        'SUPPLIER': String(item.Manufacturer || spec['SUPPLIER'] || ''),
+        'DESTINATION (YARD)': 'Yard A',
+        'SAP CODE': String(item['SAP Name'] || item.Name || ''),
+        'STD DRW NORMALE N°': String(item['Normale Nr.'] || spec['STD DRW NORMALE N°'] || ''),
+        'EXECUTION': String(item.Execution || spec['EXECUTION'] || ''),
+        'NRF N°': String(item['NRF Nr.'] || spec['NRF N°'] || ''),
+        'SFI': '',
+        'DESCRIPTION': String(item.Description || spec['DESCRIPTION'] || ''),
+        'SIZE': String(item['Pipe Size'] || spec['SIZE'] || ''),
+        'CONNECTION': String(item.Connection || spec['CONNECTION'] || ''),
+        'PRESSURE RATING': String(item['Pressure Nominal'] || spec['PRESSURE RATING'] || ''),
+        'HOUSING /BODY': String(item['Body Material'] || spec['HOUSING /BODY'] || ''),
+        'TYPE': String(item['Model Number'] || item['Sign Type'] || spec['TYPE'] || ''),
+        'PIPE CLASS': String(item['Pipe Class'] || spec['PIPE CLASS'] || ''),
+        'CLASS CERTIFICATE': String(item['Testing Certificate'] || spec['CLASS CERTIFICATE'] || ''),
+        'REMARKS': String(item.Comment || spec['REMARKS'] || ''),
+        'SIGN TYPE': String(item['Sign Type'] || spec['SIGN TYPE'] || ''),
+        'SIGN TEXT': '',
+        'INPUT - SIGN TEXT': '',
+        'REV. HIS.': '',
+        'DATE': '',
+        'REV. DESCRIPTION': '',
+        'SIGNATURE': '',
+        ...spec,
+      };
+
+      return newRow;
+    });
+
+    if (mode === 'replace') {
+      setMasterRows(convertedRows);
+      showToast('success', `Đã xuất ${convertedRows.length} van từ Catalog ra bảng Armature List (Cấu trúc mới)!`);
+    } else {
+      setMasterRows((prev) => [...prev, ...convertedRows]);
+      showToast('success', `Đã thêm nối tiếp ${convertedRows.length} van từ Catalog vào bảng Armature List!`);
+    }
+
+    setIsCatalogModalOpen(false);
+
+    const el = document.getElementById('master-table-container');
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
   // Show toast notification
   const showToast = (type: 'success' | 'warning' | 'error' | 'info', text: string) => {
     setToastMessage({ type, text });
@@ -348,7 +430,15 @@ export default function App() {
 
   // Delete individual row
   const handleDeleteRow = (rowId: string) => {
+    const target = masterRows.find((r) => r._id === rowId);
     setMasterRows((prev) => prev.filter((r) => r._id !== rowId));
+    showToast('info', `Đã xóa dòng van [${target?.TAG || 'này'}] khỏi bảng Master.`);
+  };
+
+  // Delete multiple rows
+  const handleDeleteMultipleRows = (rowIds: string[]) => {
+    setMasterRows((prev) => prev.filter((r) => !rowIds.includes(r._id)));
+    showToast('info', `Đã xóa thành công ${rowIds.length} dòng van khỏi bảng Master.`);
   };
 
   // Update individual row
@@ -367,13 +457,31 @@ export default function App() {
     setMasterRows((prev) => [...newRows, ...prev]);
   };
 
-  // Load the 3 sample rows from user's image
+  // Reset headers to standard 26 columns matching reference image
+  const handleResetToStandardImageHeaders = () => {
+    setMasterHeaders([...DEFAULT_MASTER_COLUMNS]);
+    setAliases({ ...DEFAULT_HEADER_ALIASES });
+    try {
+      localStorage.setItem(STORAGE_KEY_HEADERS, JSON.stringify(DEFAULT_MASTER_COLUMNS));
+      localStorage.setItem(STORAGE_KEY_ALIASES, JSON.stringify(DEFAULT_HEADER_ALIASES));
+    } catch {}
+    showToast(
+      'success',
+      'Đã khôi phục và cập nhật đầy đủ chuẩn 26 tiêu đề cột theo ảnh (Vàng, Xám, Trắng)!'
+    );
+  };
+
+  // Load the 3 sample rows from user's image with all 26 columns
   const handleLoadImageSample = () => {
+    // If headers don't have all 26 columns, auto-restore them
+    if (masterHeaders.length < DEFAULT_MASTER_COLUMNS.length) {
+      setMasterHeaders([...DEFAULT_MASTER_COLUMNS]);
+    }
     const sampleRows = generateImageArmatureSampleRows();
     setMasterRows(sampleRows);
     showToast(
       'success',
-      'Đã nạp 3 dòng vật tư Armature theo cấu trúc ảnh mẫu!'
+      'Đã nạp 3 dòng vật tư Armature theo đúng 26 cột tiêu chuẩn như ảnh!'
     );
   };
 
@@ -390,6 +498,27 @@ export default function App() {
       'P.O. NUMBER': '',
       'SUPPLIER': '',
       'DESTINATION (YARD)': 'Yard A',
+      'SAP CODE': '',
+      'STD DRW NORMALE N°': '',
+      'EXECUTION': '',
+      'NRF N°': '',
+      'SFI': '',
+      'DESCRIPTION': '',
+      'SIZE': '',
+      'CONNECTION': '',
+      'PRESSURE RATING': '',
+      'HOUSING /BODY': '',
+      'TYPE': '',
+      'PIPE CLASS': '',
+      'CLASS CERTIFICATE': '',
+      'REMARKS': '',
+      'SIGN TYPE': '',
+      'SIGN TEXT': '',
+      'INPUT - SIGN TEXT': '',
+      'REV. HIS.': '0',
+      'DATE': new Date().toISOString().slice(0, 10),
+      'REV. DESCRIPTION': '',
+      'SIGNATURE': '',
     };
     setMasterRows((prev) => [row, ...prev]);
     showToast('success', `Đã thêm van mới (${row.TAG}) vào bảng Armature!`);
@@ -618,10 +747,12 @@ export default function App() {
             data={masterRows}
             masterHeaders={masterHeaders}
             onDeleteRow={handleDeleteRow}
+            onDeleteRows={handleDeleteMultipleRows}
             onEditRow={handleStartEditRow}
             onUpdateRow={handleUpdateRow}
             onAddRow={handleAddNewRow}
             onLoadImageSample={handleLoadImageSample}
+            onResetToImageHeaders={handleResetToStandardImageHeaders}
             onMailRow={handleMailRow}
             onOpenBatchMail={handleOpenBatchMail}
             onExportExcel={handleExportExcel}
@@ -691,6 +822,8 @@ export default function App() {
                 setActiveProfileId={setActiveProfileId}
                 onSaveProfile={handleSaveCatalogProfile}
                 onDeleteProfile={handleDeleteCatalogProfile}
+                onAutoFillMaster={handleAutoFillMaster}
+                onExportToMaster={handleExportCatalogToMaster}
               />
             </div>
           </div>
@@ -742,6 +875,7 @@ export default function App() {
         row={editingRow}
         masterHeaders={masterHeaders}
         onSave={handleSaveRow}
+        onDeleteRow={handleDeleteRow}
       />
       <OutlookEmailModal
         isOpen={isOutlookMailOpen}
