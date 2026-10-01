@@ -57,7 +57,7 @@ export const ImportLogView: React.FC<ImportLogViewProps> = ({
           <div className="flex items-center gap-2">
             <Clock className="w-5 h-5 text-blue-500" />
             <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-100">
-              Nhật ký Quá trình Import (Import_Log)
+              Import Process Logs (Import_Log)
             </h3>
           </div>
 
@@ -65,18 +65,18 @@ export const ImportLogView: React.FC<ImportLogViewProps> = ({
             <button
               onClick={onExportExcel}
               disabled={logs.length === 0}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-emerald-600 hover:bg-emerald-500 text-white disabled:opacity-50 transition-colors"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-emerald-600 hover:bg-emerald-500 text-white disabled:opacity-50 transition-colors cursor-pointer"
             >
               <Download className="w-3.5 h-3.5" />
-              <span>Xuất Excel</span>
+              <span>Export Excel</span>
             </button>
             {logs.length > 0 && (
               <button
                 onClick={onClearLogs}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-rose-500 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-rose-500 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors cursor-pointer"
               >
                 <Trash2 className="w-3.5 h-3.5" />
-                <span>Xoá Log</span>
+                <span>Clear Logs</span>
               </button>
             )}
           </div>
@@ -87,43 +87,43 @@ export const ImportLogView: React.FC<ImportLogViewProps> = ({
           <div className="flex items-center gap-1.5">
             <button
               onClick={() => setFilterStatus('all')}
-              className={`px-2.5 py-1 rounded-md text-xs font-medium transition-colors ${
+              className={`px-2.5 py-1 rounded-md text-xs font-medium transition-colors cursor-pointer ${
                 filterStatus === 'all'
                   ? 'bg-slate-800 text-white dark:bg-slate-200 dark:text-slate-900'
                   : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
               }`}
             >
-              Tất cả ({logs.length})
+              All ({logs.length})
             </button>
             <button
               onClick={() => setFilterStatus('ok')}
-              className={`px-2.5 py-1 rounded-md text-xs font-medium transition-colors ${
+              className={`px-2.5 py-1 rounded-md text-xs font-medium transition-colors cursor-pointer ${
                 filterStatus === 'ok'
                   ? 'bg-emerald-600 text-white'
                   : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
               }`}
             >
-              Thành công
+              Success
             </button>
             <button
               onClick={() => setFilterStatus('warning')}
-              className={`px-2.5 py-1 rounded-md text-xs font-medium transition-colors ${
+              className={`px-2.5 py-1 rounded-md text-xs font-medium transition-colors cursor-pointer ${
                 filterStatus === 'warning'
                   ? 'bg-amber-600 text-white'
                   : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
               }`}
             >
-              Cảnh báo / Thiếu cột
+              Warning / Missing
             </button>
             <button
               onClick={() => setFilterStatus('error')}
-              className={`px-2.5 py-1 rounded-md text-xs font-medium transition-colors ${
+              className={`px-2.5 py-1 rounded-md text-xs font-medium transition-colors cursor-pointer ${
                 filterStatus === 'error'
                   ? 'bg-rose-600 text-white'
                   : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
               }`}
             >
-              Lỗi
+              Error
             </button>
           </div>
 
@@ -133,7 +133,7 @@ export const ImportLogView: React.FC<ImportLogViewProps> = ({
               type="text"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Lọc nhật ký..."
+              placeholder="Filter logs..."
               className="w-full pl-8 pr-3 py-1 rounded-md border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs focus:ring-1 focus:ring-blue-500 focus:outline-none"
             />
           </div>
@@ -144,7 +144,7 @@ export const ImportLogView: React.FC<ImportLogViewProps> = ({
       <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
         {logs.length === 0 ? (
           <div className="p-10 text-center text-slate-400 text-xs">
-            Chưa có nhật ký nào. Nhật ký sẽ tự động sinh khi bạn tải file nguồn lên.
+            No logs available. Import process logs will automatically generate when uploading files.
           </div>
         ) : (
           <div className="overflow-x-auto">

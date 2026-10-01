@@ -124,10 +124,10 @@ export default function App() {
     return [
       {
         id: 'cat-profile-default',
-        shipName: 'Tàu Mẫu (Sample Ship)',
+        shipName: 'Sample Ship',
         versionName: 'Rev 01',
-        uploadedAt: new Date().toLocaleString('vi-VN'),
-        sourceFileName: 'Catalog_Armature_Goc.xlsx',
+        uploadedAt: new Date().toLocaleDateString('en-US'),
+        sourceFileName: 'Catalog_Armature_Base.xlsx',
         items: DEFAULT_SAMPLE_CATALOG_ITEMS,
       },
     ];
@@ -210,7 +210,7 @@ export default function App() {
       return [...prev, profile];
     });
     setActiveProfileId(profile.id);
-    showToast('success', `Đã lưu Catalog cho ${profile.shipName} (${profile.items.length} mã van)!`);
+    showToast('success', `Saved Catalog for ${profile.shipName} (${profile.items.length} items)!`);
   };
 
   const handleDeleteCatalogProfile = (id: string) => {
@@ -220,10 +220,10 @@ export default function App() {
         return [
           {
             id: 'cat-profile-default',
-            shipName: 'Tàu Mẫu (Sample Ship)',
+            shipName: 'Sample Ship',
             versionName: 'Rev 01',
-            uploadedAt: new Date().toLocaleString('vi-VN'),
-            sourceFileName: 'Catalog_Armature_Goc.xlsx',
+            uploadedAt: new Date().toLocaleDateString('en-US'),
+            sourceFileName: 'Catalog_Armature_Base.xlsx',
             items: DEFAULT_SAMPLE_CATALOG_ITEMS,
           },
         ];
@@ -237,30 +237,30 @@ export default function App() {
       }
       return prevId;
     });
-    showToast('info', 'Đã xoá Catalog.');
+    showToast('info', 'Catalog deleted.');
   };
 
   const handleAutoFillMaster = (catalogItems: CatalogItem[]) => {
     if (masterRows.length === 0) {
-      showToast('warning', 'Bảng Master hiện chưa có dữ liệu để đối chiếu thông số từ Catalog.');
+      showToast('warning', 'Master table has no data to auto-fill specs from Catalog.');
       return;
     }
     const result = autoFillMasterFromCatalog(masterRows, catalogItems);
     if (result.matchedCount === 0) {
-      showToast('warning', 'Không tìm thấy dòng nào trong Master khớp với TAG/Model/Normale Nr của Catalog.');
+      showToast('warning', 'No items in Master matched the Catalog TAG, Model, or Normale Nr.');
       return;
     }
     setMasterRows(result.updatedRows);
     showToast(
       'success',
-      `Đã đối chiếu thành công ${result.matchedCount} mã van và bổ sung ${result.fieldsUpdatedCount} trường thông số kỹ thuật (Thân van, áp suất, tiêu chuẩn...) vào Master!`
+      `Successfully matched ${result.matchedCount} items and auto-filled ${result.fieldsUpdatedCount} specification fields into Master!`
     );
   };
 
-  // Export all Catalog items to Armature List Master Table (Cấu trúc mới 26 cột)
+  // Export all Catalog items to Armature List Master Table (Standard 26-column structure)
   const handleExportCatalogToMaster = (items: CatalogItem[], mode: 'replace' | 'append') => {
     if (!items || items.length === 0) {
-      showToast('warning', 'Catalog hiện không có mã van nào để xuất sang Armature List.');
+      showToast('warning', 'Catalog currently has no items to export.');
       return;
     }
 
@@ -272,7 +272,8 @@ export default function App() {
       const newRow: MasterRowData = {
         _id: rowId,
         _sourceFile: `Catalog_${activeProfile?.shipName || 'Ship'}`,
-        _importedAt: new Date().toLocaleString('vi-VN'),
+        _sourceSheet: 'Catalog',
+        _importedAt: new Date().toLocaleDateString('en-US'),
         _revisionStatus: 'normal',
         _rowNumber: idx + 1,
         TAG: `V-${String(idx + 1).padStart(3, '0')}`,
@@ -309,10 +310,10 @@ export default function App() {
 
     if (mode === 'replace') {
       setMasterRows(convertedRows);
-      showToast('success', `Đã xuất ${convertedRows.length} van từ Catalog ra bảng Armature List (Cấu trúc mới)!`);
+      showToast('success', `Exported ${convertedRows.length} items from Catalog to Armature List!`);
     } else {
       setMasterRows((prev) => [...prev, ...convertedRows]);
-      showToast('success', `Đã thêm nối tiếp ${convertedRows.length} van từ Catalog vào bảng Armature List!`);
+      showToast('success', `Appended ${convertedRows.length} items from Catalog to Armature List!`);
     }
 
     setIsCatalogModalOpen(false);
@@ -335,10 +336,10 @@ export default function App() {
   const handleApplySapBatch = (rows: MasterRowData[], mode: 'replace' | 'append') => {
     if (mode === 'replace') {
       setMasterRows(rows);
-      showToast('success', `Đã xuất thành công ${rows.length} hàng từ danh sách SAP Name ra bảng Armature List!`);
+      showToast('success', `Exported ${rows.length} rows from SAP Name list to Armature List!`);
     } else {
       setMasterRows((prev) => [...prev, ...rows]);
-      showToast('success', `Đã thêm nối tiếp ${rows.length} hàng từ danh sách SAP Name vào bảng Armature List!`);
+      showToast('success', `Appended ${rows.length} rows from SAP Name list to Armature List!`);
     }
 
     // Scroll to Master Table
@@ -357,9 +358,9 @@ export default function App() {
         logs,
         `Armature_List_From_SAP_${new Date().toISOString().slice(0, 10)}.xlsx`
       );
-      showToast('success', `Đã xuất file Excel Armature List cho ${rows.length} mã SAP thành công!`);
+      showToast('success', `Exported Armature List Excel file for ${rows.length} SAP codes!`);
     } catch (err: any) {
-      showToast('error', `Lỗi xuất Excel: ${err.message}`);
+      showToast('error', `Excel export error: ${err.message}`);
     }
   };
 
@@ -391,10 +392,10 @@ export default function App() {
 
       showToast(
         'success',
-        `Đã xử lý xong ${newFiles.length} file. Đã nhập ${totalImportedThisBatch} dòng dữ liệu vào bảng Master!`
+        `Processed ${newFiles.length} files. Imported ${totalImportedThisBatch} rows into Master table!`
       );
     } catch (err: any) {
-      showToast('error', `Lỗi xử lý file: ${err.message || 'Không xác định'}`);
+      showToast('error', `File processing error: ${err.message || 'Unknown'}`);
     } finally {
       setIsProcessing(false);
     }
@@ -411,10 +412,10 @@ export default function App() {
       await handleUploadFiles([file1, file2, file3], 'replace');
       showToast(
         'info',
-        'Đã nạp 3 file mẫu test thành công với các bí danh cột PO NO, ACTUATOR, PRESSURE, BODY...'
+        'Loaded 3 sample test files with column aliases (PO NO, ACTUATOR, PRESSURE, BODY...)'
       );
     } catch (err: any) {
-      showToast('error', `Lỗi tạo dữ liệu mẫu: ${err.message}`);
+      showToast('error', `Sample data error: ${err.message}`);
     } finally {
       setIsProcessing(false);
     }
@@ -422,9 +423,9 @@ export default function App() {
 
   // Clear Master Data
   const handleClearMaster = () => {
-    if (window.confirm('Bạn có chắc chắn muốn xoá toàn bộ dữ liệu trong bảng Master (Total)?')) {
+    if (window.confirm('Are you sure you want to clear all data in the Master table?')) {
       setMasterRows([]);
-      showToast('info', 'Đã làm trống bảng Master.');
+      showToast('info', 'Master table cleared.');
     }
   };
 
@@ -432,13 +433,13 @@ export default function App() {
   const handleDeleteRow = (rowId: string) => {
     const target = masterRows.find((r) => r._id === rowId);
     setMasterRows((prev) => prev.filter((r) => r._id !== rowId));
-    showToast('info', `Đã xóa dòng van [${target?.TAG || 'này'}] khỏi bảng Master.`);
+    showToast('info', `Deleted valve row [${target?.TAG || 'item'}] from Master.`);
   };
 
   // Delete multiple rows
   const handleDeleteMultipleRows = (rowIds: string[]) => {
     setMasterRows((prev) => prev.filter((r) => !rowIds.includes(r._id)));
-    showToast('info', `Đã xóa thành công ${rowIds.length} dòng van khỏi bảng Master.`);
+    showToast('info', `Successfully deleted ${rowIds.length} valve rows from Master.`);
   };
 
   // Update individual row
@@ -448,7 +449,7 @@ export default function App() {
     );
     showToast(
       'success',
-      `Đã cập nhật van [${updatedRow.TAG || updatedRow['STD DRW NORMALE N°'] || 'vật tư'}]!`
+      `Updated valve [${updatedRow.TAG || updatedRow['STD DRW NORMALE N°'] || 'item'}]!`
     );
   };
 
@@ -467,7 +468,7 @@ export default function App() {
     } catch {}
     showToast(
       'success',
-      'Đã khôi phục và cập nhật đầy đủ chuẩn 26 tiêu đề cột theo ảnh (Vàng, Xám, Trắng)!'
+      'Restored standard 26 column headers (Yellow, Gray, White)!'
     );
   };
 
@@ -481,7 +482,7 @@ export default function App() {
     setMasterRows(sampleRows);
     showToast(
       'success',
-      'Đã nạp 3 dòng vật tư Armature theo đúng 26 cột tiêu chuẩn như ảnh!'
+      'Loaded 3 sample Armature rows matching all 26 standard columns!'
     );
   };
 
@@ -490,9 +491,9 @@ export default function App() {
     const newId = `row-manual-${Date.now()}`;
     const row: MasterRowData = newRowData || {
       _id: newId,
-      _sourceFile: 'Thủ công',
-      _sourceSheet: 'Nhập tay',
-      _importedAt: new Date().toLocaleString('vi-VN'),
+      _sourceFile: 'Manual',
+      _sourceSheet: 'Manual Input',
+      _importedAt: new Date().toLocaleDateString('en-US'),
       TAG: `V-${Math.floor(100 + Math.random() * 900)}`,
       'ACTUATOR TAG': '',
       'P.O. NUMBER': '',
@@ -521,7 +522,7 @@ export default function App() {
       'SIGNATURE': '',
     };
     setMasterRows((prev) => [row, ...prev]);
-    showToast('success', `Đã thêm van mới (${row.TAG}) vào bảng Armature!`);
+    showToast('success', `Added new valve (${row.TAG}) to Armature table!`);
   };
 
   // Edit individual row
@@ -543,10 +544,10 @@ export default function App() {
     if (changes.length > 0) {
       showToast(
         'success',
-        `Đã lưu cập nhật van ${updatedRow.TAG || 'được chọn'} (${changes.length} thay đổi)!`
+        `Saved updates for valve ${updatedRow.TAG || 'selected'} (${changes.length} changes)!`
       );
     } else {
-      showToast('info', 'Đã lưu thông tin.');
+      showToast('info', 'Information saved.');
     }
 
     // Automatically trigger Outlook draft if requested
@@ -614,7 +615,7 @@ export default function App() {
 
   // Clear all logs
   const handleClearLogs = () => {
-    if (window.confirm('Xoá toàn bộ nhật ký import?')) {
+    if (window.confirm('Clear all import logs?')) {
       setLogs([]);
     }
   };
@@ -622,25 +623,25 @@ export default function App() {
   // Export Excel
   const handleExportExcel = async () => {
     if (masterRows.length === 0) {
-      alert('Không có dữ liệu trong bảng Master để xuất!');
+      alert('No data in Master table to export!');
       return;
     }
     try {
       await exportToExcel(masterHeaders, masterRows, logs);
-      showToast('success', 'Đã tạo và tải file Excel (Total + Import_Log) với màu tiêu đề và cách dòng rộng rãi!');
+      showToast('success', 'Generated and downloaded Excel file (Master + Import Log)!');
     } catch (err: any) {
-      showToast('error', `Lỗi xuất file Excel: ${err.message}`);
+      showToast('error', `Excel export error: ${err.message}`);
     }
   };
 
   // Export CSV
   const handleExportCSV = () => {
     if (masterRows.length === 0) {
-      alert('Không có dữ liệu trong bảng Master để xuất!');
+      alert('No data in Master table to export!');
       return;
     }
     exportToCSV(masterHeaders, masterRows);
-    showToast('success', 'Đã tải file CSV của bảng Master thành công!');
+    showToast('success', 'Master table CSV downloaded successfully!');
   };
 
   // Active catalog count
@@ -657,7 +658,7 @@ export default function App() {
         totalRows={masterRows.length}
         totalFiles={files.length}
         catalogCount={activeCatalogCount}
-        activeShipName={activeProfile?.shipName || 'Tàu Mẫu'}
+        activeShipName={activeProfile?.shipName || 'Sample Ship'}
         onExportExcel={handleExportExcel}
         onExportCSV={handleExportCSV}
         onLoadSampleData={handleLoadSampleData}
@@ -702,31 +703,31 @@ export default function App() {
           </div>
         )}
 
-        {/* 1. BẢNG NHẬP HÀNG LOẠT SAP NAME -> TỰ ĐỘNG TRA CỨU CATALOG -> XUẤT RA ARMATURE LIST */}
+        {/* 1. SAP NAME BATCH ENTRY & AUTO CATALOG LOOKUP */}
         <SapBatchInputTable
           catalogItems={activeCatalogItems}
-          activeShipName={activeProfile?.shipName || 'Tàu Mẫu'}
+          activeShipName={activeProfile?.shipName || 'Sample Ship'}
           onApplyToMaster={handleApplySapBatch}
           onExportDirectExcel={handleExportDirectExcelFromSap}
           onOpenCatalogSettings={() => setIsCatalogModalOpen(true)}
           currentMasterCount={masterRows.length}
         />
 
-        {/* Embedded / Collapsible File Uploader (VBA Macro Parser) */}
+        {/* Embedded / Collapsible File Uploader */}
         {isFileUploaderOpen && (
           <div className="bg-white dark:bg-slate-900 rounded-xl border border-blue-200 dark:border-blue-900/60 p-4 shadow-sm animate-in fade-in duration-200">
             <div className="flex items-center justify-between pb-3 mb-3 border-b border-slate-200 dark:border-slate-800">
               <div className="flex items-center gap-2">
                 <FileUp className="w-4 h-4 text-blue-600 dark:text-blue-400" />
                 <h3 className="text-xs font-bold text-slate-900 dark:text-slate-100 uppercase tracking-wider">
-                  Nhập File Nguồn Excel (VBA Macro Parser)
+                  Import Source Excel File
                 </h3>
               </div>
               <button
                 onClick={() => setIsFileUploaderOpen(false)}
                 className="text-xs text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 px-2.5 py-1 rounded-md bg-slate-100 dark:bg-slate-800 cursor-pointer font-medium"
               >
-                Thu gọn ▲
+                Collapse ▲
               </button>
             </div>
             <FileUploader
@@ -741,7 +742,7 @@ export default function App() {
           </div>
         )}
 
-        {/* 2. BẢNG ARMATURE LIST (MASTER TABLE ĐẦY ĐỦ 2 TẦNG CHUẨN PIPE SPECIFICATION) */}
+        {/* 2. ARMATURE LIST MASTER TABLE */}
         <div id="master-table-container">
           <MasterTable
             data={masterRows}
@@ -770,34 +771,34 @@ export default function App() {
       {/* Footer */}
       <footer className="border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 py-4 text-center text-xs text-slate-400">
         <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
-          <span>Armature Import Web Tool &bull; Chuyển đổi từ VBA Excel Macro &amp; Tra cứu Catalog</span>
+          <span>Armature Import Tool &bull; Catalog Lookup &amp; Pipe Specification Manager</span>
           <div className="flex items-center gap-3">
             <button
               onClick={() => setIsCatalogModalOpen(true)}
               className="text-amber-500 hover:underline cursor-pointer"
             >
-              Quản lý Catalog nền ({activeCatalogCount} mã)
+              Equipment Catalog Manager ({activeCatalogCount} items)
             </button>
             <span className="text-slate-300 dark:text-slate-700">&bull;</span>
             <button
               onClick={() => setIsHelpOpen(true)}
               className="text-blue-500 hover:underline cursor-pointer"
             >
-              Tài liệu & Đối chiếu thuật toán VBA
+              Documentation &amp; Tech Specs
             </button>
             <span className="text-slate-300 dark:text-slate-700">&bull;</span>
             <button
               onClick={() => setIsGithubModalOpen(true)}
               className="text-slate-600 dark:text-slate-300 hover:text-blue-500 flex items-center gap-1 cursor-pointer"
             >
-              Deploy GitHub Pages
+              GitHub Pages Deployment
             </button>
           </div>
         </div>
       </footer>
 
       {/* MODALS */}
-      {/* Hidden Catalog Manager Modal (Runs in background, opened on demand) */}
+      {/* Catalog Manager Modal */}
       {isCatalogModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/70 backdrop-blur-xs">
           <div className="bg-white dark:bg-slate-900 rounded-2xl max-w-6xl w-full max-h-[92vh] flex flex-col shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden">
@@ -805,7 +806,7 @@ export default function App() {
               <div className="flex items-center gap-2">
                 <BookOpen className="w-5 h-5 text-amber-400" />
                 <h3 className="text-sm font-bold tracking-wide">
-                  QUẢN LÝ CATALOG THIẾT BỊ NỀN THEO TÀU (BACKGROUND DATABASE)
+                  EQUIPMENT CATALOG MANAGER BY SHIP
                 </h3>
               </div>
               <button
@@ -836,8 +837,8 @@ export default function App() {
           <div className="bg-white dark:bg-slate-900 rounded-2xl max-w-5xl w-full max-h-[90vh] flex flex-col shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden">
             <div className="p-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
               <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-                <span>Nhật Ký Quá Trình Import (Import_Log)</span>
-                <span className="text-xs font-normal text-slate-500">({logs.length} sự kiện)</span>
+                <span>Import Process Logs (Import_Log)</span>
+                <span className="text-xs font-normal text-slate-500">({logs.length} events)</span>
               </h3>
               <button
                 onClick={() => setIsLogsModalOpen(false)}

@@ -143,14 +143,14 @@ export function SapBatchInputTable({
       const buffer = await file.arrayBuffer();
       const workbook = XLSX.read(buffer, { type: 'array' });
       if (!workbook.SheetNames || workbook.SheetNames.length === 0) {
-        setUploadNotification('File Excel không có bất kỳ sheet nào.');
+        setUploadNotification('Excel file does not contain any sheets.');
         return;
       }
 
       const ws = workbook.Sheets[workbook.SheetNames[0]];
       const rawRows: any[][] = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
       if (rawRows.length === 0) {
-        setUploadNotification('File Excel không có dòng dữ liệu nào.');
+        setUploadNotification('Excel file contains no data.');
         return;
       }
 
@@ -234,14 +234,14 @@ export function SapBatchInputTable({
 
       if (newEntries.length > 0) {
         setEntries(newEntries);
-        setUploadNotification(`Đã tải lên thành công ${newEntries.length} mã SAP từ file [${file.name}]!`);
+        setUploadNotification(`Successfully loaded ${newEntries.length} SAP codes from file [${file.name}]!`);
         setTimeout(() => setUploadNotification(null), 6000);
       } else {
-        setUploadNotification(`Không trích xuất được mã SAP nào từ file [${file.name}].`);
+        setUploadNotification(`No SAP codes could be extracted from file [${file.name}].`);
       }
     } catch (e: any) {
       console.error(e);
-      setUploadNotification(`Lỗi đọc file: ${e.message}`);
+      setUploadNotification(`Error reading file: ${e.message}`);
     }
   };
 
@@ -391,16 +391,15 @@ export function SapBatchInputTable({
           <div>
             <div className="flex items-center gap-2">
               <h2 className="text-sm font-bold tracking-wide uppercase">
-                Bảng Nhập Hàng Loạt SAP Name &rarr; Xuất Armature List
+                SAP Batch Entry &rarr; Export Armature List
               </h2>
               <span className="text-[11px] px-2 py-0.5 rounded-full bg-blue-500/30 border border-blue-400/40 text-blue-200 font-mono">
-                {totalEntered} mã đã nhập
+                {totalEntered} entries
               </span>
             </div>
             <p className="text-xs text-slate-300 mt-0.5 flex items-center gap-2">
-              <span>Đang đối chiếu với Catalog tàu:</span>
               <span className="font-semibold text-amber-300 bg-amber-950/60 px-2 py-0.5 rounded border border-amber-500/30">
-                {activeShipName} ({catalogItems.length} mã van trong kho)
+                Catalog: {activeShipName} ({catalogItems.length} items)
               </span>
             </p>
           </div>
@@ -414,10 +413,10 @@ export function SapBatchInputTable({
             type="button"
             onClick={() => fileInputRef.current?.click()}
             className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-emerald-600 hover:bg-emerald-500 text-white shadow-sm transition-all cursor-pointer active:scale-95"
-            title="Tải lên file Excel (.xlsx, .xls, .xlsm, .csv) chứa danh sách SAP Name hoặc Catalog"
+            title="Upload Excel or CSV file containing SAP Names or Catalog"
           >
             <Upload className="w-3.5 h-3.5" />
-            <span>Upload File Excel SAP</span>
+            <span>Upload SAP Excel File</span>
           </button>
           <input
             ref={fileInputRef}
@@ -435,56 +434,61 @@ export function SapBatchInputTable({
           {/* Quick Paste Button */}
           <button
             id="btn-open-paste-modal"
+            type="button"
             onClick={() => setPasteModalOpen(true)}
             className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-indigo-600 hover:bg-indigo-500 text-white shadow-sm transition-all cursor-pointer active:scale-95"
-            title="Mở khung dán nhanh nhiều mã SAP từ Excel hoặc Notepad"
+            title="Open quick paste dialog for SAP codes"
           >
             <ClipboardPaste className="w-3.5 h-3.5" />
-            <span>Dán Nhanh Danh Sách SAP</span>
+            <span>Quick Paste SAP List</span>
           </button>
 
           {/* Sample Codes */}
           <button
             id="btn-load-sample-sap"
+            type="button"
             onClick={handleLoadSampleCodes}
             className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition-colors cursor-pointer"
-            title="Nạp 6 mã van SAP mẫu có sẵn trong Catalog"
+            title="Load 6 sample SAP codes from Catalog"
           >
             <Sparkles className="w-3.5 h-3.5 text-amber-300" />
-            <span className="hidden sm:inline">Nạp 6 Mã Mẫu</span>
+            <span className="hidden sm:inline">Load 6 Sample Codes</span>
           </button>
 
           {/* Add Row Button */}
           <button
             id="btn-add-sap-row"
+            type="button"
             onClick={handleAddRow}
             className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition-colors cursor-pointer"
-            title="Thêm một dòng nhập mới"
+            title="Add a new entry row"
           >
             <Plus className="w-3.5 h-3.5 text-blue-400" />
-            <span>Thêm Dòng</span>
+            <span>Add Row</span>
           </button>
 
           {/* Clear Button */}
           {entries.length > 0 && (
             <button
               id="btn-clear-sap-entries"
+              type="button"
               onClick={handleClearAll}
               className="inline-flex items-center gap-1 px-2 py-1.5 rounded-lg text-xs font-medium text-rose-300 hover:text-white hover:bg-rose-900/40 transition-colors cursor-pointer"
-              title="Xóa sạch danh sách đang nhập"
+              title="Clear all entered rows"
             >
               <RotateCcw className="w-3.5 h-3.5" />
-              <span>Xóa hết</span>
+              <span>Clear All</span>
             </button>
           )}
 
-          {/* Catalog Settings (Hidden by default, openable) */}
+          {/* Catalog Settings */}
           {onOpenCatalogSettings && (
             <button
               id="btn-open-catalog-settings"
+              type="button"
               onClick={onOpenCatalogSettings}
               className="p-1.5 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition-colors cursor-pointer ml-1"
-              title="Cấu hình / Quản lý file Catalog gốc (Hiện đang chạy ẩn)"
+              title="Manage equipment catalog"
             >
               <Settings2 className="w-4 h-4" />
             </button>
@@ -509,25 +513,26 @@ export function SapBatchInputTable({
         </div>
       )}
 
-      {/* Batch defaults config accordion (optional) */}
+      {/* Batch defaults config accordion */}
       <div className="bg-slate-50 dark:bg-slate-850 border-b border-slate-200 dark:border-slate-800 px-4 py-2">
         <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
           <button
+            type="button"
             onClick={() => setIsBatchConfigOpen(!isBatchConfigOpen)}
             className="flex items-center gap-1.5 font-medium text-slate-600 dark:text-slate-300 hover:text-blue-600 cursor-pointer"
           >
-            <span className="font-semibold">Thiết lập chung cho Functional Design (Yard, P.O, Nhà cung cấp):</span>
+            <span className="font-semibold">Batch Functional Settings (Yard, P.O, Supplier):</span>
             {isBatchConfigOpen ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
           </button>
 
           <div className="flex items-center gap-3">
-            <span className="text-slate-500">Trạng thái tra cứu Catalog:</span>
+            <span className="text-slate-500">Catalog Lookup Status:</span>
             <span className="font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
-              <CheckCircle2 className="w-3.5 h-3.5" /> {matchedCount} khớp
+              <CheckCircle2 className="w-3.5 h-3.5" /> {matchedCount} matched
             </span>
             {totalEntered - matchedCount > 0 && (
               <span className="font-bold text-amber-600 dark:text-amber-400 flex items-center gap-1">
-                <AlertCircle className="w-3.5 h-3.5" /> {totalEntered - matchedCount} chưa khớp
+                <AlertCircle className="w-3.5 h-3.5" /> {totalEntered - matchedCount} unmatched
               </span>
             )}
           </div>
@@ -537,37 +542,37 @@ export function SapBatchInputTable({
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-3 pb-1 mt-2 border-t border-slate-200 dark:border-slate-800">
             <div>
               <label className="block text-[11px] font-semibold text-slate-500 uppercase mb-1">
-                DESTINATION (YARD) MẶC ĐỊNH
+                DEFAULT DESTINATION (YARD)
               </label>
               <input
                 type="text"
                 value={commonYard}
                 onChange={(e) => setCommonYard(e.target.value)}
-                placeholder="VD: Yard A / Xưởng đóng tàu"
+                placeholder="e.g. Yard A"
                 className="w-full px-2.5 py-1.5 text-xs rounded border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100"
               />
             </div>
             <div>
               <label className="block text-[11px] font-semibold text-slate-500 uppercase mb-1">
-                SUPPLIER (NHÀ CUNG CẤP) MẶC ĐỊNH
+                DEFAULT SUPPLIER
               </label>
               <input
                 type="text"
                 value={commonSupplier}
                 onChange={(e) => setCommonSupplier(e.target.value)}
-                placeholder="VD: Econosto / Danfoss"
+                placeholder="e.g. Econosto / Danfoss"
                 className="w-full px-2.5 py-1.5 text-xs rounded border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100"
               />
             </div>
             <div>
               <label className="block text-[11px] font-semibold text-slate-500 uppercase mb-1">
-                P.O. NUMBER MẶC ĐỊNH
+                DEFAULT P.O. NUMBER
               </label>
               <input
                 type="text"
                 value={commonPo}
                 onChange={(e) => setCommonPo(e.target.value)}
-                placeholder="VD: PO-2026-09"
+                placeholder="e.g. PO-2026-09"
                 className="w-full px-2.5 py-1.5 text-xs rounded border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100"
               />
             </div>
@@ -582,15 +587,15 @@ export function SapBatchInputTable({
             <tr>
               <th className="py-2 px-3 w-10 text-center text-slate-400 font-mono">#</th>
               <th className="py-2 px-3 font-bold text-blue-700 dark:text-blue-400 min-w-[190px]">
-                SAP NAME (NHẬP MÃ / PASTE VÀO ĐÂY) *
+                SAP NAME (ENTER / PASTE CODE) *
               </th>
-              <th className="py-2 px-3 min-w-[130px]">TRẠNG THÁI CATALOG</th>
-              <th className="py-2 px-3 min-w-[180px]">DESCRIPTION TỰ ĐỘNG TỪ CATALOG</th>
+              <th className="py-2 px-3 min-w-[130px]">CATALOG MATCH</th>
+              <th className="py-2 px-3 min-w-[180px]">CATALOG DESCRIPTION</th>
               <th className="py-2 px-3 min-w-[120px]">NORMALE N° / SPEC</th>
               <th className="py-2 px-3 min-w-[110px]">SIZE / RATING</th>
-              <th className="py-2 px-3 min-w-[110px]">TAG (FUNCTIONAL)</th>
-              <th className="py-2 px-3 min-w-[100px]">YARD</th>
-              <th className="py-2 px-2 w-12 text-center">XÓA</th>
+              <th className="py-2 px-3 min-w-[110px]">VALVE TAG</th>
+              <th className="py-2 px-3 min-w-[100px]">DESTINATION (YARD)</th>
+              <th className="py-2 px-2 w-12 text-center">DELETE</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100 dark:divide-slate-800 bg-white dark:bg-slate-900">
@@ -599,10 +604,10 @@ export function SapBatchInputTable({
                 <td colSpan={9} className="py-8 text-center text-slate-400">
                   <div className="max-w-md mx-auto space-y-2">
                     <p className="font-semibold text-slate-600 dark:text-slate-300">
-                      Chưa có mã SAP nào trong bảng.
+                      No SAP codes entered yet.
                     </p>
                     <p className="text-xs text-slate-400">
-                      Bấm vào nút <strong>"Dán Nhanh Danh Sách SAP"</strong> hoặc <strong>"Nạp 6 Mã Mẫu"</strong> hoặc <strong>"Thêm Dòng"</strong> để bắt đầu.
+                      Click <strong>"Upload SAP Excel File"</strong> or <strong>"Quick Paste SAP List"</strong> or <strong>"Load 6 Sample Codes"</strong> to start.
                     </p>
                   </div>
                 </td>
@@ -632,7 +637,7 @@ export function SapBatchInputTable({
                         value={row.sapName}
                         onChange={(e) => handleUpdateEntry(row.id, 'sapName', e.target.value)}
                         onPaste={(e) => handleCellPaste(e, rIdx)}
-                        placeholder="Nhập hoặc dán mã SAP..."
+                        placeholder="Enter or paste SAP code..."
                         className="w-full px-2.5 py-1 text-xs font-mono font-bold text-blue-900 dark:text-blue-300 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
                       />
                     </td>
@@ -640,14 +645,14 @@ export function SapBatchInputTable({
                     {/* Catalog Match Status */}
                     <td className="py-1.5 px-3 whitespace-nowrap">
                       {!row.trimmed ? (
-                        <span className="text-slate-400 text-[11px] italic">Chưa nhập mã</span>
+                        <span className="text-slate-400 text-[11px] italic">Not entered</span>
                       ) : row.isMatched ? (
                         <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800">
-                          <CheckCircle2 className="w-3 h-3" /> Đã tìm thấy
+                          <CheckCircle2 className="w-3 h-3" /> Matched
                         </span>
                       ) : (
                         <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300 border border-amber-300 dark:border-amber-800">
-                          <AlertCircle className="w-3 h-3" /> Chưa có trong Catalog
+                          <AlertCircle className="w-3 h-3" /> Not in Catalog
                         </span>
                       )}
                     </td>
@@ -693,7 +698,7 @@ export function SapBatchInputTable({
                         type="text"
                         value={row.tag || ''}
                         onChange={(e) => handleUpdateEntry(row.id, 'tag', e.target.value)}
-                        placeholder="VD: V-01"
+                        placeholder="e.g. V-01"
                         className="w-full px-2 py-1 text-xs bg-transparent border border-slate-200 dark:border-slate-800 rounded hover:border-slate-400 focus:border-blue-500 outline-none"
                       />
                     </td>
@@ -712,9 +717,10 @@ export function SapBatchInputTable({
                     {/* Delete row */}
                     <td className="py-1.5 px-2 text-center">
                       <button
+                        type="button"
                         onClick={() => handleDeleteRow(row.id)}
                         className="p-1 text-slate-400 hover:text-rose-500 rounded transition-colors cursor-pointer"
-                        title="Xóa dòng này"
+                        title="Delete this entry"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
                       </button>
@@ -731,19 +737,19 @@ export function SapBatchInputTable({
       <div className="bg-slate-50 dark:bg-slate-850 p-3.5 border-t border-slate-200 dark:border-slate-800 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
         <div className="flex items-center gap-3 text-xs">
           <div className="flex items-center gap-2">
-            <span className="text-slate-600 dark:text-slate-300 font-semibold">Chế độ đưa vào Master:</span>
+            <span className="text-slate-600 dark:text-slate-300 font-semibold">Armature List Mode:</span>
             <select
               value={appendMode}
               onChange={(e) => setAppendMode(e.target.value as 'replace' | 'append')}
               className="px-2.5 py-1 text-xs rounded border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 cursor-pointer font-medium"
             >
-              <option value="replace">Ghi đè hoàn toàn (Tạo mới Armature List)</option>
-              <option value="append">Thêm nối tiếp vào Armature List hiện có</option>
+              <option value="replace">Replace (Create New Armature List)</option>
+              <option value="append">Append (Add to Existing List)</option>
             </select>
           </div>
           {currentMasterCount > 0 && (
             <span className="text-slate-400 text-[11px]">
-              (Hiện tại Master đang có {currentMasterCount} hàng)
+              (Currently {currentMasterCount} rows in Master Table)
             </span>
           )}
         </div>
@@ -753,6 +759,7 @@ export function SapBatchInputTable({
           {/* Export directly to Excel */}
           <button
             id="btn-direct-export-excel"
+            type="button"
             onClick={handleExportDirect}
             disabled={totalEntered === 0}
             className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold transition-all shadow-sm ${
@@ -760,15 +767,16 @@ export function SapBatchInputTable({
                 ? 'bg-slate-800 hover:bg-slate-700 text-white border border-slate-700 cursor-pointer active:scale-95'
                 : 'bg-slate-200 text-slate-400 dark:bg-slate-800 dark:text-slate-600 cursor-not-allowed'
             }`}
-            title="Tạo và tải về ngay file Excel Armature Master chuẩn 2 tầng từ danh sách SAP Name này"
+            title="Create and download Excel Armature Master Table directly from this list"
           >
             <FileSpreadsheet className="w-4 h-4 text-emerald-400" />
-            <span>Xuất Trực Tiếp Excel (.xlsx)</span>
+            <span>Direct Export Excel (.xlsx)</span>
           </button>
 
           {/* Generate & Apply to Master Table */}
           <button
             id="btn-apply-sap-to-master"
+            type="button"
             onClick={handleExportToArmatureList}
             disabled={totalEntered === 0}
             className={`inline-flex items-center gap-2 px-5 py-2 rounded-lg text-xs font-bold transition-all shadow-md ${
@@ -776,10 +784,10 @@ export function SapBatchInputTable({
                 ? 'bg-blue-600 hover:bg-blue-500 text-white cursor-pointer active:scale-95 ring-2 ring-blue-400/30'
                 : 'bg-slate-200 text-slate-400 dark:bg-slate-800 dark:text-slate-600 cursor-not-allowed'
             }`}
-            title="Chuyển toàn bộ danh sách SAP Name thành các dòng Armature Master bên dưới"
+            title="Convert all entered SAP items into Armature Master rows below"
           >
             <ArrowDownToLine className="w-4 h-4" />
-            <span>XUẤT RA ARMATURE LIST BÊN DƯỚI &darr;</span>
+            <span>EXPORT TO ARMATURE LIST BELOW &darr;</span>
           </button>
         </div>
       </div>
@@ -792,10 +800,11 @@ export function SapBatchInputTable({
               <div className="flex items-center gap-2">
                 <ClipboardPaste className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
                 <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100 uppercase">
-                  Dán Danh Sách Hàng Loạt Mã SAP Name
+                  Quick Paste SAP Code List
                 </h3>
               </div>
               <button
+                type="button"
                 onClick={() => setPasteModalOpen(false)}
                 className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-lg cursor-pointer"
               >
@@ -805,7 +814,7 @@ export function SapBatchInputTable({
 
             <div className="p-4 space-y-3">
               <p className="text-xs text-slate-500">
-                Copy danh sách cột <strong>SAP Name</strong> từ file Excel hoặc văn bản của bạn rồi dán trực tiếp vào ô bên dưới (mỗi mã SAP trên một dòng):
+                Copy a column of <strong>SAP Names</strong> from Excel or Notepad and paste directly below (one per line):
               </p>
 
               <textarea
@@ -817,21 +826,23 @@ export function SapBatchInputTable({
               />
 
               <div className="flex items-center justify-between text-xs text-slate-400 pt-1">
-                <span>Hỗ trợ cả dán 1 cột hoặc nhiều cột cách nhau bởi phím Tab từ Excel.</span>
+                <span>Supports single or tab-delimited multi-column text copied from Excel.</span>
                 <span className="font-mono font-semibold text-blue-600 dark:text-blue-400">
-                  {pasteText.split(/\r?\n/).filter((l) => l.trim().length > 0).length} dòng
+                  {pasteText.split(/\r?\n/).filter((l) => l.trim().length > 0).length} lines
                 </span>
               </div>
             </div>
 
-            <div className="p-4 bg-slate-50 dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700 flex justify-end gap-2">
+            <div className="p-4 bg-slate-50 dark:bg-slate-850 border-t border-slate-200 dark:border-slate-700 flex justify-end gap-2">
               <button
+                type="button"
                 onClick={() => setPasteModalOpen(false)}
                 className="px-4 py-1.5 text-xs rounded-lg border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 cursor-pointer"
               >
-                Hủy
+                Cancel
               </button>
               <button
+                type="button"
                 onClick={handleApplyPasteText}
                 disabled={!pasteText.trim()}
                 className={`px-5 py-1.5 text-xs font-bold rounded-lg text-white transition-all cursor-pointer ${
@@ -840,7 +851,7 @@ export function SapBatchInputTable({
                     : 'bg-slate-400 opacity-60 cursor-not-allowed'
                 }`}
               >
-                Đưa Vào Bảng Nhập
+                Import into Entry Table
               </button>
             </div>
           </div>

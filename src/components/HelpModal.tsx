@@ -19,7 +19,7 @@ export const HelpModal: React.FC<HelpModalProps> = ({ isOpen, onClose }) => {
               <Code className="w-4 h-4" />
             </div>
             <h2 className="text-base font-bold text-slate-900 dark:text-slate-100">
-              Nguyên lý Hoạt động & Đối chiếu Macro VBA
+              Operating Principles &amp; VBA Macro Comparison
             </h2>
           </div>
           <button
@@ -34,65 +34,65 @@ export const HelpModal: React.FC<HelpModalProps> = ({ isOpen, onClose }) => {
         <div className="p-6 overflow-y-auto space-y-5 text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
           <div className="bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-900/40 rounded-xl p-4 text-blue-900 dark:text-blue-200">
             <p className="font-semibold text-sm mb-1">
-              Ứng dụng Web được chuyển đổi trung thực 100% từ Macro ARMATURE IMPORT TOOL
+              Web Application faithfully converted 100% from ARMATURE IMPORT TOOL Macro
             </p>
             <p>
-              Giúp bạn nhập cùng lúc hàng chục file Excel vật tư/van Armature của nhiều nhà cung cấp khác nhau vào bảng tổng hợp Master mà không cần mở Excel, không lo xung đột phiên bản và hoạt động trực tiếp ngay trên trình duyệt!
+              Import dozens of supplier Excel armature valve sheets simultaneously into the Master table without opening Excel, avoiding version conflicts, and running directly in your browser!
             </p>
           </div>
 
           <div className="space-y-3">
             <h3 className="font-bold text-slate-900 dark:text-slate-100 text-sm flex items-center gap-2">
               <CheckCircle2 className="w-4 h-4 text-emerald-500" />
-              1. Quy tắc nhận diện Dòng Tiêu đề (Header Detection)
+              1. Header Detection Rules
             </h3>
             <p>
-              Hệ thống tự động quét tối đa 60 dòng đầu tiên của từng sheet trong file nguồn. Một dòng được xác định là dòng tiêu đề khi chứa đồng thời:
+              The system automatically scans up to the first 60 rows of each sheet in source files. A row is recognized as a header when it contains simultaneously:
             </p>
             <ul className="list-disc list-inside ml-2 space-y-1 font-mono text-slate-800 dark:text-slate-200">
-              <li>Cột có tên chứa <strong>TAG</strong></li>
-              <li>Cột có tên chứa <strong>SUPPLIER</strong></li>
-              <li>Cột có tên chứa <strong>SFI</strong> hoặc <strong>DESCRIPTION</strong></li>
+              <li>Column containing <strong>TAG</strong></li>
+              <li>Column containing <strong>SUPPLIER</strong></li>
+              <li>Column containing <strong>SFI</strong> or <strong>DESCRIPTION</strong></li>
             </ul>
           </div>
 
           <div className="space-y-3">
             <h3 className="font-bold text-slate-900 dark:text-slate-100 text-sm flex items-center gap-2">
               <CheckCircle2 className="w-4 h-4 text-emerald-500" />
-              2. Chuẩn hoá Tiêu đề & Tra cứu Bí danh (Normalize & Aliases)
+              2. Title Normalization &amp; Alias Lookup
             </h3>
             <p>
-              Trước khi so khớp, tiêu đề được làm sạch triệt để: loại bỏ ngắt dòng (\r, \n), dấu tab, ký tự non-breaking space (Chr 160), dấu chấm, dấu gạch ngang, gạch chéo, dấu độ (°), chuyển toàn bộ sang chữ IN HOA và gom cụm khoảng trắng thừa.
+              Before matching, headers are thoroughly cleaned: removes line breaks (\r, \n), tabs, non-breaking space (Chr 160), dots, hyphens, slashes, degree symbols (°), converts to UPPERCASE, and strips duplicate spaces.
             </p>
             <p>
-              Nếu tên cột không trùng khớp chính xác, hệ thống tự động đối chiếu qua bảng Alias (ví dụ: <code className="bg-slate-100 dark:bg-slate-800 px-1 py-0.5 rounded">PO NO</code> &rarr; <code className="bg-slate-100 dark:bg-slate-800 px-1 py-0.5 rounded">PO NUMBER</code>, <code className="bg-slate-100 dark:bg-slate-800 px-1 py-0.5 rounded">PRESSURE CLASS</code> &rarr; <code className="bg-slate-100 dark:bg-slate-800 px-1 py-0.5 rounded">PRESSURE RATING</code>, v.v.).
+              If column names do not match directly, the system automatically checks the Alias table (e.g. <code className="bg-slate-100 dark:bg-slate-800 px-1 py-0.5 rounded">PO NO</code> &rarr; <code className="bg-slate-100 dark:bg-slate-800 px-1 py-0.5 rounded">PO NUMBER</code>, <code className="bg-slate-100 dark:bg-slate-800 px-1 py-0.5 rounded">PRESSURE CLASS</code> &rarr; <code className="bg-slate-100 dark:bg-slate-800 px-1 py-0.5 rounded">PRESSURE RATING</code>, etc.).
             </p>
           </div>
 
           <div className="space-y-3">
             <h3 className="font-bold text-slate-900 dark:text-slate-100 text-sm flex items-center gap-2">
               <CheckCircle2 className="w-4 h-4 text-emerald-500" />
-              3. Lọc dòng dữ liệu hợp lệ (IsDataRow) & Xử lý trùng lặp cột (Occurrence)
+              3. Data Row Validation (IsDataRow) &amp; Occurrence Matching
             </h3>
             <p>
-              Chỉ các dòng có ít nhất một giá trị tại các cột đã ánh xạ mới được nhập vào Master (tự động loại bỏ hoàn toàn dòng trắng hoặc dòng ghi chú).
+              Only rows with at least one non-empty value in mapped columns are imported into Master (automatically filtering out blank or comment rows).
             </p>
             <p>
-              Trường hợp một tiêu đề xuất hiện nhiều lần (ví dụ: <code className="bg-slate-100 dark:bg-slate-800 px-1 py-0.5 rounded">DESCRIPTION #1</code>, <code className="bg-slate-100 dark:bg-slate-800 px-1 py-0.5 rounded">DESCRIPTION #2</code>), thuật toán xếp lần lượt theo thứ tự xuất hiện (occurrence matching).
+              If a header appears multiple times (e.g. <code className="bg-slate-100 dark:bg-slate-800 px-1 py-0.5 rounded">DESCRIPTION #1</code>, <code className="bg-slate-100 dark:bg-slate-800 px-1 py-0.5 rounded">DESCRIPTION #2</code>), the algorithm matches them sequentially by occurrence.
             </p>
           </div>
 
           <div className="space-y-3">
             <h3 className="font-bold text-slate-900 dark:text-slate-100 text-sm flex items-center gap-2">
               <CheckCircle2 className="w-4 h-4 text-emerald-500" />
-              4. Xuất file kết quả chuẩn định dạng
+              4. Standardized Excel Export Structure
             </h3>
             <p>
-              Khi nhấn <strong>&quot;Xuất Excel (.xlsx)&quot;</strong>, file tải về sẽ có cấu trúc gồm:
+              Clicking <strong>&quot;Export Excel (.xlsx)&quot;</strong> downloads a file with:
             </p>
             <ul className="list-disc list-inside ml-2 space-y-1">
-              <li><strong>Sheet &quot;Total&quot;</strong>: Chứa toàn bộ dữ liệu Armature đã gộp, dòng 2 là Header chuẩn.</li>
-              <li><strong>Sheet &quot;Import_Log&quot;</strong>: Chứa đầy đủ nhật ký ngày giờ, tên file nguồn, sheet nguồn, dòng header, số dòng đã nhập và chi tiết cảnh báo lỗi.</li>
+              <li><strong>Sheet &quot;Total&quot;</strong>: Contains all merged Armature data, with row 2 as standard Header.</li>
+              <li><strong>Sheet &quot;Import_Log&quot;</strong>: Contains complete timestamped logs, source file names, source sheet names, header rows, imported row counts, and error details.</li>
             </ul>
           </div>
         </div>
@@ -103,7 +103,7 @@ export const HelpModal: React.FC<HelpModalProps> = ({ isOpen, onClose }) => {
             onClick={onClose}
             className="px-4 py-2 rounded-lg text-xs font-semibold bg-blue-600 hover:bg-blue-500 text-white shadow-sm transition-colors"
           >
-            Đã hiểu, tiếp tục
+            Got it, continue
           </button>
         </div>
       </div>

@@ -31,7 +31,7 @@ export const AliasConfigModal: React.FC<AliasConfigModalProps> = ({
     if (!clean) return;
 
     if (currentAliases.includes(clean)) {
-      alert('Bí danh này đã có trong danh sách!');
+      alert('This alias already exists in the list!');
       return;
     }
 
@@ -50,7 +50,7 @@ export const AliasConfigModal: React.FC<AliasConfigModalProps> = ({
   };
 
   const handleReset = () => {
-    if (window.confirm('Khôi phục danh sách bí danh mặc định từ macro VBA?')) {
+    if (window.confirm('Restore default aliases list from VBA macro?')) {
       setAliases({ ...DEFAULT_HEADER_ALIASES });
     }
   };
@@ -63,7 +63,7 @@ export const AliasConfigModal: React.FC<AliasConfigModalProps> = ({
           <div className="flex items-center gap-2">
             <SlidersHorizontal className="w-5 h-5 text-blue-500" />
             <h2 className="text-base font-bold text-slate-900 dark:text-slate-100">
-              Quản lý Bí danh Cột (Column Aliases)
+              Column Aliases Configuration
             </h2>
           </div>
           <button
@@ -77,13 +77,13 @@ export const AliasConfigModal: React.FC<AliasConfigModalProps> = ({
         {/* Body */}
         <div className="p-6 overflow-y-auto space-y-4">
           <p className="text-xs text-slate-500 dark:text-slate-400">
-            Khi tên cột trong file nhà cung cấp khác với tên chuẩn trong Master, hệ thống sẽ căn cứ vào danh sách bí danh này để tự động ghép cột.
+            When column names in supplier Excel files differ from standard Master headers, the system relies on these alias rules to map columns automatically.
           </p>
 
           {/* Select master header */}
           <div>
             <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
-              Chọn cột Master cần cấu hình:
+              Select Master column to configure:
             </label>
             <select
               value={selectedHeader}
@@ -92,7 +92,7 @@ export const AliasConfigModal: React.FC<AliasConfigModalProps> = ({
             >
               {masterHeaders.map((h) => (
                 <option key={h} value={h}>
-                  {h} ({(aliases[normalizeHeader(h)] || []).length} alias)
+                  {h} ({(aliases[normalizeHeader(h)] || []).length} aliases)
                 </option>
               ))}
             </select>
@@ -101,7 +101,7 @@ export const AliasConfigModal: React.FC<AliasConfigModalProps> = ({
           {/* Existing Aliases */}
           <div className="space-y-2">
             <span className="text-xs font-medium text-slate-700 dark:text-slate-300">
-              Các bí danh được công nhận cho <strong>{selectedHeader}</strong>:
+              Recognized aliases for <strong>{selectedHeader}</strong>:
             </span>
             <div className="min-h-[100px] max-h-[160px] overflow-y-auto p-3 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/50 flex flex-wrap gap-1.5 content-start">
               {currentAliases.length > 0 ? (
@@ -122,7 +122,7 @@ export const AliasConfigModal: React.FC<AliasConfigModalProps> = ({
                 ))
               ) : (
                 <span className="text-xs text-slate-400 italic">
-                  Chưa có bí danh nào cho cột này.
+                  No aliases set for this column yet.
                 </span>
               )}
             </div>
@@ -134,7 +134,7 @@ export const AliasConfigModal: React.FC<AliasConfigModalProps> = ({
               type="text"
               value={newAliasInput}
               onChange={(e) => setNewAliasInput(e.target.value)}
-              placeholder="Thêm bí danh mới (vd: PO NO, ACTUATOR...)"
+              placeholder="Add new alias (e.g., PO NO, ACTUATOR...)"
               className="flex-1 px-3 py-2 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
             <button
@@ -142,7 +142,7 @@ export const AliasConfigModal: React.FC<AliasConfigModalProps> = ({
               className="inline-flex items-center gap-1 px-4 py-2 text-xs font-semibold rounded-lg bg-blue-600 hover:bg-blue-500 text-white shadow-sm transition-colors"
             >
               <Plus className="w-3.5 h-3.5" />
-              Thêm
+              Add
             </button>
           </form>
         </div>
@@ -155,14 +155,14 @@ export const AliasConfigModal: React.FC<AliasConfigModalProps> = ({
             className="inline-flex items-center gap-1.5 text-xs text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
           >
             <RotateCcw className="w-3.5 h-3.5" />
-            Khôi phục mặc định VBA
+            Restore VBA Defaults
           </button>
           <button
             type="button"
             onClick={onClose}
             className="px-4 py-2 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-white transition-colors"
           >
-            Đóng
+            Close
           </button>
         </div>
       </div>

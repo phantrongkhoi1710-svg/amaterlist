@@ -51,12 +51,12 @@ interface MasterTableProps {
 }
 
 const QUICK_COLORS = [
-  { label: 'Vàng (Mới/Cập nhật)', hex: '#FFFF00', bg: 'bg-yellow-400', status: 'new_updated' as RowRevisionStatus },
-  { label: 'Đỏ gạch ngang (Xóa dòng)', hex: '#EF4444', bg: 'bg-rose-500', status: 'deleted' as RowRevisionStatus },
-  { label: 'Xanh lá (Đã kiểm tra)', hex: '#86EFAC', bg: 'bg-emerald-400', status: 'normal' as RowRevisionStatus },
-  { label: 'Xanh lam (Thiết kế)', hex: '#93C5FD', bg: 'bg-sky-400', status: 'normal' as RowRevisionStatus },
-  { label: 'Cam (Lưu ý/Cảnh báo)', hex: '#FDBA74', bg: 'bg-orange-400', status: 'normal' as RowRevisionStatus },
-  { label: 'Tím (Dự phòng)', hex: '#D8B4FE', bg: 'bg-purple-400', status: 'normal' as RowRevisionStatus },
+  { label: 'Yellow (New/Updated)', hex: '#FFFF00', bg: 'bg-yellow-400', status: 'new_updated' as RowRevisionStatus },
+  { label: 'Red Strikethrough (Delete Line)', hex: '#EF4444', bg: 'bg-rose-500', status: 'deleted' as RowRevisionStatus },
+  { label: 'Green (Checked)', hex: '#86EFAC', bg: 'bg-emerald-400', status: 'normal' as RowRevisionStatus },
+  { label: 'Blue (Design)', hex: '#93C5FD', bg: 'bg-sky-400', status: 'normal' as RowRevisionStatus },
+  { label: 'Orange (Notice/Warning)', hex: '#FDBA74', bg: 'bg-orange-400', status: 'normal' as RowRevisionStatus },
+  { label: 'Purple (Spare)', hex: '#D8B4FE', bg: 'bg-purple-400', status: 'normal' as RowRevisionStatus },
 ];
 
 export const MasterTable: React.FC<MasterTableProps> = ({
@@ -388,91 +388,50 @@ export const MasterTable: React.FC<MasterTableProps> = ({
 
   return (
     <div className="space-y-3.5">
-      {/* PRINCIPLE FOR REVISION DESCRIPTIONS BANNER */}
-      <div className="bg-slate-900 text-white rounded-xl border border-slate-800 p-3.5 shadow-sm">
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
-          <div className="space-y-1.5">
-            <div className="flex items-center gap-2">
-              <span className="text-[11px] font-black uppercase tracking-wider bg-slate-800 text-amber-300 px-2.5 py-0.5 rounded border border-amber-400/30">
-                PRINCIPLE FOR REVISION DESCRIPTIONS
-              </span>
-              <span className="text-xs text-slate-300">Quy chuẩn theo dõi phiên bản van (Load màu &amp; Xóa hàng)</span>
-            </div>
-            <div className="flex flex-wrap items-center gap-2 sm:gap-3 text-xs">
-              <div className="flex items-center gap-1.5 px-2 py-1 rounded bg-yellow-400/20 border border-yellow-400/40 text-yellow-300 font-semibold">
-                <span className="w-2.5 h-2.5 rounded-full bg-yellow-400 inline-block shadow-sm"></span>
-                <span>New/Updated valve: Yellow coloured row</span>
-              </div>
-              <div className="flex items-center gap-1.5 px-2 py-1 rounded bg-rose-500/20 border border-rose-500/40 text-rose-300 font-semibold line-through">
-                <span className="w-2.5 h-2.5 rounded-full bg-rose-500 inline-block shadow-sm"></span>
-                <span>Deleted valve: Red colour with strikethrough (Delete line)</span>
-              </div>
-              <div className="flex items-center gap-1.5 px-2 py-1 rounded bg-slate-800 border border-slate-700 text-slate-300 italic">
-                <span className="w-2.5 h-2.5 rounded-full bg-slate-400 inline-block shadow-sm"></span>
-                <span>Next revision: Keep SFI and TAG (rest empty)</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="flex flex-wrap items-center gap-2">
-            {revisionStats.deleted > 0 && (
-              <button
-                type="button"
-                onClick={() => setIsNextRevModalOpen(true)}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-amber-400 hover:bg-amber-300 text-slate-950 transition-colors shadow-sm cursor-pointer"
-                title="Quy tắc 3: Tự động dọn dẹp các van đã xóa: chỉ giữ SFI & TAG, làm trống các ô còn lại"
-              >
-                <span>Chuyển {revisionStats.deleted} van xóa sang Next Rev</span>
-              </button>
-            )}
-          </div>
-        </div>
-      </div>
-
       {/* FLOATING BULK SELECTION ACTION BAR */}
       {selectedRowIds.size > 0 && (
         <div className="bg-slate-900 text-white rounded-xl p-3 shadow-lg border border-slate-700 flex flex-wrap items-center justify-between gap-3 animate-in fade-in duration-150">
           <div className="flex items-center gap-2">
             <span className="px-2.5 py-1 rounded-md bg-blue-600 text-white text-xs font-bold shadow-xs">
-              Đã chọn {selectedRowIds.size} dòng van
+              Selected {selectedRowIds.size} valve rows
             </span>
             <span className="text-xs text-slate-300 hidden md:inline">
-              Thao tác hàng loạt (Load màu &amp; Xóa dòng):
+              Bulk Actions (Colors &amp; Line Deletions):
             </span>
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
-            {/* 🟡 Tô màu Vàng */}
+            {/* 🟡 Apply Yellow */}
             <button
               type="button"
               onClick={() => handleBulkApplyStatus('new_updated')}
               className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-yellow-400 text-slate-950 hover:bg-yellow-300 transition-colors cursor-pointer"
-              title="Tô màu vàng cho các dòng đã chọn (New / Updated valve)"
+              title="Apply yellow color to selected rows (New / Updated valve)"
             >
               <span className="w-2 h-2 rounded-full bg-yellow-600 inline-block"></span>
-              <span>Tô màu Vàng</span>
+              <span>Apply Yellow</span>
             </button>
 
-            {/* 🔴 Gạch dòng đã xóa (Delete Line) */}
+            {/* 🔴 Delete Line */}
             <button
               type="button"
               onClick={() => handleBulkApplyStatus('deleted')}
               className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-rose-600 text-white hover:bg-rose-500 transition-colors cursor-pointer line-through"
-              title="Gạch dòng đã xóa (Red colour with strikethrough)"
+              title="Delete line (Red colour with strikethrough)"
             >
               <span className="w-2 h-2 rounded-full bg-rose-300 inline-block"></span>
-              <span>Xóa gạch dòng</span>
+              <span>Delete Line</span>
             </button>
 
-            {/* <s> Bật / tắt gạch ngang cho các dòng đã chọn */}
+            {/* <s> Strikethrough */}
             <button
               type="button"
               onClick={handleBulkToggleStrikethrough}
               className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-800 text-rose-300 border border-rose-500/50 hover:bg-slate-700 transition-colors cursor-pointer"
-              title="Bật / tắt hiệu ứng gạch ngang cho toàn bộ các dòng đang chọn"
+              title="Toggle strikethrough for selected rows"
             >
               <span className="font-serif text-sm font-black"><s>S</s></span>
-              <span>Gạch ngang ({selectedRowIds.size})</span>
+              <span>Strikethrough ({selectedRowIds.size})</span>
             </button>
 
             {/* ⚪ Next Revision */}
@@ -480,41 +439,41 @@ export const MasterTable: React.FC<MasterTableProps> = ({
               type="button"
               onClick={() => handleBulkApplyStatus('next_rev_after_deleted')}
               className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 text-slate-200 hover:bg-slate-700 border border-slate-700 transition-colors cursor-pointer"
-              title="Áp dụng Next Rev (Làm trống ô, chỉ giữ SFI & TAG)"
+              title="Apply Next Rev (Keep SFI & TAG, empty rest)"
             >
               <span>Next Rev</span>
             </button>
 
-            {/* 🧹 Bỏ màu */}
+            {/* 🧹 Clear Color */}
             <button
               type="button"
               onClick={() => handleBulkApplyStatus('normal')}
               className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium bg-slate-800 text-slate-300 hover:bg-slate-700 transition-colors cursor-pointer"
-              title="Đặt lại trạng thái bình thường (Không màu)"
+              title="Reset status to normal (No color)"
             >
-              <span>Bỏ màu</span>
+              <span>Clear Color</span>
             </button>
 
             <span className="w-px h-5 bg-slate-700 mx-1 hidden sm:block"></span>
 
-            {/* 🗑️ Xóa hẳn các dòng đã chọn (Delete Lines from Master) */}
+            {/* 🗑️ Delete Selected Rows */}
             <button
               type="button"
               onClick={() => setDeleteModal({ type: 'bulk', ids: Array.from(selectedRowIds) })}
               className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-rose-700 hover:bg-rose-600 text-white transition-colors cursor-pointer shadow-sm"
-              title="Xóa vĩnh viễn các dòng đã chọn khỏi bảng Master"
+              title="Permanently delete selected rows from Master table"
             >
               <Trash2 className="w-3.5 h-3.5" />
-              <span>Xóa {selectedRowIds.size} dòng</span>
+              <span>Delete {selectedRowIds.size} rows</span>
             </button>
 
-            {/* ✕ Bỏ chọn */}
+            {/* ✕ Deselect */}
             <button
               type="button"
               onClick={() => setSelectedRowIds(new Set())}
               className="px-2 py-1.5 rounded-lg text-xs text-slate-400 hover:text-white transition-colors cursor-pointer"
             >
-              ✕ Bỏ chọn
+              ✕ Deselect
             </button>
           </div>
         </div>
@@ -536,7 +495,7 @@ export const MasterTable: React.FC<MasterTableProps> = ({
                   setSearchTerm(e.target.value);
                   setCurrentPage(1);
                 }}
-                placeholder="Tìm TAG, SAP Code, Quy cách..."
+                placeholder="Search TAG, SAP Code, Specs..."
                 className="w-full pl-9 pr-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
               />
             </div>
@@ -555,7 +514,7 @@ export const MasterTable: React.FC<MasterTableProps> = ({
                     : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
                 }`}
               >
-                Tất cả ({data.length})
+                All ({data.length})
               </button>
               <button
                 type="button"
@@ -568,10 +527,10 @@ export const MasterTable: React.FC<MasterTableProps> = ({
                     ? 'bg-yellow-400 text-slate-950 shadow-xs'
                     : 'text-yellow-700 dark:text-yellow-300 hover:bg-yellow-100/50'
                 }`}
-                title="Lọc các dòng van Mới hoặc Cập nhật (Màu vàng)"
+                title="Filter New or Updated valve rows (Yellow)"
               >
                 <span className="w-2 h-2 rounded-full bg-yellow-400 inline-block border border-yellow-600"></span>
-                <span>Mới ({revisionStats.newUpdated})</span>
+                <span>New ({revisionStats.newUpdated})</span>
               </button>
               <button
                 type="button"
@@ -584,11 +543,22 @@ export const MasterTable: React.FC<MasterTableProps> = ({
                     ? 'bg-rose-600 text-white shadow-xs line-through'
                     : 'text-rose-600 dark:text-rose-400 hover:bg-rose-100/50'
                 }`}
-                title="Lọc các dòng van Đã xóa (Màu đỏ gạch ngang)"
+                title="Filter Deleted valve rows (Red strikethrough)"
               >
                 <span className="w-2 h-2 rounded-full bg-rose-500 inline-block border border-rose-700"></span>
-                <span>Đã xóa ({revisionStats.deleted})</span>
+                <span>Deleted ({revisionStats.deleted})</span>
               </button>
+
+              {revisionStats.deleted > 0 && (
+                <button
+                  type="button"
+                  onClick={() => setIsNextRevModalOpen(true)}
+                  className="px-2 py-1 rounded-md text-[11px] font-bold bg-amber-400 hover:bg-amber-300 text-slate-950 transition-colors shadow-xs cursor-pointer ml-1"
+                  title="Clean up deleted valves: keep SFI & TAG, empty remaining cells for next revision"
+                >
+                  Move {revisionStats.deleted} deleted to Next Rev
+                </button>
+              )}
               <button
                 type="button"
                 onClick={() => {
@@ -600,7 +570,7 @@ export const MasterTable: React.FC<MasterTableProps> = ({
                     ? 'bg-slate-300 dark:bg-slate-600 text-slate-900 dark:text-slate-100 shadow-xs'
                     : 'text-slate-500 dark:text-slate-400 hover:bg-slate-200/50'
                 }`}
-                title="Lọc các dòng van Next Rev sau khi xóa (Chỉ giữ SFI & TAG)"
+                title="Filter Next Rev valves after deletion (Keeps SFI & TAG)"
               >
                 <span>Next Rev ({revisionStats.nextRev})</span>
               </button>
@@ -619,7 +589,7 @@ export const MasterTable: React.FC<MasterTableProps> = ({
                   }}
                   className="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
-                  <option value="all">Tất cả file ({data.length})</option>
+                  <option value="all">All files ({data.length})</option>
                   {sourceFiles.map((file) => (
                     <option key={file} value={file}>
                       {file}
@@ -635,10 +605,10 @@ export const MasterTable: React.FC<MasterTableProps> = ({
                 id="btn-load-image-sample"
                 onClick={onLoadImageSample}
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-lg bg-yellow-400 hover:bg-yellow-500 text-slate-950 shadow-xs transition-colors cursor-pointer"
-                title="Nạp ngay các dòng mẫu theo đúng 26 cột và các màu (Vàng, Đỏ gạch ngang, Next Rev)"
+                title="Load sample rows matching standard 26 columns and revision colors"
               >
                 <Sparkles className="w-3.5 h-3.5 text-slate-950" />
-                <span>Nạp 4 dòng mẫu màu</span>
+                <span>Load 4 Color Samples</span>
               </button>
             )}
 
@@ -648,10 +618,10 @@ export const MasterTable: React.FC<MasterTableProps> = ({
                 id="btn-reset-to-image-headers"
                 onClick={onResetToImageHeaders}
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 border border-slate-300 dark:border-slate-700 transition-colors cursor-pointer"
-                title="Khôi phục chuẩn 26 tiêu đề cột theo ảnh: TAG -> DESTINATION (Vàng), SAP CODE -> SIGN TEXT (Xám), INPUT -> SIGNATURE (Trắng)"
+                title="Restore standard 26 column headers: TAG -> DESTINATION (Yellow), SAP CODE -> SIGN TEXT (Gray), INPUT -> SIGNATURE (White)"
               >
                 <SlidersHorizontal className="w-3.5 h-3.5 text-blue-600" />
-                <span>Chuẩn 26 cột ({masterHeaders.length}/26)</span>
+                <span>Standard 26 Cols ({masterHeaders.length}/26)</span>
               </button>
             )}
 
@@ -661,10 +631,10 @@ export const MasterTable: React.FC<MasterTableProps> = ({
                 id="btn-add-valve-row"
                 onClick={() => onAddRow()}
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 border border-slate-300 dark:border-slate-700 transition-colors cursor-pointer"
-                title="Thêm một dòng van mới vào bảng Armature"
+                title="Add a new valve row to Armature table"
               >
                 <PlusCircle className="w-3.5 h-3.5 text-blue-600" />
-                <span>+ Thêm van mới</span>
+                <span>+ Add New Valve</span>
               </button>
             )}
           </div>
@@ -681,10 +651,10 @@ export const MasterTable: React.FC<MasterTableProps> = ({
                     ? 'bg-blue-50 text-blue-700 border-blue-300 dark:bg-blue-950/60 dark:text-blue-300 dark:border-blue-800'
                     : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border-slate-200 dark:border-slate-700 hover:bg-slate-50'
                 }`}
-                title="Mở bảng kéo thả và quản lý file Excel nguồn để import vào Master (Hỗ trợ load màu và gạch ngang)"
+                title="Open drop zone and source Excel file manager"
               >
                 <FileUp className="w-3.5 h-3.5 text-blue-600" />
-                <span>Nhập File Excel</span>
+                <span>Import Excel File</span>
                 {totalFilesCount > 0 && (
                   <span className="px-1.5 py-0.2 rounded-full text-[10px] bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 font-bold">
                     {totalFilesCount}
@@ -699,10 +669,10 @@ export const MasterTable: React.FC<MasterTableProps> = ({
                 id="btn-open-logs-modal"
                 onClick={onOpenLogs}
                 className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 text-xs font-medium transition-colors cursor-pointer"
-                title="Xem lịch sử và nhật ký Import_Log"
+                title="View import history and Import_Log"
               >
                 <Clock className="w-3.5 h-3.5 text-slate-500" />
-                <span>Nhật ký</span>
+                <span>Logs</span>
                 {logsCount > 0 && (
                   <span className="text-[10px] text-slate-400">({logsCount})</span>
                 )}
@@ -715,10 +685,10 @@ export const MasterTable: React.FC<MasterTableProps> = ({
                 id="btn-open-aliases-modal"
                 onClick={onOpenAliases}
                 className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 text-xs font-medium transition-colors cursor-pointer"
-                title="Cấu hình từ đồng nghĩa cho tên cột"
+                title="Configure column header aliases"
               >
                 <SlidersHorizontal className="w-3.5 h-3.5 text-slate-500" />
-                <span className="hidden sm:inline">Ánh xạ cột</span>
+                <span className="hidden sm:inline">Column Aliases</span>
               </button>
             )}
 
@@ -727,10 +697,10 @@ export const MasterTable: React.FC<MasterTableProps> = ({
               id="btn-table-batch-mail"
               onClick={onOpenBatchMail}
               className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-sky-50 dark:bg-sky-950/40 text-sky-700 dark:text-sky-300 hover:bg-sky-100 dark:hover:bg-sky-900/50 text-xs font-semibold border border-sky-200 dark:border-sky-800 transition-colors cursor-pointer"
-              title="Soạn thảo và gửi email báo cáo qua Outlook"
+              title="Compose report email via Outlook"
             >
               <Mail className="w-3.5 h-3.5 text-sky-600" />
-              <span>Gửi Mail ({data.length})</span>
+              <span>Email Report ({data.length})</span>
             </button>
 
             {/* Export Excel (.xlsx) with loaded colors */}
@@ -743,10 +713,10 @@ export const MasterTable: React.FC<MasterTableProps> = ({
                   ? 'bg-emerald-600 hover:bg-emerald-700 text-white cursor-pointer'
                   : 'bg-slate-100 dark:bg-slate-800 text-slate-400 border border-slate-200 dark:border-slate-700 cursor-not-allowed opacity-60'
               }`}
-              title="Xuất file Excel bảo lưu đầy đủ màu sắc: Vàng (New/Updated), Đỏ gạch ngang (Deleted), và Next Rev"
+              title="Export complete Excel file preserving revision colors: Yellow (New/Updated), Red Strikethrough (Deleted), and Next Rev"
             >
               <Download className="w-3.5 h-3.5" />
-              <span>Xuất Excel (.xlsx)</span>
+              <span>Export Excel (.xlsx)</span>
             </button>
 
             {/* Export CSV */}
@@ -770,10 +740,10 @@ export const MasterTable: React.FC<MasterTableProps> = ({
             <FileSpreadsheet className="w-8 h-8" />
           </div>
           <h3 className="text-base font-semibold text-slate-900 dark:text-slate-100">
-            Chưa có dữ liệu trong bảng Armature Master
+            No data in Armature Master table
           </h3>
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-md mx-auto">
-            Bấm <strong>&quot;Nhập File Excel&quot;</strong> để tải file nguồn kèm màu sắc, hoặc bấm <strong>&quot;Nạp 4 dòng mẫu màu&quot;</strong> để xem quy chuẩn tô màu vàng, đỏ gạch ngang và next revision.
+            Click <strong>&quot;Import Excel File&quot;</strong> to load source files, or click <strong>&quot;Load 4 Color Samples&quot;</strong> to test revision colors (yellow, red strikethrough, and next revision).
           </p>
           <div className="mt-4 flex flex-wrap items-center justify-center gap-3">
             {onLoadImageSample && (
@@ -782,7 +752,7 @@ export const MasterTable: React.FC<MasterTableProps> = ({
                 className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-yellow-400 hover:bg-yellow-500 text-slate-950 font-bold text-xs shadow-sm transition-all cursor-pointer"
               >
                 <Sparkles className="w-4 h-4" />
-                <span>Nạp 4 dòng mẫu màu</span>
+                <span>Load 4 Color Samples</span>
               </button>
             )}
             {onToggleFileUploader && (
@@ -791,7 +761,7 @@ export const MasterTable: React.FC<MasterTableProps> = ({
                 className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs shadow-sm transition-all cursor-pointer"
               >
                 <FileUp className="w-4 h-4" />
-                <span>Nhập File Excel Nguồn</span>
+                <span>Import Source Excel File</span>
               </button>
             )}
           </div>
@@ -810,7 +780,7 @@ export const MasterTable: React.FC<MasterTableProps> = ({
                     colSpan={3}
                     className="bg-slate-200 dark:bg-slate-850 px-3 py-2 text-center text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 border-r border-slate-300 dark:border-slate-700"
                   >
-                    NGUỒN DỮ LIỆU
+                    DATA SOURCE
                   </th>
 
                   {/* GROUP 1: TO BE COMPLETED BY FUNCTIONAL DESIGN (Màu Vàng #FFFF00) */}
@@ -842,13 +812,13 @@ export const MasterTable: React.FC<MasterTableProps> = ({
                       style={{ backgroundColor: '#FFFFFF', color: '#000000' }}
                       className="px-4 py-2.5 text-center text-xs font-black uppercase tracking-wider border-r border-slate-300 shadow-inner"
                     >
-                      REVISION & SIGNATURE
+                      REVISION &amp; SIGNATURE
                     </th>
                   )}
 
                   {/* Actions Column */}
                   <th className="bg-slate-200 dark:bg-slate-850 px-3 py-2 text-center text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 min-w-[200px]">
-                    LOAD MÀU &amp; XÓA DÒNG
+                    COLOR &amp; LINE DELETION
                   </th>
                 </tr>
 
@@ -861,14 +831,14 @@ export const MasterTable: React.FC<MasterTableProps> = ({
                       checked={isAllPaginatedSelected}
                       onChange={handleToggleSelectAll}
                       className="w-3.5 h-3.5 text-blue-600 rounded border-slate-300 dark:border-slate-600 focus:ring-blue-500 cursor-pointer"
-                      title={isAllPaginatedSelected ? 'Bỏ chọn trang này' : 'Chọn tất cả dòng trang này'}
+                      title={isAllPaginatedSelected ? 'Deselect current page' : 'Select all on this page'}
                     />
                   </th>
                   <th className="py-2.5 px-2.5 w-10 text-center text-slate-400 font-mono bg-slate-100 dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700">
                     #
                   </th>
                   <th className="py-2.5 px-3 text-slate-600 dark:text-slate-400 font-mono text-[11px] whitespace-nowrap bg-slate-100 dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700">
-                    File Nguồn
+                    Source File
                   </th>
 
                   {masterHeaders.map((header, colIdx) => {
@@ -887,7 +857,7 @@ export const MasterTable: React.FC<MasterTableProps> = ({
                             ? 'bg-[#BFBFBF] hover:bg-slate-350 text-slate-950 font-bold border-slate-400'
                             : 'bg-white hover:bg-slate-100 text-slate-950 font-semibold border-slate-300'
                         }`}
-                        title={`Nhấp để sắp xếp theo ${header}`}
+                        title={`Click to sort by ${header}`}
                       >
                         <div className="flex items-center justify-between gap-2">
                           <span className="truncate">{header}</span>
@@ -906,7 +876,7 @@ export const MasterTable: React.FC<MasterTableProps> = ({
                   })}
 
                   <th className="py-2 px-3 text-center min-w-[200px] whitespace-nowrap bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 font-semibold">
-                    Thao Tác Dòng
+                    Row Actions
                   </th>
                 </tr>
               </thead>
@@ -1036,8 +1006,8 @@ export const MasterTable: React.FC<MasterTableProps> = ({
                             }`}
                             title={
                               isTag
-                                ? 'Nhấp để chỉnh sửa van này'
-                                : 'Nhấp để sửa giá trị ô này'
+                                ? 'Click to edit this valve'
+                                : 'Click to edit cell value'
                             }
                           >
                             {isEmpty ? '—' : String(val)}
@@ -1057,10 +1027,10 @@ export const MasterTable: React.FC<MasterTableProps> = ({
                                 ? 'bg-yellow-400 text-slate-950 ring-2 ring-yellow-500 shadow-xs'
                                 : 'bg-yellow-100 hover:bg-yellow-200 text-yellow-900 border border-yellow-300'
                             }`}
-                            title="Tô màu Vàng: Van Mới hoặc Cập nhật (Yellow coloured row)"
+                            title="Yellow: New or Updated valve"
                           >
                             <span className="w-2 h-2 rounded-full bg-yellow-500 inline-block"></span>
-                            <span>Vàng</span>
+                            <span>Yellow</span>
                           </button>
 
                           {/* 🔴 Quick Toggle Red Strikethrough (Delete Line) */}
@@ -1072,10 +1042,10 @@ export const MasterTable: React.FC<MasterTableProps> = ({
                                 ? 'bg-rose-600 text-white ring-2 ring-rose-700 shadow-xs line-through'
                                 : 'bg-rose-100 hover:bg-rose-200 text-rose-900 border border-rose-300'
                             }`}
-                            title="Gạch dòng đã xóa (Red colour with strikethrough - Delete line)"
+                            title="Delete line (Red with strikethrough)"
                           >
                             <span className="w-2 h-2 rounded-full bg-rose-500 inline-block"></span>
-                            <span>Gạch dòng</span>
+                            <span>Delete Line</span>
                           </button>
 
                           {/* <s> Toggle Strikethrough Independently */}
@@ -1087,7 +1057,7 @@ export const MasterTable: React.FC<MasterTableProps> = ({
                                 ? 'bg-rose-600 text-white ring-2 ring-rose-500 shadow-xs'
                                 : 'bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300'
                             }`}
-                            title={isStrikethrough ? 'Đang gạch ngang: Nhấp để tắt gạch dòng này' : 'Bật gạch ngang dòng này (Strikethrough)'}
+                            title={isStrikethrough ? 'Strikethrough active: click to disable' : 'Toggle strikethrough'}
                           >
                             <s>S</s>
                           </button>
@@ -1101,7 +1071,7 @@ export const MasterTable: React.FC<MasterTableProps> = ({
                                 ? 'bg-slate-700 text-white ring-2 ring-slate-800 shadow-xs'
                                 : 'bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300'
                             }`}
-                            title="Next Rev: Giữ SFI & TAG, làm trống các ô còn lại"
+                            title="Next Rev: Keep SFI & TAG, empty remaining cells"
                           >
                             N
                           </button>
@@ -1112,7 +1082,7 @@ export const MasterTable: React.FC<MasterTableProps> = ({
                               type="button"
                               onClick={() => setActiveColorRowId(activeColorRowId === row._id ? null : row._id)}
                               className="w-6 h-6 rounded-md flex items-center justify-center text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 border border-slate-300 dark:border-slate-700 transition-colors cursor-pointer"
-                              title="Tải / đổi màu cho dòng này"
+                              title="Set or change row color"
                             >
                               <Palette className="w-3.5 h-3.5" />
                             </button>
@@ -1120,7 +1090,7 @@ export const MasterTable: React.FC<MasterTableProps> = ({
                             {activeColorRowId === row._id && (
                               <div className="absolute right-0 top-full mt-1 z-30 p-2.5 bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-slate-200 dark:border-slate-700 flex flex-col gap-2 min-w-[170px] text-left">
                                 <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                                  Tô màu &amp; Gạch ngang
+                                  Color &amp; Strikethrough
                                 </span>
                                 <div className="grid grid-cols-3 gap-1.5">
                                   {QUICK_COLORS.map((c) => (
@@ -1143,14 +1113,14 @@ export const MasterTable: React.FC<MasterTableProps> = ({
                                       onChange={(e) => handleSetRowColor(row, e.target.value)}
                                       className="w-4 h-4 rounded cursor-pointer border-0 p-0"
                                     />
-                                    <span>Tự chọn màu</span>
+                                    <span>Custom color</span>
                                   </label>
                                   <button
                                     type="button"
                                     onClick={() => handleSetRowColor(row, undefined, 'normal', false)}
                                     className="text-[10px] text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 cursor-pointer"
                                   >
-                                    Xóa màu
+                                    Clear color
                                   </button>
                                 </div>
 
@@ -1163,7 +1133,7 @@ export const MasterTable: React.FC<MasterTableProps> = ({
                                     className="w-3.5 h-3.5 text-rose-600 rounded cursor-pointer"
                                   />
                                   <span className={isStrikethrough ? 'line-through font-bold text-rose-600' : 'text-slate-700 dark:text-slate-300'}>
-                                    Gạch ngang dòng
+                                    Strikethrough Line
                                   </span>
                                 </label>
                               </div>
@@ -1177,7 +1147,7 @@ export const MasterTable: React.FC<MasterTableProps> = ({
                             type="button"
                             onClick={() => onEditRow(row)}
                             className="text-slate-500 hover:text-blue-600 dark:text-slate-400 dark:hover:text-blue-400 transition-colors p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
-                            title="Chỉnh sửa thông số van"
+                            title="Edit valve parameters"
                           >
                             <Edit3 className="w-3.5 h-3.5" />
                           </button>
@@ -1187,17 +1157,17 @@ export const MasterTable: React.FC<MasterTableProps> = ({
                             type="button"
                             onClick={() => onMailRow(row)}
                             className="text-slate-500 hover:text-sky-600 dark:text-slate-400 dark:hover:text-sky-400 transition-colors p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
-                            title="Soạn mail Outlook"
+                            title="Compose Outlook mail"
                           >
                             <Mail className="w-3.5 h-3.5" />
                           </button>
 
-                          {/* 🗑️ Xóa hẳn dòng này khỏi bảng (Delete Line) */}
+                          {/* 🗑️ Delete Line */}
                           <button
                             type="button"
                             onClick={() => setDeleteModal({ type: 'single', row })}
                             className="text-slate-400 hover:text-rose-600 transition-colors p-1 rounded hover:bg-rose-50 dark:hover:bg-rose-950/40 cursor-pointer"
-                            title="Xóa hẳn dòng van này khỏi bảng Master"
+                            title="Permanently delete this valve row from Master table"
                           >
                             <Trash2 className="w-3.5 h-3.5" />
                           </button>
@@ -1214,19 +1184,19 @@ export const MasterTable: React.FC<MasterTableProps> = ({
           <div className="px-4 py-3 bg-slate-50 dark:bg-slate-850 border-t border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-600 dark:text-slate-400">
             <div className="flex items-center gap-2">
               <span>
-                Hiển thị{' '}
+                Showing{' '}
                 <strong>
                   {Math.min((currentPage - 1) * pageSize + 1, sortedData.length)} -{' '}
                   {Math.min(currentPage * pageSize, sortedData.length)}
                 </strong>{' '}
-                trong tổng số <strong>{sortedData.length}</strong> hàng
-                {filteredData.length !== data.length && ` (Lọc từ ${data.length})`}
+                of <strong>{sortedData.length}</strong> rows
+                {filteredData.length !== data.length && ` (Filtered from ${data.length})`}
               </span>
 
               <span className="mx-2 text-slate-300 dark:text-slate-700">|</span>
 
               <div className="flex items-center gap-1.5">
-                <span>Số hàng mỗi trang:</span>
+                <span>Rows per page:</span>
                 <select
                   value={pageSize}
                   onChange={(e) => {
@@ -1278,13 +1248,13 @@ export const MasterTable: React.FC<MasterTableProps> = ({
               <div className="flex-1">
                 <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100">
                   {deleteModal.type === 'single'
-                    ? `Xác nhận xóa dòng van: ${deleteModal.row?.TAG || 'vật tư'}`
-                    : `Xác nhận xóa ${deleteModal.ids?.length} dòng van`}
+                    ? `Confirm row deletion: ${deleteModal.row?.TAG || 'item'}`
+                    : `Confirm deletion of ${deleteModal.ids?.length} valve rows`}
                 </h3>
                 <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
                   {deleteModal.type === 'single'
-                    ? 'Dòng van này sẽ bị xóa khỏi bảng Master. Bạn có thể thêm lại hoặc nạp lại từ file Excel nếu cần.'
-                    : `Toàn bộ ${deleteModal.ids?.length} dòng van đã chọn sẽ bị xóa khỏi bảng Master.`}
+                    ? 'This valve row will be removed from the Master table.'
+                    : `All ${deleteModal.ids?.length} selected valve rows will be removed from the Master table.`}
                 </p>
               </div>
             </div>
@@ -1294,7 +1264,7 @@ export const MasterTable: React.FC<MasterTableProps> = ({
                 onClick={() => setDeleteModal(null)}
                 className="px-3.5 py-2 rounded-lg text-xs font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
               >
-                Huỷ bỏ
+                Cancel
               </button>
               <button
                 type="button"
@@ -1302,7 +1272,7 @@ export const MasterTable: React.FC<MasterTableProps> = ({
                 className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-bold bg-rose-600 hover:bg-rose-700 text-white shadow-sm transition-colors cursor-pointer"
               >
                 <Trash2 className="w-3.5 h-3.5" />
-                <span>Xác nhận xóa</span>
+                <span>Confirm Delete</span>
               </button>
             </div>
           </div>
@@ -1319,10 +1289,10 @@ export const MasterTable: React.FC<MasterTableProps> = ({
               </div>
               <div className="flex-1">
                 <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100">
-                  Chuyển {revisionStats.deleted} van đã xóa sang Next Rev?
+                  Move {revisionStats.deleted} deleted valves to Next Rev?
                 </h3>
                 <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                  Tuân theo <strong>Nguyên tắc 3 (Revision Principle)</strong>: Chỉ giữ lại SFI &amp; TAG, làm trống toàn bộ các ô thông số kỹ thuật còn lại.
+                  According to <strong>Revision Principle Rule 3</strong>: Keeps SFI &amp; TAG, clearing all other technical specification fields.
                 </p>
               </div>
             </div>
@@ -1332,14 +1302,14 @@ export const MasterTable: React.FC<MasterTableProps> = ({
                 onClick={() => setIsNextRevModalOpen(false)}
                 className="px-3.5 py-2 rounded-lg text-xs font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
               >
-                Huỷ bỏ
+                Cancel
               </button>
               <button
                 type="button"
                 onClick={handleExecuteNextRevForDeleted}
                 className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-bold bg-amber-500 hover:bg-amber-600 text-slate-950 shadow-sm transition-colors cursor-pointer"
               >
-                <span>Đồng ý chuyển</span>
+                <span>Confirm Move</span>
               </button>
             </div>
           </div>

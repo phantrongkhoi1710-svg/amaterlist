@@ -170,10 +170,10 @@ export const OutlookEmailModal: React.FC<OutlookEmailModalProps> = ({
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h2 className="text-base font-bold tracking-tight">Soạn & Gửi Email Qua Outlook</h2>
+                <h2 className="text-base font-bold tracking-tight">Compose &amp; Send Outlook Email</h2>
                 <span className="text-[10px] px-2 py-0.5 rounded-full font-semibold bg-emerald-500/30 text-emerald-200 border border-emerald-400/30 flex items-center gap-1">
                   <Paperclip className="w-3 h-3" />
-                  Kèm file Excel (.xlsx)
+                  Includes Excel (.xlsx)
                 </span>
               </div>
             </div>
@@ -189,7 +189,7 @@ export const OutlookEmailModal: React.FC<OutlookEmailModalProps> = ({
         {/* Template Selector Bar */}
         <div className="px-6 py-2 bg-slate-50 dark:bg-slate-850 border-b border-slate-200 dark:border-slate-800 flex flex-wrap items-center justify-between gap-2 text-xs">
           <div className="flex items-center gap-1.5">
-            <span className="text-slate-500 font-medium mr-1">Mẫu thư:</span>
+            <span className="text-slate-500 font-medium mr-1">Template:</span>
             <button
               onClick={() => handleSwitchTemplate('row_edited')}
               className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-medium transition-colors cursor-pointer ${
@@ -199,7 +199,7 @@ export const OutlookEmailModal: React.FC<OutlookEmailModalProps> = ({
               }`}
             >
               <FileEdit className="w-3.5 h-3.5" />
-              <span>Thay đổi van vừa sửa</span>
+              <span>Valve Specification Updates</span>
             </button>
             <button
               onClick={() => handleSwitchTemplate('vendor_inquiry')}
@@ -210,7 +210,7 @@ export const OutlookEmailModal: React.FC<OutlookEmailModalProps> = ({
               }`}
             >
               <Building2 className="w-3.5 h-3.5" />
-              <span>Yêu cầu NCC bổ sung</span>
+              <span>Supplier Data Request</span>
             </button>
             <button
               onClick={() => handleSwitchTemplate('batch_report')}
@@ -221,13 +221,13 @@ export const OutlookEmailModal: React.FC<OutlookEmailModalProps> = ({
               }`}
             >
               <BarChart3 className="w-3.5 h-3.5" />
-              <span>Báo cáo tiến độ Master</span>
+              <span>Master Progress Report</span>
             </button>
           </div>
 
           {context.changes && context.changes.length > 0 && (
             <span className="text-[11px] font-semibold text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/40 px-2 py-0.5 rounded border border-amber-200 dark:border-amber-900">
-              Đã ghi nhận {context.changes.length} mục thay đổi
+              Recorded {context.changes.length} modified items
             </span>
           )}
         </div>
@@ -260,8 +260,8 @@ export const OutlookEmailModal: React.FC<OutlookEmailModalProps> = ({
                   </div>
                   <p className="text-[11px] text-slate-600 dark:text-slate-400">
                     {activeTemplate === 'row_edited'
-                      ? 'Phiếu chi tiết thông số van & bảng highlight các trường vừa hiệu chỉnh'
-                      : 'Bảng kê Master Data tổng hợp toàn bộ vật tư và nhật ký xử lý'}
+                      ? 'Detailed valve specification sheet & highlighted modifications'
+                      : 'Master Data table summarizing all materials & process logs'}
                   </p>
                 </div>
               </div>
@@ -273,17 +273,17 @@ export const OutlookEmailModal: React.FC<OutlookEmailModalProps> = ({
                   id="btn-copy-excel-table"
                   onClick={handleCopyFormattedTable}
                   className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors shadow-2xs cursor-pointer"
-                  title="Sao chép bảng định dạng màu sắc & kẻ khung để dán trực tiếp (Ctrl+V) vào nội dung thư Outlook"
+                  title="Copy formatted color table to paste directly (Ctrl+V) into Outlook email body"
                 >
                   {copiedTable ? (
                     <>
                       <Check className="w-3.5 h-3.5 text-emerald-600" />
-                      <span className="text-emerald-600 font-bold">Đã copy bảng!</span>
+                      <span className="text-emerald-600 font-bold">Table Copied!</span>
                     </>
                   ) : (
                     <>
                       <Table className="w-3.5 h-3.5 text-blue-600" />
-                      <span>Copy bảng vào thư (Ctrl+V)</span>
+                      <span>Copy table (Ctrl+V)</span>
                     </>
                   )}
                 </button>
@@ -294,10 +294,10 @@ export const OutlookEmailModal: React.FC<OutlookEmailModalProps> = ({
                   onClick={handleDownloadExcel}
                   disabled={isExporting}
                   className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-emerald-700 hover:bg-emerald-600 text-white transition-colors shadow-xs cursor-pointer disabled:opacity-50"
-                  title="Tải file Excel này về máy tính"
+                  title="Download Excel file to your computer"
                 >
                   <Download className="w-3.5 h-3.5" />
-                  <span>{isExporting ? 'Đang tạo...' : 'Tải file Excel'}</span>
+                  <span>{isExporting ? 'Generating...' : 'Download Excel'}</span>
                 </button>
               </div>
             </div>
@@ -307,19 +307,19 @@ export const OutlookEmailModal: React.FC<OutlookEmailModalProps> = ({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <div>
               <label className="block font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                Người nhận (To):
+                To:
               </label>
               <input
                 type="text"
                 value={draft.to}
                 onChange={(e) => setDraft({ ...draft, to: e.target.value })}
-                placeholder="ví dụ: vendor@valvesupplier.com, manager@project.com"
+                placeholder="e.g. vendor@valvesupplier.com, manager@project.com"
                 className="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 focus:outline-none"
               />
             </div>
             <div>
               <label className="block font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                Đồng gửi (CC):
+                CC:
               </label>
               <input
                 type="text"
@@ -334,7 +334,7 @@ export const OutlookEmailModal: React.FC<OutlookEmailModalProps> = ({
           {/* Subject Row */}
           <div>
             <label className="block font-semibold text-slate-700 dark:text-slate-300 mb-1">
-              Tiêu đề Email (Subject):
+              Subject:
             </label>
             <input
               type="text"
@@ -348,9 +348,9 @@ export const OutlookEmailModal: React.FC<OutlookEmailModalProps> = ({
           <div>
             <div className="flex items-center justify-between mb-1">
               <label className="font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
-                <span>Nội dung Email:</span>
+                <span>Email Body:</span>
                 <span className="text-[11px] text-slate-400 font-normal">
-                  (Đã tự động đính kèm thông báo file Excel)
+                  (Includes automatic attachment notice)
                 </span>
               </label>
               <button
@@ -361,12 +361,12 @@ export const OutlookEmailModal: React.FC<OutlookEmailModalProps> = ({
                 {copied ? (
                   <>
                     <Check className="w-3.5 h-3.5 text-emerald-600" />
-                    <span className="text-emerald-600 font-semibold">Đã sao chép!</span>
+                    <span className="text-emerald-600 font-semibold">Copied!</span>
                   </>
                 ) : (
                   <>
                     <Copy className="w-3.5 h-3.5" />
-                    <span>Sao chép text</span>
+                    <span>Copy text</span>
                   </>
                 )}
               </button>
@@ -387,7 +387,7 @@ export const OutlookEmailModal: React.FC<OutlookEmailModalProps> = ({
               onClick={onClose}
               className="px-3.5 py-2 rounded-lg text-xs font-semibold text-slate-600 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 transition-colors cursor-pointer"
             >
-              Đóng
+              Close
             </button>
           </div>
 
@@ -398,10 +398,10 @@ export const OutlookEmailModal: React.FC<OutlookEmailModalProps> = ({
               id="btn-open-outlook-web"
               onClick={handleDownloadAndLaunchWeb}
               className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-semibold bg-sky-600 hover:bg-sky-500 text-white shadow-xs transition-colors cursor-pointer"
-              title="Tải file Excel và mở ngay trong Outlook Web (Office 365)"
+              title="Download Excel file and launch Outlook Web (Office 365)"
             >
               <ExternalLink className="w-3.5 h-3.5" />
-              <span>1-Click: Tải Excel & Mở Outlook Web</span>
+              <span>1-Click: Download Excel &amp; Launch Outlook Web</span>
             </button>
 
             {/* Outlook Desktop App */}
@@ -409,10 +409,10 @@ export const OutlookEmailModal: React.FC<OutlookEmailModalProps> = ({
               id="btn-open-outlook-desktop"
               onClick={handleDownloadAndLaunchDesktop}
               className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold bg-blue-700 hover:bg-blue-600 text-white shadow-sm transition-all cursor-pointer"
-              title="Tải file Excel và mở ngay ứng dụng Microsoft Outlook Desktop đã cài trên máy"
+              title="Download Excel file and launch desktop Microsoft Outlook application"
             >
               <Send className="w-3.5 h-3.5" />
-              <span>1-Click: Tải Excel & Mở Outlook App</span>
+              <span>1-Click: Download Excel &amp; Launch Outlook App</span>
             </button>
           </div>
         </div>

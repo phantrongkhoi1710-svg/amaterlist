@@ -54,7 +54,7 @@ export const CatalogViewer: React.FC<CatalogViewerProps> = ({
   // New catalog form modal / inputs
   const [isCreatingNew, setIsCreatingNew] = useState(false);
   const [newShipName, setNewShipName] = useState('');
-  const [newVersionName, setNewVersionName] = useState('Tháng ' + (new Date().getMonth() + 1) + '/' + new Date().getFullYear());
+  const [newVersionName, setNewVersionName] = useState('Month ' + (new Date().getMonth() + 1) + '/' + new Date().getFullYear());
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -106,7 +106,7 @@ export const CatalogViewer: React.FC<CatalogViewerProps> = ({
       const { items: parsedItems, sheetName, totalRows } = await parseCatalogFile(file);
 
       if (parsedItems.length === 0) {
-        throw new Error('Không tìm thấy dòng dữ liệu Catalog hợp lệ trong file.');
+        throw new Error('No valid Catalog items found in file.');
       }
 
       // Auto derive ship name from file name if creating new
@@ -118,13 +118,13 @@ export const CatalogViewer: React.FC<CatalogViewerProps> = ({
       const derivedVersion =
         newVersionName.trim() ||
         activeProfile?.versionName ||
-        'Rev ' + new Date().toLocaleDateString('vi-VN');
+        'Rev ' + new Date().toLocaleDateString('en-US');
 
       const updatedProfile: CatalogProfile = {
         id: activeProfile?.id && !isCreatingNew ? activeProfile.id : `cat-prof-${Date.now()}`,
         shipName: derivedShipName,
         versionName: derivedVersion,
-        uploadedAt: new Date().toLocaleString('vi-VN'),
+        uploadedAt: new Date().toLocaleString('en-US'),
         sourceFileName: file.name,
         items: parsedItems,
       };
@@ -133,11 +133,11 @@ export const CatalogViewer: React.FC<CatalogViewerProps> = ({
       setActiveProfileId(updatedProfile.id);
       setIsCreatingNew(false);
       setUploadSuccess(
-        `Đã tải lên thành công ${totalRows} mã vật tư van cho ${derivedShipName} (Sheet: ${sheetName})!`
+        `Successfully uploaded ${totalRows} catalog items for ${derivedShipName} (Sheet: ${sheetName})!`
       );
     } catch (err: any) {
       console.error(err);
-      setUploadError(err.message || 'Lỗi khi đọc file Catalog.');
+      setUploadError(err.message || 'Error reading Catalog file.');
     } finally {
       setIsUploading(false);
       if (fileInputRef.current) fileInputRef.current.value = '';
@@ -174,7 +174,7 @@ export const CatalogViewer: React.FC<CatalogViewerProps> = ({
             <div>
               <div className="flex items-center gap-2">
                 <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">
-                  Catalog Tàu / Dự án:
+                  Ship / Project Catalog:
                 </span>
                 <select
                   id="catalog-profile-select"
@@ -187,7 +187,7 @@ export const CatalogViewer: React.FC<CatalogViewerProps> = ({
                 >
                   {catalogProfiles.map((p) => (
                     <option key={p.id} value={p.id}>
-                      {p.shipName} ({p.versionName}) - {p.items.length} mã van
+                      {p.shipName} ({p.versionName}) - {p.items.length} items
                     </option>
                   ))}
                 </select>
@@ -197,17 +197,17 @@ export const CatalogViewer: React.FC<CatalogViewerProps> = ({
                     setIsCreatingNew(true);
                     setNewShipName('');
                   }}
-                  className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/40 rounded-md transition-colors"
-                  title="Thêm Catalog cho tàu hoặc thời điểm mới"
+                  className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/40 rounded-md transition-colors cursor-pointer"
+                  title="Add catalog for a new ship or project"
                 >
                   <Plus className="w-3.5 h-3.5" />
-                  <span>Tàu mới</span>
+                  <span>New Ship</span>
                 </button>
               </div>
               <div className="text-[11px] text-slate-400 flex items-center gap-2 mt-0.5">
-                <span>Cập nhật: {activeProfile?.uploadedAt || 'Mặc định'}</span>
+                <span>Updated: {activeProfile?.uploadedAt || 'Default'}</span>
                 <span>&bull;</span>
-                <span>File: {activeProfile?.sourceFileName || 'Dữ liệu mẫu'}</span>
+                <span>File: {activeProfile?.sourceFileName || 'Sample Data'}</span>
               </div>
             </div>
           </div>
@@ -221,10 +221,10 @@ export const CatalogViewer: React.FC<CatalogViewerProps> = ({
                 type="button"
                 onClick={() => onExportToMaster(items, 'append')}
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-blue-600 hover:bg-blue-500 text-white shadow-sm transition-colors cursor-pointer"
-                title="Chuyển toàn bộ danh sách van trong Catalog này sang bảng Armature List (chuẩn cấu trúc mới 26 cột)"
+                title="Convert all catalog items into standard 26-column Armature List rows"
               >
                 <ArrowRight className="w-3.5 h-3.5" />
-                <span>Xuất Catalog sang Armature List</span>
+                <span>Export Catalog to Armature List</span>
               </button>
             )}
 
@@ -233,11 +233,11 @@ export const CatalogViewer: React.FC<CatalogViewerProps> = ({
               id="btn-catalog-autofill-master"
               type="button"
               onClick={() => onAutoFillMaster && onAutoFillMaster(items)}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white shadow-sm transition-colors"
-              title="Đối chiếu TAG / Model / Normale Nr để tự động điền thông số vật tư van vào bảng Master"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white shadow-sm transition-colors cursor-pointer"
+              title="Match TAG / Model / Normale Nr to auto-fill technical specs in Master Table"
             >
               <Sparkles className="w-3.5 h-3.5" />
-              <span>Điền tự động vào Master</span>
+              <span>Auto-Fill Specs into Master</span>
             </button>
 
             {/* Download Blank Template */}
@@ -245,11 +245,11 @@ export const CatalogViewer: React.FC<CatalogViewerProps> = ({
               id="btn-download-catalog-blank"
               type="button"
               onClick={() => downloadCatalogTemplate(true, activeProfile?.shipName)}
-              className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
-              title="Tải về file Excel (.xlsx) chuẩn 31 cột còn trống để nhập liệu"
+              className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors cursor-pointer"
+              title="Download blank 31-column Excel catalog template"
             >
               <FileSpreadsheet className="w-3.5 h-3.5 text-emerald-600" />
-              <span>Tải file Excel mẫu trống</span>
+              <span>Blank Catalog Template</span>
             </button>
 
             {/* Download Sample Template */}
@@ -257,11 +257,11 @@ export const CatalogViewer: React.FC<CatalogViewerProps> = ({
               id="btn-download-catalog-sample"
               type="button"
               onClick={() => downloadCatalogTemplate(false, activeProfile?.shipName)}
-              className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
-              title="Tải về file Excel mẫu có sẵn 4 dòng dữ liệu ví dụ từ bản vẽ"
+              className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors cursor-pointer"
+              title="Download sample Excel catalog with example items"
             >
               <Download className="w-3.5 h-3.5 text-blue-500" />
-              <span>Tải file mẫu có data</span>
+              <span>Sample Catalog Template</span>
             </button>
 
             {/* Export Current Catalog */}
@@ -275,11 +275,11 @@ export const CatalogViewer: React.FC<CatalogViewerProps> = ({
                   activeProfile?.versionName || 'Rev1'
                 )
               }
-              className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 transition-colors"
-              title="Xuất catalog hiện tại thành file Excel (.xlsx)"
+              className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 transition-colors cursor-pointer"
+              title="Export current catalog to Excel (.xlsx)"
             >
               <Download className="w-3.5 h-3.5" />
-              <span>Xuất Excel</span>
+              <span>Export Excel</span>
             </button>
 
             {/* Delete profile */}
@@ -289,14 +289,14 @@ export const CatalogViewer: React.FC<CatalogViewerProps> = ({
                 onClick={() => {
                   if (
                     confirm(
-                      `Bạn có chắc muốn xoá Catalog "${activeProfile?.shipName}"?`
+                      `Are you sure you want to delete Catalog "${activeProfile?.shipName}"?`
                     )
                   ) {
                     onDeleteProfile(activeProfile.id);
                   }
                 }}
-                className="p-1.5 text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-lg transition-colors"
-                title="Xoá Catalog tàu này"
+                className="p-1.5 text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-lg transition-colors cursor-pointer"
+                title="Delete this ship catalog"
               >
                 <Trash2 className="w-3.5 h-3.5" />
               </button>
@@ -308,31 +308,31 @@ export const CatalogViewer: React.FC<CatalogViewerProps> = ({
         {isCreatingNew && (
           <div className="mt-3 pt-3 border-t border-slate-200 dark:border-slate-800 flex flex-wrap items-center gap-3 bg-slate-50 dark:bg-slate-800/60 p-2.5 rounded-lg">
             <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">
-              Tạo Catalog tàu mới:
+              Create new ship catalog:
             </span>
             <input
               type="text"
-              placeholder="Tên Tàu / Dự Án (vd: Tàu H305, Bulk Carrier 64K...)"
+              placeholder="Ship / Project Name (e.g. Vessel H305, Bulk Carrier 64K...)"
               value={newShipName}
               onChange={(e) => setNewShipName(e.target.value)}
               className="px-2.5 py-1 text-xs rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 w-64 focus:outline-none focus:ring-1 focus:ring-blue-500"
             />
             <input
               type="text"
-              placeholder="Thời điểm / Phiên bản (vd: Rev 2, T3/2026...)"
+              placeholder="Version / Date (e.g. Rev 2, Mar 2026...)"
               value={newVersionName}
               onChange={(e) => setNewVersionName(e.target.value)}
               className="px-2.5 py-1 text-xs rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 w-44 focus:outline-none focus:ring-1 focus:ring-blue-500"
             />
             <span className="text-xs text-slate-500">
-              (Sau đó kéo thả hoặc chọn file Excel bên dưới để nạp)
+              (Then drag &amp; drop or select an Excel file below to load)
             </span>
             <button
               type="button"
               onClick={() => setIsCreatingNew(false)}
-              className="px-2 py-1 text-xs text-slate-500 hover:text-slate-700 ml-auto"
+              className="px-2 py-1 text-xs text-slate-500 hover:text-slate-700 cursor-pointer ml-auto"
             >
-              Đóng
+              Close
             </button>
           </div>
         )}
@@ -372,11 +372,11 @@ export const CatalogViewer: React.FC<CatalogViewerProps> = ({
           <div className="text-left">
             <p className="text-xs font-semibold text-slate-800 dark:text-slate-100">
               {isUploading
-                ? 'Đang phân tích và nạp dữ liệu Catalog...'
-                : `Tải lên file Catalog cho ${activeProfile?.shipName || 'tàu này'}`}
+                ? 'Analyzing and loading Catalog data...'
+                : `Upload Catalog file for ${activeProfile?.shipName || 'this ship'}`}
             </p>
             <p className="text-[11px] text-slate-400">
-              Kéo thả file <strong>.xlsx, .xls, .xlsm, .csv</strong> vào đây hoặc click để duyệt file từ máy tính
+              Drag &amp; drop <strong>.xlsx, .xls, .xlsm, .csv</strong> files here or click to browse from computer
             </p>
           </div>
         </div>
@@ -422,7 +422,7 @@ export const CatalogViewer: React.FC<CatalogViewerProps> = ({
               <input
                 id="search-catalog-input"
                 type="text"
-                placeholder="Tìm theo SAP Name, Normale Nr, Description, Material, Model..."
+                placeholder="Search by SAP Name, Normale Nr, Description, Material, Model..."
                 value={searchTerm}
                 onChange={(e) => {
                   setSearchTerm(e.target.value);
@@ -435,16 +435,16 @@ export const CatalogViewer: React.FC<CatalogViewerProps> = ({
               <button
                 type="button"
                 onClick={() => setSearchTerm('')}
-                className="text-xs text-slate-400 hover:text-slate-600 whitespace-nowrap"
+                className="text-xs text-slate-400 hover:text-slate-600 whitespace-nowrap cursor-pointer"
               >
-                Xoá tìm kiếm
+                Clear search
               </button>
             )}
           </div>
 
           <div className="flex items-center gap-3 text-xs text-slate-600 dark:text-slate-400">
             <span>
-              Hiển thị <strong>{filteredItems.length}</strong> / <strong>{items.length}</strong> mã van
+              Showing <strong>{filteredItems.length}</strong> / <strong>{items.length}</strong> items
             </span>
             <select
               value={pageSize}
@@ -454,10 +454,10 @@ export const CatalogViewer: React.FC<CatalogViewerProps> = ({
               }}
               className="px-2 py-1 text-xs rounded border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200"
             >
-              <option value={25}>25 dòng/trang</option>
-              <option value={50}>50 dòng/trang</option>
-              <option value={100}>100 dòng/trang</option>
-              <option value={500}>500 dòng/trang</option>
+              <option value={25}>25 rows/page</option>
+              <option value={50}>50 rows/page</option>
+              <option value={100}>100 rows/page</option>
+              <option value={500}>500 rows/page</option>
             </select>
           </div>
         </div>
@@ -493,12 +493,12 @@ export const CatalogViewer: React.FC<CatalogViewerProps> = ({
                     <div className="flex flex-col items-center justify-center gap-2">
                       <Database className="w-8 h-8 text-slate-300 dark:text-slate-600" />
                       <p className="text-sm font-medium">
-                        {searchTerm ? 'Không tìm thấy mã van phù hợp' : 'Chưa có dữ liệu Catalog cho tàu này'}
+                        {searchTerm ? 'No matching valve items found' : 'No Catalog data for this ship yet'}
                       </p>
                       <p className="text-xs text-slate-400">
                         {searchTerm
-                          ? 'Thử tìm kiếm với từ khóa khác'
-                          : 'Tải lên file Excel Catalog ở khung bên trên để bắt đầu'}
+                          ? 'Try searching with a different keyword'
+                          : 'Upload an Excel Catalog file above to get started'}
                       </p>
                     </div>
                   </td>
@@ -544,7 +544,7 @@ export const CatalogViewer: React.FC<CatalogViewerProps> = ({
         {totalPages > 1 && (
           <div className="p-2.5 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50/50 dark:bg-slate-900/50 text-xs">
             <span className="text-slate-500">
-              Trang {currentPage} / {totalPages}
+              Page {currentPage} / {totalPages}
             </span>
             <div className="flex items-center gap-1.5">
               <button

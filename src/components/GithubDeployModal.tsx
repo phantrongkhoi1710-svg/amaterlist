@@ -37,13 +37,13 @@ git push -u origin main`;
             </div>
             <div>
               <h2 className="text-base font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-                Hướng Dẫn Deploy Lên GitHub Pages
+                GitHub Pages Deployment Guide
                 <span className="text-[10px] px-2 py-0.5 rounded-full font-medium bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300">
-                  Sẵn sàng 100%
+                  100% Ready
                 </span>
               </h2>
               <p className="text-xs text-slate-500 dark:text-slate-400">
-                Đã cấu hình sẵn file <code>.github/workflows/deploy.yml</code> & <code>base: &apos;./&apos;</code>
+                Pre-configured <code>.github/workflows/deploy.yml</code> &amp; <code>base: &apos;./&apos;</code>
               </p>
             </div>
           </div>
@@ -62,14 +62,14 @@ git push -u origin main`;
             <div className="flex items-center justify-between mb-2">
               <h3 className="text-sm font-bold text-blue-900 dark:text-blue-200 flex items-center gap-2">
                 <Rocket className="w-4 h-4 text-blue-600" />
-                Cách 1: Tự động hoá bằng GitHub Actions (Khuyên dùng)
+                Method 1: Automated via GitHub Actions (Recommended)
               </h3>
               <span className="text-[10px] font-semibold bg-blue-600 text-white px-2 py-0.5 rounded">
-                Tự động build khi Push
+                Auto build on Push
               </span>
             </div>
             <p className="text-slate-600 dark:text-slate-300 text-xs mb-3">
-              Dự án đã có sẵn file cấu hình <code>.github/workflows/deploy.yml</code>. Bạn chỉ cần đẩy code lên repository:
+              The project includes a ready <code>.github/workflows/deploy.yml</code> workflow. Simply push code to your repository:
             </p>
 
             {/* Code Box */}
@@ -81,12 +81,12 @@ git push -u origin main`;
                 {copiedIndex === 1 ? (
                   <>
                     <Check className="w-3 h-3 text-emerald-400" />
-                    <span className="text-emerald-400">Đã chép</span>
+                    <span className="text-emerald-400">Copied</span>
                   </>
                 ) : (
                   <>
                     <Copy className="w-3 h-3" />
-                    <span>Sao chép</span>
+                    <span>Copy</span>
                   </>
                 )}
               </button>
@@ -96,13 +96,13 @@ git push -u origin main`;
             {/* Step on GitHub UI */}
             <div className="mt-3 text-xs bg-white dark:bg-slate-900 p-3 rounded-lg border border-slate-200 dark:border-slate-800 space-y-1.5">
               <p className="font-semibold text-slate-800 dark:text-slate-200">
-                Bước kích hoạt trên GitHub:
+                Activation Steps on GitHub:
               </p>
               <ol className="list-decimal list-inside space-y-1 text-slate-600 dark:text-slate-300">
-                <li>Vào Repo của bạn trên GitHub &rarr; chọn tab <strong>Settings</strong></li>
-                <li>Chọn mục <strong>Pages</strong> ở thanh menu bên trái</li>
-                <li>Tại mục <strong>Build and deployment &gt; Source</strong>: Chọn <strong>GitHub Actions</strong></li>
-                <li>Hệ thống sẽ tự động chạy quy trình build và cung cấp link trang web công khai!</li>
+                <li>Go to your Repo on GitHub &rarr; select <strong>Settings</strong> tab</li>
+                <li>Select <strong>Pages</strong> in the left sidebar menu</li>
+                <li>Under <strong>Build and deployment &gt; Source</strong>: Select <strong>GitHub Actions</strong></li>
+                <li>The system will automatically run the build pipeline and provide your public site URL!</li>
               </ol>
             </div>
           </div>
@@ -112,11 +112,11 @@ git push -u origin main`;
             <div className="flex items-center justify-between mb-2">
               <h3 className="text-sm font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2">
                 <Terminal className="w-4 h-4 text-slate-600" />
-                Cách 2: Deploy thủ công từ máy bằng lệnh <code>npm run deploy</code>
+                Method 2: Manual Deploy from local using <code>npm run deploy</code>
               </h3>
             </div>
             <p className="text-xs text-slate-500 dark:text-slate-400 mb-2">
-              Gói <code>gh-pages</code> đã được cài đặt sẵn vào <code>package.json</code>. Bạn có thể mở terminal và chạy:
+              Package <code>gh-pages</code> is pre-installed in <code>package.json</code>. You can open a terminal and run:
             </p>
             <div className="relative bg-slate-950 text-slate-200 rounded-lg p-2.5 font-mono text-[11px]">
               <button
@@ -126,12 +126,12 @@ git push -u origin main`;
                 {copiedIndex === 2 ? (
                   <>
                     <Check className="w-3 h-3 text-emerald-400" />
-                    <span className="text-emerald-400">Đã chép</span>
+                    <span className="text-emerald-400">Copied</span>
                   </>
                 ) : (
                   <>
                     <Copy className="w-3 h-3" />
-                    <span>Sao chép</span>
+                    <span>Copy</span>
                   </>
                 )}
               </button>
@@ -143,13 +143,13 @@ git push -u origin main`;
         {/* Modal Footer */}
         <div className="px-6 py-3.5 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 flex items-center justify-between">
           <span className="text-[11px] text-slate-500">
-            Xem thêm file <code>README.md</code> trong thư mục gốc
+            See <code>README.md</code> in root folder for more details
           </span>
           <button
             onClick={onClose}
             className="px-4 py-2 rounded-lg text-xs font-semibold bg-slate-900 dark:bg-slate-800 hover:bg-slate-800 dark:hover:bg-slate-700 text-white transition-colors"
           >
-            Đóng
+            Close
           </button>
         </div>
       </div>

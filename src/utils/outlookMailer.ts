@@ -35,7 +35,7 @@ export interface EmailDraft {
  * Builds an automated email template based on the action context
  */
 export function generateEmailDraft(context: OutlookEmailContext): EmailDraft {
-  const timestamp = new Date().toLocaleString('vi-VN', {
+  const timestamp = new Date().toLocaleString('en-US', {
     day: '2-digit',
     month: '2-digit',
     year: 'numeric',
@@ -45,48 +45,48 @@ export function generateEmailDraft(context: OutlookEmailContext): EmailDraft {
 
   if (context.type === 'row_edited') {
     const tag = context.rowTag || context.rowData?.TAG || 'N/A';
-    const supplier = context.supplier || context.rowData?.SUPPLIER || 'Chưa rõ';
+    const supplier = context.supplier || context.rowData?.SUPPLIER || 'Unknown';
     const sourceFile = context.sourceFile || context.rowData?._sourceFile || 'Master Total';
-    const excelAttachmentName = `Phieu_CapNhat_Van_${String(tag).replace(/[^a-zA-Z0-9_-]/g, '_')}.xlsx`;
+    const excelAttachmentName = `Valve_Update_Sheet_${String(tag).replace(/[^a-zA-Z0-9_-]/g, '_')}.xlsx`;
 
     const changeLines = (context.changes || []).map(
-      (c) => `  • [${c.field}]: từ "${c.oldValue ?? ''}" ➔ "${c.newValue ?? ''}"`
+      (c) => `  • [${c.field}]: from "${c.oldValue ?? ''}" ➔ "${c.newValue ?? ''}"`
     );
 
-    const subject = `[ARMATURE KÈM EXCEL] Cập nhật thông số van ${tag} (${supplier}) - Dự án Armature`;
+    const subject = `[ARMATURE EXCEL ATTACHMENT] Valve Specification Update ${tag} (${supplier}) - Armature Project`;
 
-    const body = `Kính gửi Quý Đội ngũ Kỹ thuật & Quản lý Dự án,
+    const body = `Dear Technical & Project Management Team,
 
-Chúng tôi xin thông báo vừa thực hiện hiệu chỉnh thông số cho van ${tag} trong hệ thống Armature Master:
+Please be advised that specifications for valve ${tag} have been updated in the Armature Master system:
 
-THÔNG TIN CHUNG:
-- Mã van (TAG): ${tag}
-- Nhà cung cấp (SUPPLIER): ${supplier}
-- File nguồn / Bản vẽ: ${sourceFile}
-- Thời gian cập nhật: ${timestamp}
+GENERAL INFORMATION:
+- Valve Tag: ${tag}
+- Supplier: ${supplier}
+- Source File / Drawing: ${sourceFile}
+- Update Timestamp: ${timestamp}
 
-CHI TIẾT CÁC MỤC THAY ĐỔI:
-${changeLines.length > 0 ? changeLines.join('\n') : '  • Đã hiệu chỉnh và đồng bộ các trường dữ liệu chi tiết.'}
+MODIFIED FIELDS SUMMARY:
+${changeLines.length > 0 ? changeLines.join('\n') : '  • Synchronized and adjusted detailed specification fields.'}
 
-THÔNG SỐ KỸ THUẬT HIỆN TẠI:
+CURRENT TECHNICAL SPECIFICATIONS:
 - SFI Code: ${context.rowData?.SFI || 'N/A'}
-- Mô tả: ${context.rowData?.DESCRIPTION || 'N/A'}
-- Loại van: ${context.rowData?.['TYPE OF VALVE'] || 'N/A'}
-- Kích thước: ${context.rowData?.['SIZE INCH'] || 'N/A'}
-- Áp suất thiết kế (Rating): ${context.rowData?.['PRESSURE RATING'] || 'N/A'}
+- Description: ${context.rowData?.DESCRIPTION || 'N/A'}
+- Valve Type: ${context.rowData?.['TYPE OF VALVE'] || 'N/A'}
+- Size: ${context.rowData?.['SIZE INCH'] || 'N/A'}
+- Pressure Rating: ${context.rowData?.['PRESSURE RATING'] || 'N/A'}
 - Pipe Class: ${context.rowData?.['PIPE CLASS'] || 'N/A'}
 - Actuator Tag: ${context.rowData?.['ACTUATOR TAG'] || 'N/A'}
 - PO Number: ${context.rowData?.['PO NUMBER'] || 'N/A'}
 
-📎 TỆP ĐÍNH KÈM (ATTACHMENT):
-- Tên file đính kèm: ${excelAttachmentName}
-  (Bao gồm phiếu xác nhận các mục thay đổi được highlight màu sắc và bảng toàn bộ thông số van)
+📎 ATTACHMENT:
+- File Name: ${excelAttachmentName}
+  (Includes valve specification sheet, highlighted changes, and current full technical parameters)
 
-Vui lòng rà soát và phản hồi nếu có bất kỳ sai lệch nào.
+Please review and reply if any discrepancies are noted.
 
-Trân trọng,
-Bộ phận Kỹ thuật Cơ điện / Piping
-Dự án Armature Consolidator`;
+Best regards,
+Piping & Valve Engineering Team
+Armature Consolidator Project`;
 
     return {
       to: '',
@@ -97,31 +97,31 @@ Dự án Armature Consolidator`;
   }
 
   if (context.type === 'vendor_inquiry') {
-    const supplier = context.supplier || 'Quý Nhà cung cấp';
+    const supplier = context.supplier || 'Valued Supplier';
     const tag = context.rowTag || context.rowData?.TAG || '';
     const missing = (context.missingFields || []).join(', ') || 'PO NUMBER, ACTUATOR TAG, CLASS CERTIFICATE';
     const safeSupplier = supplier.replace(/[^a-zA-Z0-9_-]/g, '_');
 
-    const subject = `[YÊU CẦU BỔ SUNG DỮ LIỆU] Làm rõ thông số van Armature - NCC: ${supplier}`;
+    const subject = `[DATA REQUEST] Clarification of Armature Valve Parameters - Vendor: ${supplier}`;
 
-    const body = `Kính gửi Bộ phận Kỹ thuật & Bán hàng - ${supplier},
+    const body = `Dear Technical & Sales Team - ${supplier},
 
-Trong quá trình import và chuẩn hoá cơ sở dữ liệu vật tư Armature cho dự án, chúng tôi ghi nhận một số thông tin kỹ thuật cần Quý công ty xác nhận và bổ sung:
+During the import and standardization of Armature material specifications for the project, we identified technical fields requiring your confirmation:
 
-- Nhà cung cấp: ${supplier}
-${tag ? `- Mã thiết bị (TAG): ${tag}\n` : ''}- Các trường thông tin cần làm rõ/còn thiếu: ${missing}
-- File bảng kê đối chiếu: ${context.sourceFile || 'Bảng kê đệ trình'}
+- Vendor / Supplier: ${supplier}
+${tag ? `- Equipment Tag: ${tag}\n` : ''}- Required / Missing Parameters: ${missing}
+- Reference Schedule: ${context.sourceFile || 'Submission Schedule'}
 
-📎 TỆP ĐÍNH KÈM (ATTACHMENT):
-- Tên file đính kèm: BangKe_Armature_CanXacNhan_${safeSupplier}.xlsx
+📎 ATTACHMENT:
+- File Name: Armature_Verification_List_${safeSupplier}.xlsx
 
-Kính đề nghị Quý công ty phản hồi cập nhật các thông số trên để chúng tôi hoàn thiện hồ sơ vật tư và tiến hành các bước tiếp theo của dự án.
+Please confirm and update the above parameters so we can complete material technical datasheets for project execution.
 
-Xin chân thành cảm ơn sự phối hợp của Quý công ty!
+Thank you for your cooperation!
 
-Trân trọng,
-Kỹ sư Phụ trách Vật tư Piping & Valve
-Dự án Armature Master`;
+Best regards,
+Piping & Valve Materials Engineer
+Armature Master Project`;
 
     return {
       to: '',
@@ -134,27 +134,27 @@ Dự án Armature Master`;
   // batch_report default
   const totalRows = context.summaryStats?.totalRows ?? 0;
   const totalFiles = context.summaryStats?.totalFiles ?? 0;
-  const suppliers = context.summaryStats?.suppliers?.join(', ') || 'Nhiều nhà thầu/NCC';
+  const suppliers = context.summaryStats?.suppliers?.join(', ') || 'Multiple Suppliers/Vendors';
 
-  const subject = `[BÁO CÁO NHẬP LIỆU KÈM EXCEL] Tổng hợp dữ liệu Armature Master (${totalRows} van)`;
+  const subject = `[IMPORT REPORT EXCEL] Armature Master Data Summary Report (${totalRows} valves)`;
 
-  const body = `Kính gửi Ban Quản lý Dự án & Trưởng bộ phận,
+  const body = `Dear Project Management & Technical Leads,
 
-Hệ thống Armature Master xin gửi báo cáo tổng hợp tiến độ import và chuẩn hoá dữ liệu vật tư van:
+The Armature Master system presents the summary report for material import and data standardization progress:
 
-TỔNG QUAN HỒ SƠ:
-- Thời gian trích xuất: ${timestamp}
-- Tổng số file nguồn đã import: ${totalFiles} file
-- Tổng số lượng thiết bị van trong Master: ${totalRows} dòng
-- Danh sách nhà cung cấp đã ghi nhận: ${suppliers}
+OVERVIEW:
+- Extraction Timestamp: ${timestamp}
+- Total Source Files Imported: ${totalFiles} file(s)
+- Total Valve Items in Master: ${totalRows} row(s)
+- Recorded Suppliers: ${suppliers}
 
-📎 TỆP ĐÍNH KÈM (ATTACHMENT):
-- Tên file đính kèm: Armature_Master_Export.xlsx (gồm Sheet 'Total' Master và Sheet 'Import_Log')
+📎 ATTACHMENT:
+- File Name: Armature_Master_Export.xlsx (includes 'Total' Master Sheet and 'Import_Log' Sheet)
 
-Tình trạng cơ sở dữ liệu đã sẵn sàng để kiểm tra và bàn giao.
+The database is ready for review and project handover.
 
-Trân trọng,
-Bộ phận Quản lý Dữ liệu Armature`;
+Best regards,
+Armature Data Management Team`;
 
   return {
     to: '',

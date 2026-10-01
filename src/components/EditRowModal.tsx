@@ -170,7 +170,7 @@ export const EditRowModal: React.FC<EditRowModalProps> = ({
             <div>
               <div className="flex items-center gap-2">
                 <h2 className="text-base font-bold text-slate-900 dark:text-slate-100">
-                  Hiệu Chỉnh Thông Số Van: {formData.TAG || row.TAG || 'Chưa đặt TAG'}
+                  Edit Valve Specification: {formData.TAG || row.TAG || 'No TAG'}
                 </h2>
                 <span className="text-[11px] px-2 py-0.5 rounded bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 font-medium">
                   {row._sourceFile}
@@ -179,8 +179,9 @@ export const EditRowModal: React.FC<EditRowModalProps> = ({
             </div>
           </div>
           <button
+            type="button"
             onClick={onClose}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -192,11 +193,11 @@ export const EditRowModal: React.FC<EditRowModalProps> = ({
             <div className="flex items-center gap-2">
               <AlertCircle className="w-4 h-4 text-amber-600 shrink-0" />
               <span>
-                Phát hiện <strong>{changes.length}</strong> trường đã được thay đổi giá trị
+                Detected <strong>{changes.length}</strong> fields modified
               </span>
             </div>
             <span className="text-[11px] italic text-amber-700 dark:text-amber-400">
-              Sẽ được tự động tổng hợp vào bản thảo Email Outlook & file Excel đính kèm
+              Auto-synced into Outlook draft &amp; Excel export
             </span>
           </div>
         )}
@@ -208,15 +209,15 @@ export const EditRowModal: React.FC<EditRowModalProps> = ({
             <div className="flex items-center justify-between">
               <span className="text-xs font-bold text-slate-850 dark:text-slate-100 uppercase tracking-wide flex items-center gap-1.5">
                 <Tag className="w-3.5 h-3.5 text-blue-600" />
-                Quy Chuẩn Revision Description (Nguyên Tắc Tô Màu &amp; Xóa Hàng)
+                Revision Description &amp; Line Color Rules
               </span>
               {revisionStatus === 'next_rev_after_deleted' && (
                 <button
                   type="button"
                   onClick={handleApplyNextRevCleanup}
-                  className="px-2.5 py-1 rounded bg-slate-200 hover:bg-slate-300 dark:bg-slate-700 dark:hover:bg-slate-600 text-[11px] font-semibold text-slate-800 dark:text-slate-200 transition-colors"
+                  className="px-2.5 py-1 rounded bg-slate-200 hover:bg-slate-300 dark:bg-slate-700 dark:hover:bg-slate-600 text-[11px] font-semibold text-slate-800 dark:text-slate-200 transition-colors cursor-pointer"
                 >
-                  🧹 Làm trống các ô (chỉ giữ SFI &amp; TAG)
+                  🧹 Clear cells (keep SFI &amp; TAG only)
                 </button>
               )}
             </div>
@@ -231,8 +232,8 @@ export const EditRowModal: React.FC<EditRowModalProps> = ({
                     : 'border-slate-200 dark:border-slate-700 bg-white/70 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
                 }`}
               >
-                <div className="font-semibold text-slate-900 dark:text-slate-100">Bình thường</div>
-                <div className="text-[10px] text-slate-400">Không tô màu</div>
+                <div className="font-semibold text-slate-900 dark:text-slate-100">Normal</div>
+                <div className="text-[10px] text-slate-400">No color fill</div>
               </button>
 
               <button
@@ -297,10 +298,10 @@ export const EditRowModal: React.FC<EditRowModalProps> = ({
                   </span>
                   <div>
                     <div className="font-bold text-slate-900 dark:text-slate-100 text-xs">
-                      Gạch Ngang Dòng (Strikethrough)
+                      Row Strikethrough
                     </div>
                     <div className="text-[10px] text-slate-500">
-                      Áp dụng hiệu ứng gạch ngang lên thông số van (dùng cho van bị hủy/xóa)
+                      Apply line strikethrough effect for deleted or cancelled valve items
                     </div>
                   </div>
                 </div>
@@ -315,7 +316,7 @@ export const EditRowModal: React.FC<EditRowModalProps> = ({
                   }`}
                 >
                   <span className="text-sm font-serif"><s>S</s></span>
-                  <span>{hasStrikethrough ? 'Đang BẬT gạch ngang' : 'BẬT gạch ngang'}</span>
+                  <span>{hasStrikethrough ? 'Strikethrough ON' : 'Enable Strikethrough'}</span>
                 </button>
               </div>
 
@@ -325,24 +326,24 @@ export const EditRowModal: React.FC<EditRowModalProps> = ({
                   <Palette className="w-4 h-4 text-blue-500" />
                   <div>
                     <div className="font-bold text-slate-900 dark:text-slate-100 text-xs">
-                      Màu Sắc Dòng (Line Color)
+                      Line Color
                     </div>
                     <div className="text-[10px] text-slate-500">
-                      Chọn màu tô cho toàn bộ dòng van trong bảng Master và file Excel
+                      Select fill color for valve row in Master Table and Excel export
                     </div>
                   </div>
                 </div>
 
                 <div className="flex flex-wrap items-center gap-1.5">
                   {[
-                    { label: 'Vàng', hex: '#FFFF00', bg: 'bg-yellow-300' },
-                    { label: 'Đỏ', hex: '#EF4444', bg: 'bg-rose-500' },
-                    { label: 'Xanh lá', hex: '#86EFAC', bg: 'bg-emerald-300' },
-                    { label: 'Xanh lam', hex: '#93C5FD', bg: 'bg-sky-300' },
-                    { label: 'Cam', hex: '#FDBA74', bg: 'bg-orange-300' },
-                    { label: 'Tím', hex: '#D8B4FE', bg: 'bg-purple-300' },
-                    { label: 'Xanh ngọc', hex: '#67E8F9', bg: 'bg-cyan-300' },
-                    { label: 'Hồng', hex: '#F472B6', bg: 'bg-pink-300' },
+                    { label: 'Yellow', hex: '#FFFF00', bg: 'bg-yellow-300' },
+                    { label: 'Red', hex: '#EF4444', bg: 'bg-rose-500' },
+                    { label: 'Green', hex: '#86EFAC', bg: 'bg-emerald-300' },
+                    { label: 'Blue', hex: '#93C5FD', bg: 'bg-sky-300' },
+                    { label: 'Orange', hex: '#FDBA74', bg: 'bg-orange-300' },
+                    { label: 'Purple', hex: '#D8B4FE', bg: 'bg-purple-300' },
+                    { label: 'Cyan', hex: '#67E8F9', bg: 'bg-cyan-300' },
+                    { label: 'Pink', hex: '#F472B6', bg: 'bg-pink-300' },
                   ].map((c) => (
                     <button
                       key={c.hex}
@@ -352,19 +353,19 @@ export const EditRowModal: React.FC<EditRowModalProps> = ({
                         if (c.hex === '#FFFF00') setRevisionStatus('new_updated');
                         else if (c.hex === '#EF4444') setRevisionStatus('deleted');
                       }}
-                      className={`w-5 h-5 rounded-full ${c.bg} transition-transform hover:scale-110 border ${
+                      className={`w-5 h-5 rounded-full ${c.bg} transition-transform hover:scale-110 border cursor-pointer ${
                         customColor === c.hex || (!customColor && revisionStatus === 'new_updated' && c.hex === '#FFFF00') || (!customColor && revisionStatus === 'deleted' && c.hex === '#EF4444')
                           ? 'ring-2 ring-blue-600 ring-offset-1 scale-110'
                           : 'border-slate-400/40'
                       }`}
-                      title={`Tô màu ${c.label} (${c.hex})`}
+                      title={`Fill color ${c.label} (${c.hex})`}
                     />
                   ))}
 
                   {/* Native HTML Color Picker */}
                   <label
                     className="flex items-center gap-1 px-2 py-0.5 rounded border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-700 hover:bg-slate-100 text-[10px] text-slate-700 dark:text-slate-200 cursor-pointer"
-                    title="Tự chọn màu tùy ý"
+                    title="Custom color picker"
                   >
                     <input
                       type="color"
@@ -372,7 +373,7 @@ export const EditRowModal: React.FC<EditRowModalProps> = ({
                       onChange={(e) => setCustomColor(e.target.value)}
                       className="w-4 h-4 rounded cursor-pointer border-0 p-0"
                     />
-                    <span>Tự chọn</span>
+                    <span>Custom</span>
                   </label>
 
                   <button
@@ -382,9 +383,9 @@ export const EditRowModal: React.FC<EditRowModalProps> = ({
                       setRevisionStatus('normal');
                     }}
                     className="px-2 py-0.5 rounded text-[10px] text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 cursor-pointer"
-                    title="Xóa màu (mặc định không màu)"
+                    title="Reset color (default no fill)"
                   >
-                    Mặc định
+                    Default
                   </button>
                 </div>
               </div>
@@ -416,7 +417,7 @@ export const EditRowModal: React.FC<EditRowModalProps> = ({
               >
                 <div className="flex items-center gap-3">
                   <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                    Xem trước dòng van:
+                    Valve Row Preview:
                   </span>
                   <span
                     className={`font-black text-sm ${
@@ -434,14 +435,14 @@ export const EditRowModal: React.FC<EditRowModalProps> = ({
                         : 'text-slate-700 dark:text-slate-300'
                     }`}
                   >
-                    {formData.DESCRIPTION || row.DESCRIPTION || formData.SFI || 'Thông số van Armature'}
+                    {formData.DESCRIPTION || row.DESCRIPTION || formData.SFI || 'Armature Valve Spec'}
                   </span>
                 </div>
 
                 <div className="flex items-center gap-2">
                   {hasStrikethrough && (
                     <span className="px-2 py-0.5 rounded text-[10px] bg-rose-600 text-white font-bold line-through">
-                      Gạch ngang
+                      Strikethrough
                     </span>
                   )}
                   {customColor && (
@@ -461,7 +462,7 @@ export const EditRowModal: React.FC<EditRowModalProps> = ({
           <div className="p-4 rounded-xl border border-yellow-300 dark:border-yellow-800/60 bg-yellow-50/40 dark:bg-yellow-950/20">
             <div className="flex items-center gap-2 text-xs font-black text-amber-950 dark:text-yellow-200 uppercase tracking-wider mb-3">
               <span className="w-2.5 h-2.5 rounded-full bg-yellow-400 inline-block"></span>
-              <span>1. TO BE COMPLETED BY FUNCTIONAL DESIGN (Màu vàng)</span>
+              <span>1. TO BE COMPLETED BY FUNCTIONAL DESIGN (Yellow)</span>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
               {functionalDesignCols.map((field) => {
@@ -472,7 +473,7 @@ export const EditRowModal: React.FC<EditRowModalProps> = ({
                       <span>{field}</span>
                       {isChanged && (
                         <span className="text-[10px] text-amber-600 dark:text-amber-400 font-bold">
-                          Đã sửa
+                          Modified
                         </span>
                       )}
                     </label>
@@ -496,7 +497,7 @@ export const EditRowModal: React.FC<EditRowModalProps> = ({
           <div className="p-4 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50/60 dark:bg-slate-850/40">
             <div className="flex items-center gap-2 text-xs font-black text-slate-900 dark:text-slate-100 uppercase tracking-wider mb-3">
               <span className="w-2.5 h-2.5 rounded-full bg-slate-400 inline-block"></span>
-              <span>2. ARMATURE INFO FROM PIPE SPECIFICATION (Màu xám)</span>
+              <span>2. ARMATURE INFO FROM PIPE SPECIFICATION (Gray)</span>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
               {pipeSpecCols.map((field) => {
@@ -508,7 +509,7 @@ export const EditRowModal: React.FC<EditRowModalProps> = ({
                       <span className="truncate">{field}</span>
                       {isChanged && (
                         <span className="text-[10px] text-amber-600 dark:text-amber-400 font-bold ml-1">
-                          Đã sửa
+                          Modified
                         </span>
                       )}
                     </label>
@@ -534,7 +535,7 @@ export const EditRowModal: React.FC<EditRowModalProps> = ({
           <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
             <div className="flex items-center gap-2 text-xs font-black text-slate-900 dark:text-slate-100 uppercase tracking-wider mb-3">
               <span className="w-2.5 h-2.5 rounded-full bg-slate-300 inline-block"></span>
-              <span>3. REVISION & SIGNATURE (Ký duyệt & Phiên bản)</span>
+              <span>3. REVISION &amp; SIGNATURE (Approval &amp; Revision)</span>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
               {revisionCols.map((field) => {
@@ -545,7 +546,7 @@ export const EditRowModal: React.FC<EditRowModalProps> = ({
                       <span className="truncate">{field}</span>
                       {isChanged && (
                         <span className="text-[10px] text-amber-600 dark:text-amber-400 font-bold ml-1">
-                          Đã sửa
+                          Modified
                         </span>
                       )}
                     </label>
@@ -570,7 +571,7 @@ export const EditRowModal: React.FC<EditRowModalProps> = ({
             <div>
               <div className="flex items-center gap-2 text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-3">
                 <Settings className="w-3.5 h-3.5" />
-                <span>4. Các Trường Tùy Chỉnh Khác</span>
+                <span>4. Other Custom Fields</span>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
                 {remainingHeaders.map((field) => {
@@ -581,7 +582,7 @@ export const EditRowModal: React.FC<EditRowModalProps> = ({
                         <span className="truncate">{field}</span>
                         {isChanged && (
                           <span className="text-[10px] text-amber-600 dark:text-amber-400 font-bold ml-1">
-                            Đã sửa
+                            Modified
                           </span>
                         )}
                       </label>
@@ -613,14 +614,14 @@ export const EditRowModal: React.FC<EditRowModalProps> = ({
                     type="button"
                     onClick={() => setShowDeleteConfirm(true)}
                     className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-rose-600 hover:text-white hover:bg-rose-600 border border-rose-300 dark:border-rose-800 transition-colors cursor-pointer"
-                    title="Xóa hẳn dòng van này khỏi bảng Master"
+                    title="Delete this valve row from Master Table"
                   >
                     <Trash2 className="w-3.5 h-3.5" />
-                    <span>Xóa dòng này</span>
+                    <span>Delete this row</span>
                   </button>
                 ) : (
                   <div className="flex items-center gap-2 px-2.5 py-1 rounded-lg bg-rose-50 dark:bg-rose-950/50 border border-rose-300 dark:border-rose-800 text-xs">
-                    <span className="text-rose-700 dark:text-rose-300 font-medium">Xác nhận xóa dòng này?</span>
+                    <span className="text-rose-700 dark:text-rose-300 font-medium">Confirm delete this row?</span>
                     <button
                       type="button"
                       onClick={() => {
@@ -629,14 +630,14 @@ export const EditRowModal: React.FC<EditRowModalProps> = ({
                       }}
                       className="px-2 py-0.5 rounded bg-rose-600 text-white font-bold hover:bg-rose-700 transition-colors text-[11px]"
                     >
-                      Xóa luôn
+                      Delete
                     </button>
                     <button
                       type="button"
                       onClick={() => setShowDeleteConfirm(false)}
                       className="px-2 py-0.5 rounded bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-300 text-[11px]"
                     >
-                      Huỷ
+                      Cancel
                     </button>
                   </div>
                 )}
@@ -650,7 +651,7 @@ export const EditRowModal: React.FC<EditRowModalProps> = ({
                 onChange={(e) => setAutoEmail(e.target.checked)}
                 className="w-4 h-4 text-blue-600 rounded border-slate-300 dark:border-slate-700 focus:ring-blue-500"
               />
-              <span className="hidden sm:inline">Tự động mở cửa sổ Email Outlook sau khi lưu</span>
+              <span className="hidden sm:inline">Auto-open Outlook Email window after saving</span>
             </label>
           </div>
 
@@ -660,7 +661,7 @@ export const EditRowModal: React.FC<EditRowModalProps> = ({
               onClick={onClose}
               className="px-4 py-2 rounded-lg text-xs font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors"
             >
-              Huỷ bỏ
+              Cancel
             </button>
 
             <button
@@ -669,7 +670,7 @@ export const EditRowModal: React.FC<EditRowModalProps> = ({
               className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-semibold bg-slate-700 hover:bg-slate-800 text-white transition-colors"
             >
               <Save className="w-3.5 h-3.5" />
-              <span>Chỉ Lưu Dữ Liệu</span>
+              <span>Save Data Only</span>
             </button>
 
             <button
@@ -678,7 +679,7 @@ export const EditRowModal: React.FC<EditRowModalProps> = ({
               className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-semibold bg-blue-600 hover:bg-blue-700 text-white shadow-sm transition-colors"
             >
               <Mail className="w-3.5 h-3.5" />
-              <span>Lưu & Soạn Mail Outlook</span>
+              <span>Save &amp; Compose Outlook Mail</span>
             </button>
           </div>
         </div>
