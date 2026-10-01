@@ -768,35 +768,6 @@ export default function App() {
         </div>
       </main>
 
-      {/* Footer */}
-      <footer className="border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 py-4 text-center text-xs text-slate-400">
-        <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
-          <span>Armature Import Tool &bull; Catalog Lookup &amp; Pipe Specification Manager</span>
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => setIsCatalogModalOpen(true)}
-              className="text-amber-500 hover:underline cursor-pointer"
-            >
-              Equipment Catalog Manager ({activeCatalogCount} items)
-            </button>
-            <span className="text-slate-300 dark:text-slate-700">&bull;</span>
-            <button
-              onClick={() => setIsHelpOpen(true)}
-              className="text-blue-500 hover:underline cursor-pointer"
-            >
-              Documentation &amp; Tech Specs
-            </button>
-            <span className="text-slate-300 dark:text-slate-700">&bull;</span>
-            <button
-              onClick={() => setIsGithubModalOpen(true)}
-              className="text-slate-600 dark:text-slate-300 hover:text-blue-500 flex items-center gap-1 cursor-pointer"
-            >
-              GitHub Pages Deployment
-            </button>
-          </div>
-        </div>
-      </footer>
-
       {/* MODALS */}
       {/* Catalog Manager Modal */}
       {isCatalogModalOpen && (

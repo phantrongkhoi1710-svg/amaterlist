@@ -1203,12 +1203,12 @@ export const MasterTable: React.FC<MasterTableProps> = ({
                     setPageSize(Number(e.target.value));
                     setCurrentPage(1);
                   }}
-                  className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded px-1.5 py-0.5 text-xs text-slate-700 dark:text-slate-300"
+                  className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded px-2 py-0.5 text-xs text-slate-700 dark:text-slate-300 font-medium cursor-pointer"
                 >
                   <option value={25}>25</option>
                   <option value={50}>50</option>
                   <option value={100}>100</option>
-                  <option value={200}>200</option>
+                  <option value={99999}>All ({sortedData.length})</option>
                 </select>
               </div>
             </div>
