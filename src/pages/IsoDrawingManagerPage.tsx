@@ -68,6 +68,7 @@ const VARD_1005_SYSTEM_TEMPLATES = [
   '5819. Potable Water Bunker & Transfer system',
   '5821. Black Water Discharge system',
   '5822. Grey Water Discharge System',
+  '8221. Tank Sounding system',
 ];
 
 export const IsoDrawingManagerPage: React.FC = () => {
