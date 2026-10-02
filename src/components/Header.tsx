@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import {
   FileSpreadsheet,
   Download,
@@ -9,6 +10,8 @@ import {
   SlidersHorizontal,
   Mail,
   BookOpen,
+  ArrowLeft,
+  LayoutGrid,
 } from 'lucide-react';
 import { downloadMasterTemplate } from '../utils/sampleData';
 
@@ -46,8 +49,18 @@ export const Header: React.FC<HeaderProps> = ({
     <header className="bg-slate-900 border-b border-slate-800 text-white sticky top-0 z-30 shadow-md">
       <div className="w-full px-3 sm:px-5 lg:px-6 py-2.5">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-          {/* Logo & Title */}
-          <div className="flex items-center space-x-3">
+          {/* Logo, Title & Back to Hub */}
+          <div className="flex items-center space-x-2.5">
+            <Link
+              to="/"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-750 text-slate-300 hover:text-white border border-slate-700 text-xs font-bold transition-all shadow-sm active:scale-95 cursor-pointer group"
+              title="Quay lại Trang chủ Hub Công cụ / Back to WebToolRush Hub"
+            >
+              <ArrowLeft className="w-3.5 h-3.5 text-slate-400 group-hover:-translate-x-0.5 transition-transform" />
+              <LayoutGrid className="w-3.5 h-3.5 text-cyan-400" />
+              <span className="hidden md:inline font-semibold text-slate-200">Tool Hub</span>
+            </Link>
+
             <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center shadow-inner shadow-white/20 shrink-0">
               <FileSpreadsheet className="w-5 h-5 text-white" />
             </div>
