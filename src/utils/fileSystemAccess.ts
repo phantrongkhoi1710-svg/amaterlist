@@ -4,7 +4,7 @@
  */
 
 import JSZip from 'jszip';
-import { IsoDrawingRow } from './isoDrawingLogic';
+import { IsoDrawingRow, matchTemplateFolder } from './isoDrawingLogic';
 
 export interface ScannedFileMapItem {
   baseName: string;
@@ -94,12 +94,23 @@ export function extractTemplateSubfoldersFromFiles(files: FileList | File[]): st
   const set = new Set<string>();
   const fileArray = Array.from(files);
 
+  const isFileName = (str: string) => /\.[a-z0-9]{2,5}$/i.test(str);
+
   for (const file of fileArray) {
     const rel = (file as unknown as { webkitRelativePath?: string }).webkitRelativePath || '';
     if (rel) {
       const parts = rel.split('/');
-      if (parts.length > 2 && parts[1]) {
+      // If path is "8221. tank sounding/file.dwg" -> parts[0] is directory
+      if (parts.length === 2 && parts[0] && !isFileName(parts[0])) {
+        set.add(parts[0]);
+      }
+      // If path is "Templates/8221. tank sounding/file.dwg" -> parts[1] is directory
+      if (parts.length > 2 && parts[1] && !isFileName(parts[1])) {
         set.add(parts[1]);
+      }
+      // If path is "Root/Templates/8221. tank sounding/file.dwg" -> parts[2] is directory
+      if (parts.length > 3 && parts[2] && !isFileName(parts[2])) {
+        set.add(parts[2]);
       }
     }
   }
@@ -159,7 +170,7 @@ export async function getHandleFromIDB<T>(key: string): Promise<T | null> {
  */
 export async function pickDirectory(idHint?: string): Promise<FileSystemDirectoryHandle | null> {
   if (!isFileSystemAccessSupported()) {
-    throw new Error('Trình duyệt của bạn không hỗ trợ File System Access API. Vui lòng sử dụng Chrome hoặc Edge trên Desktop.');
+    throw new Error('Trình duyệt của bạn không hỗ trợ File System Access API.');
   }
   try {
     const handle = await (window as unknown as { showDirectoryPicker: (opts?: unknown) => Promise<FileSystemDirectoryHandle> }).showDirectoryPicker({
@@ -214,7 +225,6 @@ export async function scanCadDirectory(
     scannedCount++;
     if (scannedCount % 50 === 0 && onProgress) {
       onProgress(scannedCount);
-      // Yield to UI loop
       await new Promise((r) => setTimeout(r, 0));
     }
   }
@@ -227,13 +237,23 @@ export async function scanCadDirectory(
  * List subfolder names in a template folder handle
  */
 export async function listSubfolderNames(dirHandle: FileSystemDirectoryHandle): Promise<string[]> {
-  const subfolders: string[] = [];
+  const subfolders = new Set<string>();
   for await (const [name, handle] of (dirHandle as unknown as AsyncIterable<[string, FileSystemHandle]>)) {
     if (handle.kind === 'directory') {
-      subfolders.push(name);
+      subfolders.add(name);
+      try {
+        const subHandle = await dirHandle.getDirectoryHandle(name);
+        for await (const [childName, childHandle] of (subHandle as unknown as AsyncIterable<[string, FileSystemHandle]>)) {
+          if (childHandle.kind === 'directory') {
+            subfolders.add(childName);
+          }
+        }
+      } catch {
+        // ignore
+      }
     }
   }
-  return subfolders;
+  return Array.from(subfolders);
 }
 
 /**
@@ -291,9 +311,13 @@ export async function copyCadFilesToOutput(
     }
 
     const zoneFolderName = `S${row.zone}`;
-    const sysFolderName = row.targetFolder || row.systemShort || 'MISC';
+    const sysFolderName =
+      row.targetFolder ||
+      matchTemplateFolder(row.systemShort, templateSubfolders, row.system) ||
+      row.systemShort ||
+      'MISC';
 
-    if (!fileEntry || (!fileEntry.dwgHandle && !fileEntry.dxfHandle)) {
+    if (!fileEntry || (!fileEntry.dwgHandle && !fileEntry.dxfHandle && !fileEntry.dwgFile && !fileEntry.dxfFile)) {
       log(`[THIẾU] STT ${row.stt} (${row.fileName}): Không tìm thấy file CAD gốc trong thư mục nguồn.`);
       summary.filesMissing++;
       continue;
@@ -322,7 +346,7 @@ export async function copyCadFilesToOutput(
       }
 
       // 3. Copy .dwg if present
-      if (fileEntry.dwgHandle) {
+      if (fileEntry.dwgHandle || fileEntry.dwgFile) {
         const destName = `${row.fileName}.dwg`;
         let alreadyExists = false;
         try {
@@ -336,7 +360,7 @@ export async function copyCadFilesToOutput(
           log(`[BỎ QUA TỒN TẠI] ${destName} đã tồn tại trong ${sysKey}. Không ghi đè.`);
           summary.filesSkipped++;
         } else {
-          const srcFile = await fileEntry.dwgHandle.getFile();
+          const srcFile = fileEntry.dwgFile || (await fileEntry.dwgHandle!.getFile());
           const destHandle = await sysHandle.getFileHandle(destName, { create: true });
           const writable = await (destHandle as unknown as { createWritable: () => Promise<FileSystemWritableFileStream> }).createWritable();
           await writable.write(srcFile);
@@ -346,7 +370,7 @@ export async function copyCadFilesToOutput(
       }
 
       // 4. Copy .dxf if present
-      if (fileEntry.dxfHandle) {
+      if (fileEntry.dxfHandle || fileEntry.dxfFile) {
         const destName = `${row.fileName}.dxf`;
         let alreadyExists = false;
         try {
@@ -360,7 +384,7 @@ export async function copyCadFilesToOutput(
           log(`[BỎ QUA TỒN TẠI] ${destName} đã tồn tại trong ${sysKey}. Không ghi đè.`);
           summary.filesSkipped++;
         } else {
-          const srcFile = await fileEntry.dxfHandle.getFile();
+          const srcFile = fileEntry.dxfFile || (await fileEntry.dxfHandle!.getFile());
           const destHandle = await sysHandle.getFileHandle(destName, { create: true });
           const writable = await (destHandle as unknown as { createWritable: () => Promise<FileSystemWritableFileStream> }).createWritable();
           await writable.write(srcFile);
@@ -372,7 +396,6 @@ export async function copyCadFilesToOutput(
       log(`[LỖI] STT ${row.stt} (${row.fileName}): ${(err as Error).message}`);
     }
 
-    // Yield every 20 files to keep UI responsive
     if (i % 20 === 0) {
       await new Promise((r) => setTimeout(r, 0));
     }
@@ -388,6 +411,7 @@ export async function copyCadFilesToOutput(
 export async function createZipFallback(
   rows: IsoDrawingRow[],
   fileMap: Map<string, ScannedFileMapItem>,
+  templateSubfolders?: string[],
   onProgress?: (percent: number) => void,
 ): Promise<Blob> {
   const zip = new JSZip();
@@ -402,7 +426,11 @@ export async function createZipFallback(
     if (!fileEntry) continue;
 
     const zoneFolderName = `S${row.zone}`;
-    const sysFolderName = row.targetFolder || row.systemShort || 'MISC';
+    const sysFolderName =
+      row.targetFolder ||
+      (templateSubfolders ? matchTemplateFolder(row.systemShort, templateSubfolders, row.system) : null) ||
+      row.systemShort ||
+      'MISC';
     const folderPath = `${zoneFolderName}/${sysFolderName}`;
 
     if (fileEntry.dwgHandle || fileEntry.dwgFile) {

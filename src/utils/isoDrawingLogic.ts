@@ -152,17 +152,49 @@ export function computeSystemShort(system: string): string {
 }
 
 /**
- * Match template folder name by systemShort code.
- * If template subfolder name CONTAINS systemShort (case-insensitive),
- * use that template subfolder name; otherwise use systemShort.
+ * Match template folder name by systemShort code and raw system.
+ * Supports:
+ * - Exact substring (e.g. "8212" in "S8212 - SEAWATER SYSTEM")
+ * - Raw system substring (e.g. "821-002" in "821-002 SEAWATER")
+ * - Normalized non-alphanumeric matching (e.g. "821-2" matches "8212", "821 2" matches "8212")
  */
-export function matchTemplateFolder(systemShort: string, templateFolders: string[]): string {
-  if (!systemShort) return 'UNKNOWN';
-  if (!templateFolders || templateFolders.length === 0) return systemShort;
+export function matchTemplateFolder(
+  systemShort: string,
+  templateFolders: string[],
+  rawSystem?: string,
+): string {
+  if (!systemShort && !rawSystem) return 'UNKNOWN';
+  if (!templateFolders || templateFolders.length === 0) return systemShort || rawSystem || 'MISC';
 
-  const needle = systemShort.toLowerCase();
-  const matched = templateFolders.find((folder) => folder.toLowerCase().includes(needle));
-  return matched || systemShort;
+  const sShort = (systemShort || '').toLowerCase().trim();
+  const sRaw = (rawSystem || '').toLowerCase().trim();
+
+  // 1. Direct contains check
+  for (const folder of templateFolders) {
+    const fLower = folder.toLowerCase();
+    if (sShort && fLower.includes(sShort)) return folder;
+    if (sRaw && fLower.includes(sRaw)) return folder;
+  }
+
+  // 2. Normalized alphanumeric check (removes hyphens, spaces, dots, underscores)
+  const sShortNorm = sShort.replace(/[^a-z0-9]/gi, '');
+  const sRawNorm = sRaw.replace(/[^a-z0-9]/gi, '');
+
+  for (const folder of templateFolders) {
+    const fNorm = folder.toLowerCase().replace(/[^a-z0-9]/gi, '');
+    if (sShortNorm && fNorm.includes(sShortNorm)) return folder;
+    if (sRawNorm && fNorm.includes(sRawNorm)) return folder;
+  }
+
+  // 3. Prefix matching: if folder starts with system code or systemShort
+  for (const folder of templateFolders) {
+    const fNorm = folder.toLowerCase().replace(/[^a-z0-9]/gi, '');
+    if (sShortNorm && (fNorm.startsWith(sShortNorm) || fNorm.startsWith(`s${sShortNorm}`))) {
+      return folder;
+    }
+  }
+
+  return systemShort || rawSystem || 'MISC';
 }
 
 /**

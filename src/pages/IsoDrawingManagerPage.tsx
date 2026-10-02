@@ -20,7 +20,12 @@ import {
   Sparkles,
   Clock,
   Archive,
-  SlidersHorizontal,
+  Edit3,
+  Plus,
+  Settings,
+  ClipboardPaste,
+  FileText,
+  Info,
 } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import {
@@ -49,6 +54,22 @@ import {
   getIssuedHistoryFileName,
 } from '../utils/isoExcelExport';
 
+const VARD_1005_SYSTEM_TEMPLATES = [
+  '2781. External Catodic Protection',
+  '3511. CTV fuel system',
+  '4051. Anti heeling System',
+  '4451. Food Waste Treatment System',
+  '5711. Hvac System Accommodation',
+  '5721. Chilled water system',
+  '5761. Ventilation_Tehnical_Spaces',
+  '5771. Central heating system',
+  '5812. Sanitary Supply system below MD',
+  '5814. Technical fresh water system',
+  '5819. Potable Water Bunker & Transfer system',
+  '5821. Black Water Discharge system',
+  '5822. Grey Water Discharge System',
+];
+
 export const IsoDrawingManagerPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'main' | 'released' | 'oldrev'>('main');
 
@@ -56,6 +77,7 @@ export const IsoDrawingManagerPage: React.FC = () => {
   const sourceInputRef = useRef<HTMLInputElement>(null);
   const templateInputRef = useRef<HTMLInputElement>(null);
   const relParentInputRef = useRef<HTMLInputElement>(null);
+  const templateListFileInputRef = useRef<HTMLInputElement>(null);
 
   // In-app Alert / Toast notification
   const [noticeMessage, setNoticeMessage] = useState<string | null>(null);
@@ -70,7 +92,7 @@ export const IsoDrawingManagerPage: React.FC = () => {
   const [sourceName, setSourceName] = useState<string>('');
   const [templateHandle, setTemplateHandle] = useState<FileSystemDirectoryHandle | null>(null);
   const [templateName, setTemplateName] = useState<string>('');
-  const [templateSubfolders, setTemplateSubfolders] = useState<string[]>([]);
+  const [templateSubfolders, setTemplateSubfolders] = useState<string[]>(VARD_1005_SYSTEM_TEMPLATES);
   const [outputHandle, setOutputHandle] = useState<FileSystemDirectoryHandle | null>(null);
   const [outputName, setOutputName] = useState<string>('');
 
@@ -92,6 +114,8 @@ export const IsoDrawingManagerPage: React.FC = () => {
   const [executionLogs, setExecutionLogs] = useState<string[]>([]);
   const [isLogsModalOpen, setIsLogsModalOpen] = useState<boolean>(false);
   const [isResetConfirmOpen, setIsResetConfirmOpen] = useState<boolean>(false);
+  const [isTemplateModalOpen, setIsTemplateModalOpen] = useState<boolean>(false);
+  const [templateTextEdit, setTemplateTextEdit] = useState<string>('');
 
   // ISO Released State
   const [relParentHandle, setRelParentHandle] = useState<FileSystemDirectoryHandle | null>(null);
@@ -113,7 +137,7 @@ export const IsoDrawingManagerPage: React.FC = () => {
 
   const logsEndRef = useRef<HTMLDivElement>(null);
 
-  const showToast = (msg: string, durationMs: number = 3500) => {
+  const showToast = (msg: string, durationMs: number = 4000) => {
     setNoticeMessage(msg);
     setTimeout(() => {
       setNoticeMessage((curr) => (curr === msg ? null : curr));
@@ -127,6 +151,18 @@ export const IsoDrawingManagerPage: React.FC = () => {
     if (savedProject) setProjectName(savedProject);
     getHandleFromIDB<string>('iso_logo_base64').then((res) => {
       if (res) setLogoBase64(res);
+    });
+    getHandleFromIDB<string[]>('iso_template_subfolders').then((savedTmpl) => {
+      const cleaned = (savedTmpl || []).filter((s) => !s.toLowerCase().includes('tank sounding'));
+      const merged = Array.from(new Set([...cleaned, ...VARD_1005_SYSTEM_TEMPLATES]));
+      setTemplateSubfolders(merged);
+      saveHandleToIDB('iso_template_subfolders', merged);
+      setRows((prev) =>
+        prev.map((r) => ({
+          ...r,
+          targetFolder: matchTemplateFolder(r.systemShort, merged, r.system),
+        })),
+      );
     });
   }, []);
 
@@ -177,7 +213,7 @@ export const IsoDrawingManagerPage: React.FC = () => {
     try {
       const map = await scanCadDirectory(handle);
       setFileMap(map);
-      populateRowsFromMap(map);
+      populateRowsFromMap(map, templateSubfolders);
     } catch (err) {
       showToast(`Lỗi quét thư mục: ${(err as Error).message}`);
     } finally {
@@ -195,17 +231,17 @@ export const IsoDrawingManagerPage: React.FC = () => {
 
     const map = scanCadFileList(files);
     setFileMap(map);
-    populateRowsFromMap(map);
+    populateRowsFromMap(map, templateSubfolders);
     showToast(`Đã nạp ${map.size} bản vẽ từ "${folderName}"`);
   };
 
-  const populateRowsFromMap = (map: Map<string, ScannedFileMapItem>) => {
+  const populateRowsFromMap = (map: Map<string, ScannedFileMapItem>, tmplList: string[]) => {
     let sttCounter = 1;
     const parsedRows: IsoDrawingRow[] = [];
 
     map.forEach((item) => {
       const parsed = parseIsoFileName(item.baseName);
-      const targetSysFolder = matchTemplateFolder(parsed.systemShort, templateSubfolders);
+      const targetSysFolder = matchTemplateFolder(parsed.systemShort, tmplList, parsed.system);
 
       parsedRows.push({
         id: `iso_${sttCounter}_${item.baseName}`,
@@ -242,9 +278,9 @@ export const IsoDrawingManagerPage: React.FC = () => {
         setTemplateHandle(handle);
         setTemplateName(handle.name);
         const sub = await listSubfolderNames(handle);
-        setTemplateSubfolders(sub);
-        updateRowsWithTemplateSubfolders(sub);
-        showToast(`Template: ${sub.length} subfolders`);
+        const merged = Array.from(new Set([...sub, ...VARD_1005_SYSTEM_TEMPLATES]));
+        applyNewTemplateSubfolders(merged);
+        showToast(`Đã nạp ${merged.length} thư mục mẫu (Bao gồm VARD 1005 & 8221. tank sounding)!`);
       }
     } catch (err) {
       if ((err as Error).name !== 'AbortError') {
@@ -262,18 +298,106 @@ export const IsoDrawingManagerPage: React.FC = () => {
     setTemplateHandle(null);
 
     const sub = extractTemplateSubfoldersFromFiles(files);
-    setTemplateSubfolders(sub);
-    updateRowsWithTemplateSubfolders(sub);
-    showToast(`Template: ${sub.length} subfolders`);
+    // Merge detected subfolders with VARD_1005_SYSTEM_TEMPLATES so empty folders are preserved!
+    const merged = Array.from(new Set([...sub, ...VARD_1005_SYSTEM_TEMPLATES]));
+    applyNewTemplateSubfolders(merged);
+    showToast(`Đã nạp ${merged.length} thư mục mẫu (Bao gồm VARD 1005 & 8221. tank sounding)!`);
   };
 
-  const updateRowsWithTemplateSubfolders = (sub: string[]) => {
+  const applyNewTemplateSubfolders = (sub: string[]) => {
+    setTemplateSubfolders(sub);
+    saveHandleToIDB('iso_template_subfolders', sub);
     setRows((prev) =>
       prev.map((r) => ({
         ...r,
-        targetFolder: matchTemplateFolder(r.systemShort, sub),
+        targetFolder: matchTemplateFolder(r.systemShort, sub, r.system),
       })),
     );
+  };
+
+  const openTemplateModal = () => {
+    const currentList = Array.from(new Set(templateSubfolders));
+    setTemplateTextEdit(currentList.join('\n'));
+    setIsTemplateModalOpen(true);
+  };
+
+  const handleSaveTemplateText = () => {
+    const lines = templateTextEdit
+      .split('\n')
+      .map((l) => l.trim())
+      .filter(Boolean);
+    applyNewTemplateSubfolders(lines);
+    setIsTemplateModalOpen(false);
+    showToast(`Đã lưu & cập nhật ${lines.length} tên thư mục mẫu cho bảng!`);
+  };
+
+  const handleLoadVardTemplates = () => {
+    setTemplateTextEdit(VARD_1005_SYSTEM_TEMPLATES.join('\n'));
+    showToast('Đã nạp 13 hệ thống theo Hình 1!');
+  };
+
+  const handlePasteClipboard = async () => {
+    try {
+      const text = await navigator.clipboard.readText();
+      if (text) {
+        const lines = text.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
+        const current = templateTextEdit.split('\n').map((l) => l.trim()).filter(Boolean);
+        const merged = Array.from(new Set([...current, ...lines]));
+        setTemplateTextEdit(merged.join('\n'));
+        showToast(`Đã dán thêm ${lines.length} dòng từ Clipboard!`);
+      }
+    } catch {
+      showToast('Vui lòng cấp quyền dán hoặc dán thủ công bằng Ctrl+V!');
+    }
+  };
+
+  const handleImportTemplateFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.name.endsWith('.xlsx') || file.name.endsWith('.xls')) {
+      const reader = new FileReader();
+      reader.onload = (evt) => {
+        try {
+          const data = new Uint8Array(evt.target?.result as ArrayBuffer);
+          const workbook = XLSX.read(data, { type: 'array' });
+          const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+          const sheetRows = XLSX.utils.sheet_to_json<string[]>(firstSheet, { header: 1 });
+          const names: string[] = [];
+          for (const row of sheetRows) {
+            if (Array.isArray(row)) {
+              for (const cell of row) {
+                if (typeof cell === 'string' && cell.trim().length > 3) {
+                  names.push(cell.trim());
+                }
+              }
+            }
+          }
+          if (names.length > 0) {
+            const current = templateTextEdit.split('\n').map((l) => l.trim()).filter(Boolean);
+            const merged = Array.from(new Set([...current, ...names]));
+            setTemplateTextEdit(merged.join('\n'));
+            showToast(`Đã nạp ${names.length} tên hệ thống từ file Excel!`);
+          }
+        } catch (err) {
+          showToast(`Lỗi đọc Excel: ${(err as Error).message}`);
+        }
+      };
+      reader.readAsArrayBuffer(file);
+    } else {
+      const reader = new FileReader();
+      reader.onload = (evt) => {
+        const text = evt.target?.result as string;
+        if (text) {
+          const lines = text.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
+          const current = templateTextEdit.split('\n').map((l) => l.trim()).filter(Boolean);
+          const merged = Array.from(new Set([...current, ...lines]));
+          setTemplateTextEdit(merged.join('\n'));
+          showToast(`Đã nạp ${lines.length} tên hệ thống từ file text!`);
+        }
+      };
+      reader.readAsText(file);
+    }
   };
 
   const handleSelectOutput = async () => {
@@ -301,7 +425,7 @@ export const IsoDrawingManagerPage: React.FC = () => {
         if (r.id !== id) return r;
         const updated = { ...r, [field]: value };
         if (field === 'system') {
-          const sysShort = matchTemplateFolder(value, templateSubfolders);
+          const sysShort = matchTemplateFolder(value, templateSubfolders, value);
           updated.systemShort = sysShort;
           updated.targetFolder = sysShort;
         }
@@ -324,7 +448,8 @@ export const IsoDrawingManagerPage: React.FC = () => {
         r.zone.toLowerCase().includes(q) ||
         r.system.toLowerCase().includes(q) ||
         r.pipeSpool.toLowerCase().includes(q) ||
-        r.systemShort.toLowerCase().includes(q);
+        r.systemShort.toLowerCase().includes(q) ||
+        (r.targetFolder && r.targetFolder.toLowerCase().includes(q));
 
       const matchStatus =
         statusFilter === 'all' ||
@@ -402,7 +527,7 @@ export const IsoDrawingManagerPage: React.FC = () => {
     setExecutionLogs((prev) => [...prev, '[ZIP] Đang nén file theo cây thư mục S{ZONE}/{System}/...']);
 
     try {
-      const blob = await createZipFallback(rows, fileMap, (pct) => {
+      const blob = await createZipFallback(rows, fileMap, templateSubfolders, (pct) => {
         setRunProgress({
           total: rows.length,
           current: Math.round((pct / 100) * rows.length),
@@ -620,6 +745,7 @@ export const IsoDrawingManagerPage: React.FC = () => {
       <input ref={sourceInputRef} type="file" webkitdirectory="" multiple onChange={handleSourceFilesChange} className="hidden" />
       <input ref={templateInputRef} type="file" webkitdirectory="" multiple onChange={handleTemplateFilesChange} className="hidden" />
       <input ref={relParentInputRef} type="file" webkitdirectory="" multiple onChange={handleRelParentFilesChange} className="hidden" />
+      <input ref={templateListFileInputRef} type="file" accept=".txt,.xlsx,.xls,.csv" onChange={handleImportTemplateFile} className="hidden" />
 
       {/* Floating Notification */}
       {noticeMessage && (
@@ -660,6 +786,16 @@ export const IsoDrawingManagerPage: React.FC = () => {
 
           {/* Header Actions */}
           <div className="flex items-center gap-2.5">
+            <button
+              type="button"
+              onClick={openTemplateModal}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs sm:text-sm font-bold bg-slate-800 hover:bg-slate-750 text-amber-300 border border-amber-500/40 cursor-pointer transition-colors"
+              title="Cài đặt danh sách tên thư mục con theo Template"
+            >
+              <Settings className="w-4 h-4 text-amber-400" />
+              <span>Tên Mẫu ({templateSubfolders.length})</span>
+            </button>
+
             <button
               type="button"
               onClick={() => setIsLogsModalOpen(true)}
@@ -722,11 +858,11 @@ export const IsoDrawingManagerPage: React.FC = () => {
         </div>
       </div>
 
-      {/* MAIN CONTAINER: FULL WIDTH & FULL HEIGHT */}
+      {/* MAIN CONTAINER */}
       <main className="w-full px-4 sm:px-6 lg:px-8 xl:px-10 py-4 flex-1 flex flex-col space-y-3.5">
         {activeTab === 'main' && (
           <div className="w-full flex-1 flex flex-col space-y-3.5">
-            {/* EXPANDED CONFIG & FOLDERS TOOLBAR */}
+            {/* CONFIG & FOLDERS TOOLBAR */}
             <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 shadow-sm flex flex-wrap items-center justify-between gap-4 text-xs sm:text-sm">
               {/* Inputs & Logo */}
               <div className="flex flex-wrap items-center gap-3.5">
@@ -776,18 +912,26 @@ export const IsoDrawingManagerPage: React.FC = () => {
                   {rows.length > 0 && <span className="bg-purple-900/90 px-2 py-0.5 rounded-full text-xs font-extrabold">{rows.length}</span>}
                 </button>
 
-                <button
-                  type="button"
-                  onClick={handleSelectTemplate}
-                  className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold bg-slate-800 hover:bg-slate-750 text-slate-200 border border-slate-700 cursor-pointer transition-colors"
-                  title="Chọn thư mục template mẫu"
-                >
-                  <Layers className="w-4 h-4 text-amber-400" />
-                  <span>{templateName ? `Mẫu: ${templateName}` : '2. Thư Mục Template'}</span>
-                  {templateSubfolders.length > 0 && (
+                <div className="inline-flex items-center rounded-xl bg-slate-850 border border-slate-700 overflow-hidden">
+                  <button
+                    type="button"
+                    onClick={handleSelectTemplate}
+                    className="inline-flex items-center gap-2 px-3.5 py-2 text-xs sm:text-sm font-bold bg-slate-800 hover:bg-slate-750 text-slate-200 cursor-pointer transition-colors"
+                    title="Chọn thư mục template mẫu"
+                  >
+                    <Layers className="w-4 h-4 text-amber-400" />
+                    <span>{templateName ? `Mẫu: ${templateName}` : '2. Thư Mục Template'}</span>
                     <span className="text-amber-400 font-extrabold">({templateSubfolders.length})</span>
-                  )}
-                </button>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={openTemplateModal}
+                    className="px-2.5 py-2 bg-slate-800 hover:bg-amber-600/20 text-amber-300 border-l border-slate-700 cursor-pointer"
+                    title="Xem / Cài đặt danh sách tên thư mục con mẫu"
+                  >
+                    <Edit3 className="w-3.5 h-3.5" />
+                  </button>
+                </div>
 
                 <button
                   type="button"
@@ -832,7 +976,7 @@ export const IsoDrawingManagerPage: React.FC = () => {
                   className="inline-flex items-center gap-2 px-4 py-2 rounded-xl font-bold bg-indigo-950/60 hover:bg-indigo-900/80 text-indigo-300 border border-indigo-700/60 cursor-pointer disabled:opacity-40 transition-colors"
                 >
                   <Archive className="w-4 h-4 text-indigo-400" />
-                  <span>{isZipExporting ? 'Đang Nén...' : 'Tải Gói ZIP'}</span>
+                  <span>{isZipExporting ? 'Đang Nén...' : 'Tải Gói ZIP (Cấu Trúc Cây)'}</span>
                 </button>
 
                 <button
@@ -854,7 +998,7 @@ export const IsoDrawingManagerPage: React.FC = () => {
                     type="text"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Tìm theo Zone, System, Spool, File..."
+                    placeholder="Tìm theo Zone, System, Spool, Thư mục..."
                     className="w-full pl-9 pr-3 py-1.5 bg-slate-950 border border-slate-700 rounded-xl text-xs sm:text-sm text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
                   />
                 </div>
@@ -878,17 +1022,17 @@ export const IsoDrawingManagerPage: React.FC = () => {
                   <thead className="bg-slate-900 sticky top-0 z-10 border-b border-slate-800 text-xs font-bold text-slate-300 uppercase tracking-wider">
                     <tr>
                       <th className="py-3 px-3 text-center w-12">STT</th>
-                      <th className="py-3 px-4 min-w-[240px]">FILE NAME</th>
-                      <th className="py-3 px-4 min-w-[200px]">PIPE NUMBER</th>
-                      <th className="py-3 px-3 text-center min-w-[80px]">ZONE</th>
-                      <th className="py-3 px-3 text-center min-w-[110px]">SYSTEM</th>
-                      <th className="py-3 px-3 text-center min-w-[120px]">PIPE SPOOL</th>
+                      <th className="py-3 px-4 min-w-[220px]">FILE NAME</th>
+                      <th className="py-3 px-4 min-w-[180px]">PIPE NUMBER</th>
+                      <th className="py-3 px-3 text-center min-w-[75px]">ZONE</th>
+                      <th className="py-3 px-3 text-center min-w-[100px]">SYSTEM</th>
+                      <th className="py-3 px-4 min-w-[240px]">THƯ MỤC CON ĐÍCH</th>
+                      <th className="py-3 px-3 text-center min-w-[110px]">PIPE SPOOL</th>
                       <th className="py-3 px-3 text-center min-w-[60px]">REV</th>
                       <th className="py-3 px-3 text-center min-w-[110px]">ISSUED DATE</th>
-                      <th className="py-3 px-4 min-w-[150px]">REMARK</th>
-                      <th className="py-3 px-3 text-center min-w-[90px]">STATUS</th>
-                      <th className="py-3 px-3 text-center min-w-[100px]">SHORT</th>
-                      <th className="py-3 px-3 text-center min-w-[100px]">CAD</th>
+                      <th className="py-3 px-4 min-w-[140px]">REMARK</th>
+                      <th className="py-3 px-3 text-center min-w-[85px]">STATUS</th>
+                      <th className="py-3 px-3 text-center min-w-[90px]">CAD</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-800/60 font-mono text-xs sm:text-sm">
@@ -904,7 +1048,7 @@ export const IsoDrawingManagerPage: React.FC = () => {
                             </h3>
                             <p className="text-xs sm:text-sm text-slate-400 max-w-md">
                               {rows.length === 0
-                                ? 'Bấm nút bên dưới để chọn thư mục chứa các file .dwg & .dxf. Hệ thống sẽ tự động bóc tách và phân nhóm Zone/System.'
+                                ? 'Bấm nút bên dưới để chọn thư mục chứa các file .dwg & .dxf. Hệ thống sẽ tự động bóc tách và tạo cấu trúc thư mục con đích.'
                                 : 'Hãy thử thay đổi từ khóa tìm kiếm hoặc đặt lại bộ lọc trạng thái.'}
                             </p>
                             {rows.length === 0 && (
@@ -922,10 +1066,11 @@ export const IsoDrawingManagerPage: React.FC = () => {
                     ) : (
                       sortedRows.map((r) => {
                         const isInvalid = !r.isValid;
+
                         return (
                           <tr key={r.id} className={`hover:bg-slate-800/50 transition-colors ${isInvalid ? 'bg-rose-950/25 text-rose-200' : ''}`}>
                             <td className="py-2.5 px-3 text-center text-slate-500 font-semibold">{r.stt}</td>
-                            <td className="py-2.5 px-4 font-semibold text-slate-100 truncate max-w-[280px]" title={r.fileName}>
+                            <td className="py-2.5 px-4 font-semibold text-slate-100 truncate max-w-[260px]" title={r.fileName}>
                               {r.fileName}
                             </td>
                             <td className="py-2.5 px-4">
@@ -941,7 +1086,7 @@ export const IsoDrawingManagerPage: React.FC = () => {
                                 type="text"
                                 value={r.zone}
                                 onChange={(e) => handleUpdateRow(r.id, 'zone', e.target.value)}
-                                className="w-16 text-center bg-transparent border-b border-transparent hover:border-slate-700 focus:border-purple-500 focus:outline-none py-0.5"
+                                className="w-14 text-center bg-transparent border-b border-transparent hover:border-slate-700 focus:border-purple-500 focus:outline-none py-0.5"
                               />
                             </td>
                             <td className="py-2.5 px-3 text-center text-cyan-300 font-semibold">
@@ -949,15 +1094,31 @@ export const IsoDrawingManagerPage: React.FC = () => {
                                 type="text"
                                 value={r.system}
                                 onChange={(e) => handleUpdateRow(r.id, 'system', e.target.value)}
-                                className="w-24 text-center bg-transparent border-b border-transparent hover:border-slate-700 focus:border-purple-500 focus:outline-none py-0.5"
+                                className="w-22 text-center bg-transparent border-b border-transparent hover:border-slate-700 focus:border-purple-500 focus:outline-none py-0.5"
                               />
                             </td>
+
+                            {/* TARGET SUBFOLDER COLUMN: Shows full S{ZONE}/{SystemFolder} */}
+                            <td className="py-2 px-3">
+                              <div className="flex items-center gap-1 bg-slate-950 px-2.5 py-1 rounded-xl border border-slate-800 focus-within:border-cyan-500">
+                                <span className="font-bold text-amber-400 select-none text-xs shrink-0">S{r.zone}/</span>
+                                <input
+                                  type="text"
+                                  value={r.targetFolder || ''}
+                                  onChange={(e) => handleUpdateRow(r.id, 'targetFolder', e.target.value)}
+                                  className="font-bold text-cyan-300 bg-transparent focus:outline-none w-full min-w-[150px] truncate text-xs"
+                                  placeholder={r.systemShort}
+                                  title={`Thư mục đích: S${r.zone}/${r.targetFolder || r.systemShort}`}
+                                />
+                              </div>
+                            </td>
+
                             <td className="py-2.5 px-3 text-center text-emerald-300 font-semibold">
                               <input
                                 type="text"
                                 value={r.pipeSpool}
                                 onChange={(e) => handleUpdateRow(r.id, 'pipeSpool', e.target.value)}
-                                className="w-28 text-center bg-transparent border-b border-transparent hover:border-slate-700 focus:border-purple-500 focus:outline-none py-0.5"
+                                className="w-26 text-center bg-transparent border-b border-transparent hover:border-slate-700 focus:border-purple-500 focus:outline-none py-0.5"
                               />
                             </td>
                             <td className="py-2.5 px-3 text-center font-black text-white">
@@ -989,9 +1150,6 @@ export const IsoDrawingManagerPage: React.FC = () => {
                               <span className="px-2 py-0.5 rounded-md text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
                                 {r.status}
                               </span>
-                            </td>
-                            <td className="py-2.5 px-3 text-center font-bold text-purple-300">
-                              {r.systemShort || '-'}
                             </td>
                             <td className="py-2.5 px-3 text-center">
                               <div className="flex items-center justify-center gap-1.5">
@@ -1166,6 +1324,108 @@ export const IsoDrawingManagerPage: React.FC = () => {
           </div>
         )}
       </main>
+
+      {/* POPUP MODAL: QUẢN LÝ TÊN THƯ MỤC MẪU (TEMPLATE SUBFOLDERS MANAGER) */}
+      {isTemplateModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-xs animate-in fade-in duration-150">
+          <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-2xl w-full p-5 space-y-4 shadow-2xl flex flex-col max-h-[88vh]">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+              <div className="flex items-center gap-2.5">
+                <Layers className="w-5 h-5 text-amber-400" />
+                <h3 className="text-base font-bold text-white uppercase tracking-wider">
+                  Cài Đặt Danh Sách Tên Thư Mục Con (Template)
+                </h3>
+              </div>
+              <button
+                onClick={() => setIsTemplateModalOpen(false)}
+                className="text-slate-400 hover:text-white p-1 rounded-xl hover:bg-slate-800 cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Explanation why empty folders were not sent by browser */}
+            <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-200 text-xs flex items-start gap-2.5">
+              <Info className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+              <div className="space-y-1">
+                <p className="font-semibold text-amber-300">
+                  Tại sao trình duyệt chỉ nhận diện được 1 thư mục khi chọn thư mục mẫu?
+                </p>
+                <p className="leading-relaxed text-slate-300">
+                  Theo tiêu chuẩn bảo mật của mọi trình duyệt web (Chrome, Edge), hộp thoại chọn thư mục chỉ gửi lên các thư mục <strong>có chứa file</strong> bên trong (như <code className="text-amber-300 font-bold">4051. Anti heeling System</code>). Các thư mục rỗng khác không có file nên trình duyệt không gửi lên.
+                </p>
+                <p className="text-amber-300 font-bold">
+                  &rarr; Bạn có thể bấm "Nạp mẫu theo Hình 1", dán danh sách thư mục (Ctrl+V) hoặc nhập file danh sách vào đây rồi bấm "Lưu &amp; Áp Dụng Ngay"!
+                </p>
+              </div>
+            </div>
+
+            {/* Quick Action Buttons */}
+            <div className="flex flex-wrap items-center gap-2 text-xs">
+              <button
+                type="button"
+                onClick={handleLoadVardTemplates}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 font-bold cursor-pointer transition-colors"
+              >
+                <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                <span>Nạp mẫu theo Hình 1</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={handlePasteClipboard}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-750 text-slate-300 border border-slate-700 font-semibold cursor-pointer transition-colors"
+                title="Dán từ Clipboard (nếu đã copy từ Windows Explorer hoặc Excel)"
+              >
+                <ClipboardPaste className="w-3.5 h-3.5 text-cyan-400" />
+                <span>Dán từ Clipboard</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => templateListFileInputRef.current?.click()}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-750 text-slate-300 border border-slate-700 font-semibold cursor-pointer transition-colors"
+                title="Tải file .txt hoặc .xlsx chứa danh sách hệ thống"
+              >
+                <FileText className="w-3.5 h-3.5 text-purple-400" />
+                <span>Nhập File Text / Excel</span>
+              </button>
+            </div>
+
+            {/* Textarea */}
+            <div className="flex-1 flex flex-col space-y-1">
+              <textarea
+                value={templateTextEdit}
+                onChange={(e) => setTemplateTextEdit(e.target.value)}
+                placeholder="Nhập hoặc dán danh sách tên thư mục (mỗi dòng 1 tên, ví dụ: 4051. Anti heeling System)..."
+                className="w-full flex-1 min-h-[200px] max-h-[300px] p-3 bg-slate-950 border border-slate-700 rounded-xl font-mono text-xs text-slate-200 focus:outline-none focus:ring-2 focus:ring-amber-500"
+              />
+            </div>
+
+            <div className="flex items-center justify-between pt-2 border-t border-slate-800">
+              <span className="text-xs text-slate-400 font-mono">
+                {templateTextEdit.split('\n').filter(Boolean).length} tên hệ thống
+              </span>
+              <div className="flex gap-2.5">
+                <button
+                  type="button"
+                  onClick={() => setIsTemplateModalOpen(false)}
+                  className="px-4 py-2 rounded-xl text-xs font-bold text-slate-400 hover:bg-slate-800 cursor-pointer"
+                >
+                  Hủy
+                </button>
+                <button
+                  type="button"
+                  onClick={handleSaveTemplateText}
+                  className="px-5 py-2 rounded-xl text-xs font-bold bg-amber-500 hover:bg-amber-400 text-slate-950 cursor-pointer transition-colors shadow-md shadow-amber-500/20"
+                >
+                  Lưu &amp; Áp Dụng Ngay
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* POPUP MODAL: NHẬT KÝ THỰC THI (EXECUTION LOGS) */}
       {isLogsModalOpen && (
