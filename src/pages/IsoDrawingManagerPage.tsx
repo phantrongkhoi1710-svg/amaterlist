@@ -278,7 +278,7 @@ export const IsoDrawingManagerPage: React.FC = () => {
 
   const handleSelectOutput = async () => {
     if (!isFileSystemAccessSupported()) {
-      showToast('Đang chạy iFrame: Bạn có thể dùng nút "Tải ZIP" tiện lợi!');
+      showToast('Đang chạy iFrame: Bạn có thể dùng nút "Tải Gói ZIP" tiện lợi!');
       return;
     }
     try {
@@ -615,7 +615,7 @@ export const IsoDrawingManagerPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans selection:bg-purple-600 selection:text-white">
+    <div className="min-h-screen w-full bg-slate-950 text-slate-100 flex flex-col font-sans selection:bg-purple-600 selection:text-white">
       {/* Hidden File Inputs */}
       <input ref={sourceInputRef} type="file" webkitdirectory="" multiple onChange={handleSourceFilesChange} className="hidden" />
       <input ref={templateInputRef} type="file" webkitdirectory="" multiple onChange={handleTemplateFilesChange} className="hidden" />
@@ -623,52 +623,52 @@ export const IsoDrawingManagerPage: React.FC = () => {
 
       {/* Floating Notification */}
       {noticeMessage && (
-        <div className="fixed top-3 right-4 z-50 px-3.5 py-2 rounded-xl bg-purple-900 border border-purple-400 text-white shadow-xl text-xs font-semibold flex items-center gap-2 animate-in fade-in slide-in-from-top-2">
-          <Sparkles className="w-3.5 h-3.5 text-purple-300 shrink-0" />
+        <div className="fixed top-4 right-6 z-50 px-4 py-2.5 rounded-xl bg-purple-900 border border-purple-400 text-white shadow-2xl text-xs sm:text-sm font-semibold flex items-center gap-2.5 animate-in fade-in slide-in-from-top-2">
+          <Sparkles className="w-4 h-4 text-purple-300 shrink-0" />
           <span>{noticeMessage}</span>
-          <button onClick={() => setNoticeMessage(null)} className="text-purple-300 hover:text-white ml-1 font-bold cursor-pointer">
+          <button onClick={() => setNoticeMessage(null)} className="text-purple-300 hover:text-white ml-2 font-bold cursor-pointer">
             &times;
           </button>
         </div>
       )}
 
-      {/* COMPACT HEADER */}
-      <header className="sticky top-0 z-40 bg-slate-900/95 backdrop-blur-md border-b border-slate-800">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-14 flex items-center justify-between gap-3">
-          <div className="flex items-center space-x-2.5">
+      {/* FULL-WIDTH HEADER */}
+      <header className="sticky top-0 z-40 bg-slate-900/95 backdrop-blur-md border-b border-slate-800 w-full">
+        <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-10 h-16 flex items-center justify-between gap-4">
+          <div className="flex items-center space-x-3">
             <Link
               to="/"
-              className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 text-xs font-bold transition-all shadow-xs"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 text-xs sm:text-sm font-bold transition-all shadow-xs"
               title="Quay lại Hub"
             >
-              <ArrowLeft className="w-3.5 h-3.5 text-slate-400" />
-              <LayoutGrid className="w-3.5 h-3.5 text-cyan-400" />
-              <span className="hidden sm:inline">Hub</span>
+              <ArrowLeft className="w-4 h-4 text-slate-400" />
+              <LayoutGrid className="w-4 h-4 text-cyan-400" />
+              <span>Tool Hub</span>
             </Link>
 
-            <div className="w-7 h-7 rounded-lg bg-gradient-to-tr from-purple-600 to-indigo-600 flex items-center justify-center text-white shadow-xs">
-              <FolderSync className="w-4 h-4 text-white" />
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-purple-600 to-indigo-600 flex items-center justify-center text-white shadow-md shadow-purple-600/30">
+              <FolderSync className="w-5 h-5 text-white" />
             </div>
 
-            <div className="flex items-center gap-2">
-              <h1 className="text-sm font-black tracking-tight text-white uppercase">ISO DRAWING MANAGER</h1>
-              <span className="text-[10px] font-bold px-2 py-0.2 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/30">
-                {stats.total} CAD
+            <div className="flex items-center gap-2.5">
+              <h1 className="text-base sm:text-lg font-black tracking-tight text-white uppercase">ISO DRAWING MANAGER</h1>
+              <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/30">
+                {stats.total} CAD Files
               </span>
             </div>
           </div>
 
           {/* Header Actions */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2.5">
             <button
               type="button"
               onClick={() => setIsLogsModalOpen(true)}
-              className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium bg-slate-800 hover:bg-slate-750 text-slate-300 border border-slate-700 cursor-pointer"
+              className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-bold bg-slate-800 hover:bg-slate-750 text-slate-200 border border-slate-700 cursor-pointer transition-colors"
             >
-              <Clock className="w-3.5 h-3.5 text-purple-400" />
+              <Clock className="w-4 h-4 text-purple-400" />
               <span>Nhật ký</span>
               {executionLogs.length > 0 && (
-                <span className="px-1.5 py-0.2 text-[10px] rounded-full bg-purple-600 text-white font-bold">
+                <span className="px-2 py-0.2 text-xs rounded-full bg-purple-600 text-white font-bold">
                   {executionLogs.length}
                 </span>
               )}
@@ -677,23 +677,23 @@ export const IsoDrawingManagerPage: React.FC = () => {
             <button
               type="button"
               onClick={() => setIsResetConfirmOpen(true)}
-              className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium bg-rose-950/40 hover:bg-rose-900/60 text-rose-300 border border-rose-800/60 cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-bold bg-rose-950/40 hover:bg-rose-900/60 text-rose-300 border border-rose-800/60 cursor-pointer transition-colors"
             >
-              <Trash2 className="w-3.5 h-3.5 text-rose-400" />
+              <Trash2 className="w-4 h-4 text-rose-400" />
               <span>Reset</span>
             </button>
           </div>
         </div>
       </header>
 
-      {/* COMPACT TABS */}
-      <div className="bg-slate-900 border-b border-slate-800 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto flex items-center gap-2 py-1.5">
+      {/* FULL-WIDTH TABS */}
+      <div className="bg-slate-900 border-b border-slate-800 w-full px-4 sm:px-6 lg:px-8 xl:px-10">
+        <div className="w-full flex items-center gap-2 py-2">
           <button
             onClick={() => setActiveTab('main')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+            className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer ${
               activeTab === 'main'
-                ? 'bg-purple-600 text-white shadow-xs'
+                ? 'bg-purple-600 text-white shadow-md shadow-purple-600/30'
                 : 'text-slate-400 hover:text-white'
             }`}
           >
@@ -701,9 +701,9 @@ export const IsoDrawingManagerPage: React.FC = () => {
           </button>
           <button
             onClick={() => setActiveTab('released')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+            className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer ${
               activeTab === 'released'
-                ? 'bg-purple-600 text-white shadow-xs'
+                ? 'bg-purple-600 text-white shadow-md shadow-purple-600/30'
                 : 'text-slate-400 hover:text-white'
             }`}
           >
@@ -711,9 +711,9 @@ export const IsoDrawingManagerPage: React.FC = () => {
           </button>
           <button
             onClick={() => setActiveTab('oldrev')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+            className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer ${
               activeTab === 'oldrev'
-                ? 'bg-purple-600 text-white shadow-xs'
+                ? 'bg-purple-600 text-white shadow-md shadow-purple-600/30'
                 : 'text-slate-400 hover:text-white'
             }`}
           >
@@ -722,96 +722,96 @@ export const IsoDrawingManagerPage: React.FC = () => {
         </div>
       </div>
 
-      {/* MAIN CONTAINER */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex-1 w-full space-y-4">
+      {/* MAIN CONTAINER: FULL WIDTH & FULL HEIGHT */}
+      <main className="w-full px-4 sm:px-6 lg:px-8 xl:px-10 py-4 flex-1 flex flex-col space-y-3.5">
         {activeTab === 'main' && (
-          <>
-            {/* COMPACT CONFIG & FOLDERS TOOLBAR */}
-            <div className="bg-slate-900/90 border border-slate-800 rounded-xl p-3 shadow-xs flex flex-wrap items-center justify-between gap-3 text-xs">
+          <div className="w-full flex-1 flex flex-col space-y-3.5">
+            {/* EXPANDED CONFIG & FOLDERS TOOLBAR */}
+            <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 shadow-sm flex flex-wrap items-center justify-between gap-4 text-xs sm:text-sm">
               {/* Inputs & Logo */}
-              <div className="flex flex-wrap items-center gap-2.5">
-                <div className="flex items-center gap-1.5">
-                  <span className="text-slate-400 font-semibold">Dự án:</span>
+              <div className="flex flex-wrap items-center gap-3.5">
+                <div className="flex items-center gap-2">
+                  <span className="text-slate-400 font-bold">Dự án:</span>
                   <input
                     type="text"
                     value={projectName}
                     onChange={(e) => handleProjectNameChange(e.target.value)}
                     placeholder="Tên dự án..."
-                    className="w-36 px-2.5 py-1 bg-slate-950 border border-slate-700 rounded-lg text-xs text-white focus:outline-none focus:ring-1 focus:ring-purple-500 font-bold"
+                    className="w-48 sm:w-56 px-3 py-1.5 bg-slate-950 border border-slate-700 rounded-xl text-xs sm:text-sm text-white focus:outline-none focus:ring-2 focus:ring-purple-500 font-bold"
                   />
                 </div>
 
-                <div className="flex items-center gap-1.5">
-                  <span className="text-slate-400 font-semibold">Cập nhật:</span>
+                <div className="flex items-center gap-2">
+                  <span className="text-slate-400 font-bold">Cập nhật:</span>
                   <input
                     type="text"
                     value={updatedBy}
                     onChange={(e) => handleUpdatedByChange(e.target.value)}
                     placeholder="Người cập nhật..."
-                    className="w-32 px-2.5 py-1 bg-slate-950 border border-slate-700 rounded-lg text-xs text-white focus:outline-none focus:ring-1 focus:ring-purple-500"
+                    className="w-40 sm:w-48 px-3 py-1.5 bg-slate-950 border border-slate-700 rounded-xl text-xs sm:text-sm text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
                   />
                 </div>
 
-                {/* Compact Logo upload */}
-                <label className="cursor-pointer inline-flex items-center gap-1.5 px-2.5 py-1 bg-slate-800 hover:bg-slate-750 text-slate-300 border border-slate-700 rounded-lg text-xs font-semibold">
-                  <Upload className="w-3 h-3 text-purple-400" />
+                {/* Logo upload */}
+                <label className="cursor-pointer inline-flex items-center gap-2 px-3 py-1.5 bg-slate-800 hover:bg-slate-750 text-slate-200 border border-slate-700 rounded-xl text-xs sm:text-sm font-bold transition-colors">
+                  <Upload className="w-4 h-4 text-purple-400" />
                   <span>{logoBase64 ? 'Đổi Logo' : 'Logo B3'}</span>
                   <input type="file" accept="image/png,image/jpeg" onChange={handleLogoUpload} className="hidden" />
                 </label>
                 {logoBase64 && (
-                  <img src={logoBase64} alt="Logo" className="h-6 max-w-16 object-contain rounded bg-slate-800 p-0.5 border border-slate-700" />
+                  <img src={logoBase64} alt="Logo" className="h-8 max-w-24 object-contain rounded-lg bg-slate-800 p-1 border border-slate-700" />
                 )}
               </div>
 
               {/* 3 Folder Selector Buttons */}
-              <div className="flex flex-wrap items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2.5">
                 <button
                   type="button"
                   onClick={handleSelectSource}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-purple-600 hover:bg-purple-500 text-white cursor-pointer transition-colors shadow-xs"
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-purple-600 hover:bg-purple-500 text-white cursor-pointer transition-all shadow-md shadow-purple-600/30 active:scale-95"
                   title="Chọn thư mục chứa file .dwg, .dxf"
                 >
-                  <FolderOpen className="w-3.5 h-3.5" />
+                  <FolderOpen className="w-4 h-4" />
                   <span>{sourceName || '1. Chọn Thư Mục CAD'}</span>
-                  {rows.length > 0 && <span className="bg-purple-800 px-1.5 py-0.2 rounded text-[10px]">{rows.length}</span>}
+                  {rows.length > 0 && <span className="bg-purple-900/90 px-2 py-0.5 rounded-full text-xs font-extrabold">{rows.length}</span>}
                 </button>
 
                 <button
                   type="button"
                   onClick={handleSelectTemplate}
-                  className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-slate-750 text-slate-300 border border-slate-700 cursor-pointer"
+                  className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold bg-slate-800 hover:bg-slate-750 text-slate-200 border border-slate-700 cursor-pointer transition-colors"
                   title="Chọn thư mục template mẫu"
                 >
-                  <Layers className="w-3.5 h-3.5 text-amber-400" />
+                  <Layers className="w-4 h-4 text-amber-400" />
                   <span>{templateName ? `Mẫu: ${templateName}` : '2. Thư Mục Template'}</span>
                   {templateSubfolders.length > 0 && (
-                    <span className="text-amber-400 text-[10px]">({templateSubfolders.length})</span>
+                    <span className="text-amber-400 font-extrabold">({templateSubfolders.length})</span>
                   )}
                 </button>
 
                 <button
                   type="button"
                   onClick={handleSelectOutput}
-                  className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-slate-750 text-slate-300 border border-slate-700 cursor-pointer"
+                  className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold bg-slate-800 hover:bg-slate-750 text-slate-200 border border-slate-700 cursor-pointer transition-colors"
                   title="Chọn thư mục đầu ra"
                 >
-                  <FolderSync className="w-3.5 h-3.5 text-cyan-400" />
+                  <FolderSync className="w-4 h-4 text-cyan-400" />
                   <span>{outputName ? `Đích: ${outputName}` : '3. Thư Mục Đích'}</span>
                 </button>
               </div>
             </div>
 
-            {/* ACTION TOOLBAR: Clean, compact buttons */}
-            <div className="bg-slate-900/90 border border-slate-800 rounded-xl p-2.5 shadow-xs flex flex-wrap items-center justify-between gap-2.5 text-xs">
+            {/* ACTION TOOLBAR: Clean, enlarged buttons */}
+            <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-3 shadow-sm flex flex-wrap items-center justify-between gap-3 text-xs sm:text-sm">
               {/* Left actions: Run dry, copy, zip, excel */}
-              <div className="flex flex-wrap items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2.5">
                 <button
                   type="button"
                   onClick={() => handleExecuteCopy(true)}
                   disabled={isRunning || rows.length === 0}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-bold bg-slate-800 hover:bg-slate-750 text-slate-200 border border-slate-700 cursor-pointer disabled:opacity-40"
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl font-bold bg-slate-800 hover:bg-slate-750 text-slate-200 border border-slate-700 cursor-pointer disabled:opacity-40 transition-colors"
                 >
-                  <Eye className="w-3.5 h-3.5 text-cyan-400" />
+                  <Eye className="w-4 h-4 text-cyan-400" />
                   <span>Chạy Thử</span>
                 </button>
 
@@ -819,9 +819,9 @@ export const IsoDrawingManagerPage: React.FC = () => {
                   type="button"
                   onClick={() => handleExecuteCopy(false)}
                   disabled={isRunning || rows.length === 0}
-                  className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg font-bold bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white shadow-xs cursor-pointer disabled:opacity-40"
+                  className="inline-flex items-center gap-2 px-5 py-2 rounded-xl font-bold bg-gradient-to-r from-purple-600 via-indigo-600 to-cyan-500 hover:from-purple-500 hover:to-cyan-400 text-white shadow-md shadow-purple-600/30 cursor-pointer disabled:opacity-40 transition-all active:scale-95"
                 >
-                  <Play className="w-3.5 h-3.5 fill-white" />
+                  <Play className="w-4 h-4 fill-white" />
                   <span>{isRunning ? 'Đang Chạy...' : 'Copy Vào Thư Mục Đích'}</span>
                 </button>
 
@@ -829,9 +829,9 @@ export const IsoDrawingManagerPage: React.FC = () => {
                   type="button"
                   onClick={handleDownloadZip}
                   disabled={isZipExporting || rows.length === 0}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-bold bg-indigo-950/60 hover:bg-indigo-900/80 text-indigo-300 border border-indigo-700/60 cursor-pointer disabled:opacity-40"
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl font-bold bg-indigo-950/60 hover:bg-indigo-900/80 text-indigo-300 border border-indigo-700/60 cursor-pointer disabled:opacity-40 transition-colors"
                 >
-                  <Archive className="w-3.5 h-3.5 text-indigo-400" />
+                  <Archive className="w-4 h-4 text-indigo-400" />
                   <span>{isZipExporting ? 'Đang Nén...' : 'Tải Gói ZIP'}</span>
                 </button>
 
@@ -839,145 +839,164 @@ export const IsoDrawingManagerPage: React.FC = () => {
                   type="button"
                   onClick={handleExportExcel}
                   disabled={rows.length === 0}
-                  className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg font-bold bg-emerald-600 hover:bg-emerald-500 text-white shadow-xs cursor-pointer disabled:opacity-40"
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl font-bold bg-emerald-600 hover:bg-emerald-500 text-white shadow-md shadow-emerald-600/30 cursor-pointer disabled:opacity-40 transition-all active:scale-95"
                 >
-                  <Download className="w-3.5 h-3.5" />
+                  <Download className="w-4 h-4" />
                   <span>Xuất Excel (.xlsx)</span>
                 </button>
               </div>
 
               {/* Right: Quick filter & search */}
-              <div className="flex items-center gap-2">
-                <div className="relative w-44 sm:w-56">
-                  <Search className="w-3 h-3 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
+              <div className="flex items-center gap-3">
+                <div className="relative w-64 sm:w-80">
+                  <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
                   <input
                     type="text"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Lọc Zone, System, Spool..."
-                    className="w-full pl-7 pr-2.5 py-1 bg-slate-950 border border-slate-700 rounded-lg text-xs text-white focus:outline-none focus:ring-1 focus:ring-purple-500"
+                    placeholder="Tìm theo Zone, System, Spool, File..."
+                    className="w-full pl-9 pr-3 py-1.5 bg-slate-950 border border-slate-700 rounded-xl text-xs sm:text-sm text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
                   />
                 </div>
 
                 <select
                   value={statusFilter}
                   onChange={(e) => setStatusFilter(e.target.value as 'all' | 'valid' | 'invalid')}
-                  className="bg-slate-950 border border-slate-700 rounded-lg px-2 py-1 text-xs text-slate-300"
+                  className="bg-slate-950 border border-slate-700 rounded-xl px-3 py-1.5 text-xs sm:text-sm text-slate-300 font-semibold"
                 >
                   <option value="all">Tất cả ({rows.length})</option>
                   <option value="valid">Hợp lệ ({stats.valid})</option>
-                  <option value="invalid">Lỗi ({stats.invalid})</option>
+                  <option value="invalid">Lỗi định dạng ({stats.invalid})</option>
                 </select>
               </div>
             </div>
 
-            {/* DATA TABLE */}
-            <div className="bg-slate-900/80 border border-slate-800 rounded-xl overflow-hidden shadow-xs">
-              <div className="overflow-x-auto max-h-[calc(100vh-280px)] min-h-[300px]">
-                <table className="w-full text-left text-xs border-collapse">
-                  <thead className="bg-slate-900 sticky top-0 z-10 border-b border-slate-800 text-[11px] font-bold text-slate-300">
+            {/* EXPANDED FULL-HEIGHT DATA TABLE */}
+            <div className="bg-slate-900/90 border border-slate-800 rounded-2xl overflow-hidden shadow-lg flex-1 flex flex-col min-h-[500px]">
+              <div className="overflow-auto flex-1 w-full">
+                <table className="w-full text-left border-collapse">
+                  <thead className="bg-slate-900 sticky top-0 z-10 border-b border-slate-800 text-xs font-bold text-slate-300 uppercase tracking-wider">
                     <tr>
-                      <th className="py-2 px-2.5 text-center w-10">STT</th>
-                      <th className="py-2 px-2.5 min-w-[200px]">FILE NAME</th>
-                      <th className="py-2 px-2.5 min-w-[160px]">PIPE NUMBER</th>
-                      <th className="py-2 px-2.5 text-center min-w-[65px]">ZONE</th>
-                      <th className="py-2 px-2.5 text-center min-w-[90px]">SYSTEM</th>
-                      <th className="py-2 px-2.5 text-center min-w-[100px]">PIPE SPOOL</th>
-                      <th className="py-2 px-2.5 text-center min-w-[45px]">REV</th>
-                      <th className="py-2 px-2.5 text-center min-w-[95px]">ISSUED DATE</th>
-                      <th className="py-2 px-2.5 min-w-[120px]">REMARK</th>
-                      <th className="py-2 px-2.5 text-center min-w-[70px]">STATUS</th>
-                      <th className="py-2 px-2.5 text-center min-w-[80px]">SHORT</th>
-                      <th className="py-2 px-2.5 text-center min-w-[80px]">CAD</th>
+                      <th className="py-3 px-3 text-center w-12">STT</th>
+                      <th className="py-3 px-4 min-w-[240px]">FILE NAME</th>
+                      <th className="py-3 px-4 min-w-[200px]">PIPE NUMBER</th>
+                      <th className="py-3 px-3 text-center min-w-[80px]">ZONE</th>
+                      <th className="py-3 px-3 text-center min-w-[110px]">SYSTEM</th>
+                      <th className="py-3 px-3 text-center min-w-[120px]">PIPE SPOOL</th>
+                      <th className="py-3 px-3 text-center min-w-[60px]">REV</th>
+                      <th className="py-3 px-3 text-center min-w-[110px]">ISSUED DATE</th>
+                      <th className="py-3 px-4 min-w-[150px]">REMARK</th>
+                      <th className="py-3 px-3 text-center min-w-[90px]">STATUS</th>
+                      <th className="py-3 px-3 text-center min-w-[100px]">SHORT</th>
+                      <th className="py-3 px-3 text-center min-w-[100px]">CAD</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-800/60 font-mono text-[11px]">
+                  <tbody className="divide-y divide-slate-800/60 font-mono text-xs sm:text-sm">
                     {sortedRows.length === 0 ? (
                       <tr>
-                        <td colSpan={12} className="py-12 text-center text-slate-500 font-sans">
-                          {rows.length === 0
-                            ? 'Bấm "1. Chọn Thư Mục CAD" ở trên để nạp danh sách file .dwg & .dxf.'
-                            : 'Không tìm thấy dòng khớp với bộ lọc.'}
+                        <td colSpan={12} className="py-24 text-center font-sans">
+                          <div className="flex flex-col items-center justify-center space-y-4">
+                            <div className="w-16 h-16 rounded-2xl bg-purple-600/20 text-purple-400 flex items-center justify-center border border-purple-500/30">
+                              <FolderOpen className="w-8 h-8" />
+                            </div>
+                            <h3 className="text-base sm:text-lg font-bold text-slate-200">
+                              {rows.length === 0 ? 'Chưa có dữ liệu bản vẽ CAD' : 'Không tìm thấy kết quả phù hợp'}
+                            </h3>
+                            <p className="text-xs sm:text-sm text-slate-400 max-w-md">
+                              {rows.length === 0
+                                ? 'Bấm nút bên dưới để chọn thư mục chứa các file .dwg & .dxf. Hệ thống sẽ tự động bóc tách và phân nhóm Zone/System.'
+                                : 'Hãy thử thay đổi từ khóa tìm kiếm hoặc đặt lại bộ lọc trạng thái.'}
+                            </p>
+                            {rows.length === 0 && (
+                              <button
+                                type="button"
+                                onClick={handleSelectSource}
+                                className="px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-purple-600 hover:bg-purple-500 text-white shadow-lg shadow-purple-600/30 cursor-pointer transition-all active:scale-95"
+                              >
+                                Chọn Thư Mục CAD Nguồn
+                              </button>
+                            )}
+                          </div>
                         </td>
                       </tr>
                     ) : (
                       sortedRows.map((r) => {
                         const isInvalid = !r.isValid;
                         return (
-                          <tr key={r.id} className={`hover:bg-slate-850/60 ${isInvalid ? 'bg-rose-950/25 text-rose-200' : ''}`}>
-                            <td className="py-1.5 px-2.5 text-center text-slate-500">{r.stt}</td>
-                            <td className="py-1.5 px-2.5 font-semibold text-slate-200 truncate max-w-[220px]" title={r.fileName}>
+                          <tr key={r.id} className={`hover:bg-slate-800/50 transition-colors ${isInvalid ? 'bg-rose-950/25 text-rose-200' : ''}`}>
+                            <td className="py-2.5 px-3 text-center text-slate-500 font-semibold">{r.stt}</td>
+                            <td className="py-2.5 px-4 font-semibold text-slate-100 truncate max-w-[280px]" title={r.fileName}>
                               {r.fileName}
                             </td>
-                            <td className="py-1.5 px-2.5">
+                            <td className="py-2.5 px-4">
                               <input
                                 type="text"
                                 value={r.pipeNumber}
                                 onChange={(e) => handleUpdateRow(r.id, 'pipeNumber', e.target.value)}
-                                className="w-full bg-transparent border-b border-transparent hover:border-slate-700 focus:border-purple-500 focus:outline-none text-slate-300"
+                                className="w-full bg-transparent border-b border-transparent hover:border-slate-700 focus:border-purple-500 focus:outline-none text-slate-300 py-0.5"
                               />
                             </td>
-                            <td className="py-1.5 px-2.5 text-center font-bold text-amber-300">
+                            <td className="py-2.5 px-3 text-center font-bold text-amber-300">
                               <input
                                 type="text"
                                 value={r.zone}
                                 onChange={(e) => handleUpdateRow(r.id, 'zone', e.target.value)}
-                                className="w-12 text-center bg-transparent border-b border-transparent hover:border-slate-700 focus:border-purple-500 focus:outline-none"
+                                className="w-16 text-center bg-transparent border-b border-transparent hover:border-slate-700 focus:border-purple-500 focus:outline-none py-0.5"
                               />
                             </td>
-                            <td className="py-1.5 px-2.5 text-center text-cyan-300">
+                            <td className="py-2.5 px-3 text-center text-cyan-300 font-semibold">
                               <input
                                 type="text"
                                 value={r.system}
                                 onChange={(e) => handleUpdateRow(r.id, 'system', e.target.value)}
-                                className="w-20 text-center bg-transparent border-b border-transparent hover:border-slate-700 focus:border-purple-500 focus:outline-none"
+                                className="w-24 text-center bg-transparent border-b border-transparent hover:border-slate-700 focus:border-purple-500 focus:outline-none py-0.5"
                               />
                             </td>
-                            <td className="py-1.5 px-2.5 text-center text-emerald-300">
+                            <td className="py-2.5 px-3 text-center text-emerald-300 font-semibold">
                               <input
                                 type="text"
                                 value={r.pipeSpool}
                                 onChange={(e) => handleUpdateRow(r.id, 'pipeSpool', e.target.value)}
-                                className="w-24 text-center bg-transparent border-b border-transparent hover:border-slate-700 focus:border-purple-500 focus:outline-none"
+                                className="w-28 text-center bg-transparent border-b border-transparent hover:border-slate-700 focus:border-purple-500 focus:outline-none py-0.5"
                               />
                             </td>
-                            <td className="py-1.5 px-2.5 text-center font-bold text-white">
+                            <td className="py-2.5 px-3 text-center font-black text-white">
                               <input
                                 type="text"
                                 value={r.rev}
                                 onChange={(e) => handleUpdateRow(r.id, 'rev', e.target.value)}
-                                className="w-8 text-center bg-transparent border-b border-transparent hover:border-slate-700 focus:border-purple-500 focus:outline-none"
+                                className="w-10 text-center bg-transparent border-b border-transparent hover:border-slate-700 focus:border-purple-500 focus:outline-none py-0.5"
                               />
                             </td>
-                            <td className="py-1.5 px-2.5 text-center text-slate-400">
+                            <td className="py-2.5 px-3 text-center text-slate-400">
                               <input
                                 type="text"
                                 value={r.issuedDate}
                                 onChange={(e) => handleUpdateRow(r.id, 'issuedDate', e.target.value)}
-                                className="w-20 text-center bg-transparent border-b border-transparent hover:border-slate-700 focus:border-purple-500 focus:outline-none"
+                                className="w-24 text-center bg-transparent border-b border-transparent hover:border-slate-700 focus:border-purple-500 focus:outline-none py-0.5"
                               />
                             </td>
-                            <td className="py-1.5 px-2.5">
+                            <td className="py-2.5 px-4">
                               <input
                                 type="text"
                                 value={r.remark}
                                 placeholder="Ghi chú..."
                                 onChange={(e) => handleUpdateRow(r.id, 'remark', e.target.value)}
-                                className="w-full bg-transparent border-b border-transparent hover:border-slate-700 focus:border-purple-500 focus:outline-none text-slate-400 text-[10px]"
+                                className="w-full bg-transparent border-b border-transparent hover:border-slate-700 focus:border-purple-500 focus:outline-none text-slate-400 text-xs py-0.5"
                               />
                             </td>
-                            <td className="py-1.5 px-2.5 text-center">
-                              <span className="px-1.5 py-0.2 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                            <td className="py-2.5 px-3 text-center">
+                              <span className="px-2 py-0.5 rounded-md text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
                                 {r.status}
                               </span>
                             </td>
-                            <td className="py-1.5 px-2.5 text-center font-bold text-purple-300">
+                            <td className="py-2.5 px-3 text-center font-bold text-purple-300">
                               {r.systemShort || '-'}
                             </td>
-                            <td className="py-1.5 px-2.5 text-center">
-                              <div className="flex items-center justify-center gap-1">
-                                {r.hasDWG && <span className="px-1 py-0.2 rounded text-[9px] font-bold bg-blue-500/20 text-blue-300">DWG</span>}
-                                {r.hasDXF && <span className="px-1 py-0.2 rounded text-[9px] font-bold bg-purple-500/20 text-purple-300">DXF</span>}
+                            <td className="py-2.5 px-3 text-center">
+                              <div className="flex items-center justify-center gap-1.5">
+                                {r.hasDWG && <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-blue-500/20 text-blue-300 border border-blue-500/30">DWG</span>}
+                                {r.hasDXF && <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-purple-500/20 text-purple-300 border border-purple-500/30">DXF</span>}
                               </div>
                             </td>
                           </tr>
@@ -988,44 +1007,44 @@ export const IsoDrawingManagerPage: React.FC = () => {
                 </table>
               </div>
             </div>
-          </>
+          </div>
         )}
 
-        {/* TAB 2: ISO RELEASED TOOL (Simplified) */}
+        {/* TAB 2: ISO RELEASED TOOL */}
         {activeTab === 'released' && (
-          <div className="bg-slate-900/90 border border-slate-800 rounded-xl p-5 shadow-xs max-w-3xl mx-auto space-y-4 text-xs">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-              <h2 className="text-sm font-bold text-white flex items-center gap-2">
-                <Archive className="w-4 h-4 text-purple-400" />
+          <div className="w-full max-w-4xl mx-auto bg-slate-900/90 border border-slate-800 rounded-2xl p-6 shadow-md space-y-5 text-xs sm:text-sm">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-4">
+              <h2 className="text-base font-bold text-white flex items-center gap-2.5">
+                <Archive className="w-5 h-5 text-purple-400" />
                 <span>ISO Released (Gộp Bản Vẽ)</span>
               </h2>
               <button
                 type="button"
                 onClick={handleSelectRelParent}
-                className="px-3 py-1.5 rounded-lg font-bold bg-purple-600 hover:bg-purple-500 text-white cursor-pointer"
+                className="px-4 py-2 rounded-xl font-bold bg-purple-600 hover:bg-purple-500 text-white cursor-pointer transition-colors shadow-xs"
               >
                 {relParentName ? `Thư mục: ${relParentName}` : 'Chọn Thư Mục Mẹ'}
               </button>
             </div>
 
             {relSubfolders.length > 0 && (
-              <div className="space-y-3">
-                <div className="flex items-center justify-between text-[11px] text-slate-400">
-                  <span>Chọn các thư mục con cần copy ({relSubfolders.filter((f) => f.checked).length}/{relSubfolders.length})</span>
-                  <div className="flex gap-2">
-                    <button onClick={() => setRelSubfolders((prev) => prev.map((item) => ({ ...item, checked: true })))} className="text-purple-400 hover:underline cursor-pointer">
+              <div className="space-y-4">
+                <div className="flex items-center justify-between text-xs text-slate-400">
+                  <span className="font-semibold">Chọn các thư mục con cần copy ({relSubfolders.filter((f) => f.checked).length}/{relSubfolders.length})</span>
+                  <div className="flex gap-2.5">
+                    <button onClick={() => setRelSubfolders((prev) => prev.map((item) => ({ ...item, checked: true })))} className="text-purple-400 hover:underline cursor-pointer font-semibold">
                       Chọn tất cả
                     </button>
                     <span>|</span>
-                    <button onClick={() => setRelSubfolders((prev) => prev.map((item) => ({ ...item, checked: false })))} className="text-slate-400 hover:underline cursor-pointer">
+                    <button onClick={() => setRelSubfolders((prev) => prev.map((item) => ({ ...item, checked: false })))} className="text-slate-400 hover:underline cursor-pointer font-semibold">
                       Bỏ chọn
                     </button>
                   </div>
                 </div>
 
-                <div className="p-2.5 bg-slate-950 border border-slate-800 rounded-lg max-h-56 overflow-y-auto grid grid-cols-1 sm:grid-cols-2 gap-1.5 font-mono text-[11px]">
+                <div className="p-3 bg-slate-950 border border-slate-800 rounded-xl max-h-72 overflow-y-auto grid grid-cols-1 sm:grid-cols-2 gap-2 font-mono text-xs">
                   {relSubfolders.map((f, idx) => (
-                    <label key={idx} className="flex items-center gap-2 p-1.5 rounded hover:bg-slate-900 cursor-pointer">
+                    <label key={idx} className="flex items-center gap-2.5 p-2 rounded-lg hover:bg-slate-900 cursor-pointer border border-transparent hover:border-slate-800">
                       <input
                         type="checkbox"
                         checked={f.checked}
@@ -1033,9 +1052,9 @@ export const IsoDrawingManagerPage: React.FC = () => {
                           const checked = e.target.checked;
                           setRelSubfolders((prev) => prev.map((item, i) => (i === idx ? { ...item, checked } : item)));
                         }}
-                        className="rounded border-slate-700 text-purple-600"
+                        className="rounded border-slate-700 text-purple-600 w-4 h-4"
                       />
-                      <span className="truncate text-slate-300">{f.name}</span>
+                      <span className="truncate text-slate-200">{f.name}</span>
                     </label>
                   ))}
                 </div>
@@ -1044,7 +1063,7 @@ export const IsoDrawingManagerPage: React.FC = () => {
                   type="button"
                   onClick={handleExecuteIsoReleased}
                   disabled={relIsProcessing}
-                  className="w-full py-2.5 rounded-lg font-bold bg-purple-600 hover:bg-purple-500 text-white cursor-pointer disabled:opacity-40"
+                  className="w-full py-3 rounded-xl font-bold bg-purple-600 hover:bg-purple-500 text-white cursor-pointer disabled:opacity-40 transition-all shadow-md shadow-purple-600/30"
                 >
                   {relIsProcessing ? 'Đang Sao Chép...' : 'Tạo Thư Mục "Iso released yyyymmdd" & Copy Files'}
                 </button>
@@ -1052,7 +1071,7 @@ export const IsoDrawingManagerPage: React.FC = () => {
             )}
 
             {relLogs.length > 0 && (
-              <div className="p-2.5 bg-slate-950 border border-slate-800 rounded-lg max-h-36 overflow-y-auto font-mono text-[11px] space-y-0.5 text-slate-400">
+              <div className="p-3 bg-slate-950 border border-slate-800 rounded-xl max-h-48 overflow-y-auto font-mono text-xs space-y-1 text-slate-400">
                 {relLogs.map((m, i) => (
                   <div key={i}>{m}</div>
                 ))}
@@ -1061,29 +1080,29 @@ export const IsoDrawingManagerPage: React.FC = () => {
           </div>
         )}
 
-        {/* TAB 3: UPDATE OLD REV TOOL (Simplified) */}
+        {/* TAB 3: UPDATE OLD REV TOOL */}
         {activeTab === 'oldrev' && (
-          <div className="bg-slate-900/90 border border-slate-800 rounded-xl p-5 shadow-xs max-w-3xl mx-auto space-y-4 text-xs">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-              <h2 className="text-sm font-bold text-white flex items-center gap-2">
-                <FileSpreadsheet className="w-4 h-4 text-cyan-400" />
+          <div className="w-full max-w-4xl mx-auto bg-slate-900/90 border border-slate-800 rounded-2xl p-6 shadow-md space-y-5 text-xs sm:text-sm">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-4">
+              <h2 className="text-base font-bold text-white flex items-center gap-2.5">
+                <FileSpreadsheet className="w-5 h-5 text-cyan-400" />
                 <span>Update Old Rev</span>
               </h2>
-              <label className="cursor-pointer px-3 py-1.5 rounded-lg font-bold bg-purple-600 hover:bg-purple-500 text-white">
+              <label className="cursor-pointer px-4 py-2 rounded-xl font-bold bg-purple-600 hover:bg-purple-500 text-white transition-colors shadow-xs">
                 <span>Upload File Excel (.xlsx)</span>
                 <input type="file" accept=".xlsx, .xls" onChange={handleUploadRevExcel} className="hidden" />
               </label>
             </div>
 
             {revRawMatrix && (
-              <div className="space-y-3">
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+              <div className="space-y-4">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                   <div>
-                    <label className="text-slate-400 block mb-1">Sheet:</label>
+                    <label className="text-slate-400 block mb-1 font-semibold">Sheet:</label>
                     <select
                       value={revActiveSheet}
                       onChange={(e) => setRevActiveSheet(e.target.value)}
-                      className="w-full bg-slate-950 border border-slate-700 rounded-lg p-1.5 text-white"
+                      className="w-full bg-slate-950 border border-slate-700 rounded-xl p-2 text-white font-semibold"
                     >
                       {revSheetNames.map((s) => (
                         <option key={s} value={s}>{s}</option>
@@ -1092,41 +1111,41 @@ export const IsoDrawingManagerPage: React.FC = () => {
                   </div>
 
                   <div>
-                    <label className="text-slate-400 block mb-1">Cột Key (L):</label>
+                    <label className="text-slate-400 block mb-1 font-semibold">Cột Key (L):</label>
                     <input
                       type="number"
                       value={revKeyCol + 1}
                       onChange={(e) => setRevKeyCol(Math.max(0, Number(e.target.value) - 1))}
-                      className="w-full bg-slate-950 border border-slate-700 rounded-lg p-1.5 text-white"
+                      className="w-full bg-slate-950 border border-slate-700 rounded-xl p-2 text-white font-semibold"
                     />
                   </div>
 
                   <div>
-                    <label className="text-slate-400 block mb-1">Cột Rev (P):</label>
+                    <label className="text-slate-400 block mb-1 font-semibold">Cột Rev (P):</label>
                     <input
                       type="number"
                       value={revRevCol + 1}
                       onChange={(e) => setRevRevCol(Math.max(0, Number(e.target.value) - 1))}
-                      className="w-full bg-slate-950 border border-slate-700 rounded-lg p-1.5 text-white"
+                      className="w-full bg-slate-950 border border-slate-700 rounded-xl p-2 text-white font-semibold"
                     />
                   </div>
 
                   <div>
-                    <label className="text-slate-400 block mb-1">Cột Đánh Dấu (S):</label>
+                    <label className="text-slate-400 block mb-1 font-semibold">Cột Đánh Dấu (S):</label>
                     <input
                       type="number"
                       value={revMarkCol + 1}
                       onChange={(e) => setRevMarkCol(Math.max(0, Number(e.target.value) - 1))}
-                      className="w-full bg-slate-950 border border-slate-700 rounded-lg p-1.5 text-white"
+                      className="w-full bg-slate-950 border border-slate-700 rounded-xl p-2 text-white font-semibold"
                     />
                   </div>
                 </div>
 
-                <div className="flex gap-2 pt-1">
+                <div className="flex gap-3 pt-2">
                   <button
                     type="button"
                     onClick={handleExecuteMarkOldRev}
-                    className="flex-1 py-2 rounded-lg font-bold bg-cyan-600 hover:bg-cyan-500 text-white cursor-pointer"
+                    className="flex-1 py-2.5 rounded-xl font-bold bg-cyan-600 hover:bg-cyan-500 text-white cursor-pointer transition-colors shadow-xs"
                   >
                     Đánh Dấu "old rev"
                   </button>
@@ -1135,9 +1154,9 @@ export const IsoDrawingManagerPage: React.FC = () => {
                     <button
                       type="button"
                       onClick={handleDownloadMarkedExcel}
-                      className="flex-1 py-2 rounded-lg font-bold bg-emerald-600 hover:bg-emerald-500 text-white cursor-pointer flex items-center justify-center gap-1.5"
+                      className="flex-1 py-2.5 rounded-xl font-bold bg-emerald-600 hover:bg-emerald-500 text-white cursor-pointer flex items-center justify-center gap-2 transition-colors shadow-xs"
                     >
-                      <Download className="w-3.5 h-3.5" />
+                      <Download className="w-4 h-4" />
                       <span>Tải Excel ({revPreviewCount} dòng cũ)</span>
                     </button>
                   )}
@@ -1151,31 +1170,31 @@ export const IsoDrawingManagerPage: React.FC = () => {
       {/* POPUP MODAL: NHẬT KÝ THỰC THI (EXECUTION LOGS) */}
       {isLogsModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/75 backdrop-blur-xs animate-in fade-in duration-150">
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-xl w-full p-4 space-y-3 shadow-2xl flex flex-col max-h-[85vh]">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-2.5">
-              <div className="flex items-center gap-2">
-                <Clock className="w-4 h-4 text-purple-400" />
-                <h3 className="text-sm font-bold text-white uppercase tracking-wider">Nhật Ký Thực Thi</h3>
-                <span className="text-[10px] font-mono px-2 py-0.2 rounded-full bg-slate-800 text-slate-300">
+          <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-2xl w-full p-5 space-y-4 shadow-2xl flex flex-col max-h-[85vh]">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+              <div className="flex items-center gap-2.5">
+                <Clock className="w-5 h-5 text-purple-400" />
+                <h3 className="text-sm sm:text-base font-bold text-white uppercase tracking-wider">Nhật Ký Thực Thi</h3>
+                <span className="text-xs font-mono px-2.5 py-0.5 rounded-full bg-slate-800 text-slate-300 font-bold">
                   {executionLogs.length} mục
                 </span>
               </div>
               <button
                 onClick={() => setIsLogsModalOpen(false)}
-                className="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 cursor-pointer"
+                className="text-slate-400 hover:text-white p-1 rounded-xl hover:bg-slate-800 cursor-pointer"
               >
-                <X className="w-4 h-4" />
+                <X className="w-5 h-5" />
               </button>
             </div>
 
             {/* Progress bar inside popup */}
             {runProgress && (
-              <div className="space-y-1 text-xs">
-                <div className="flex justify-between font-semibold text-purple-300 text-[11px]">
+              <div className="space-y-1.5 text-xs">
+                <div className="flex justify-between font-semibold text-purple-300">
                   <span>{runProgress.statusText}</span>
-                  <span>{runProgress.percentage}%</span>
+                  <span className="font-bold">{runProgress.percentage}%</span>
                 </div>
-                <div className="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden">
+                <div className="w-full h-2 bg-slate-800 rounded-full overflow-hidden">
                   <div
                     className="h-full bg-gradient-to-r from-purple-500 to-cyan-400 transition-all duration-150"
                     style={{ width: `${runProgress.percentage}%` }}
@@ -1185,7 +1204,7 @@ export const IsoDrawingManagerPage: React.FC = () => {
             )}
 
             {/* Log Stream */}
-            <div className="flex-1 min-h-[220px] max-h-[380px] p-3 bg-slate-950 border border-slate-800 rounded-xl overflow-y-auto font-mono text-[11px] space-y-1 text-slate-300">
+            <div className="flex-1 min-h-[250px] max-h-[420px] p-3.5 bg-slate-950 border border-slate-800 rounded-xl overflow-y-auto font-mono text-xs space-y-1 text-slate-300">
               {executionLogs.length === 0 ? (
                 <p className="text-slate-600 italic">Chưa có nhật ký ghi nhận.</p>
               ) : (
@@ -1194,7 +1213,7 @@ export const IsoDrawingManagerPage: React.FC = () => {
                     key={idx}
                     className={`${
                       logMsg.includes('[LỖI]')
-                        ? 'text-rose-400'
+                        ? 'text-rose-400 font-bold'
                         : logMsg.includes('[HOÀN THÀNH]') || logMsg.includes('[XONG]')
                         ? 'text-emerald-400 font-bold'
                         : logMsg.includes('[THIẾU]')
@@ -1220,7 +1239,7 @@ export const IsoDrawingManagerPage: React.FC = () => {
               </button>
               <button
                 onClick={() => setIsLogsModalOpen(false)}
-                className="px-4 py-1.5 rounded-lg font-bold bg-slate-800 hover:bg-slate-700 text-white cursor-pointer"
+                className="px-5 py-2 rounded-xl font-bold bg-slate-800 hover:bg-slate-750 text-white cursor-pointer transition-colors"
               >
                 Đóng
               </button>
@@ -1232,21 +1251,21 @@ export const IsoDrawingManagerPage: React.FC = () => {
       {/* CONFIRM RESET MODAL */}
       {isResetConfirmOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/75 backdrop-blur-xs animate-in fade-in duration-150">
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-sm w-full p-5 space-y-3 shadow-2xl">
-            <h3 className="text-sm font-bold text-white">Xóa trắng bảng dữ liệu?</h3>
+          <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-sm w-full p-5 space-y-3.5 shadow-2xl">
+            <h3 className="text-base font-bold text-white">Xóa trắng bảng dữ liệu?</h3>
             <p className="text-xs text-slate-400 leading-relaxed">
               Các bản vẽ trên bảng sẽ bị xóa. Cấu hình thư mục và tên dự án được giữ nguyên.
             </p>
-            <div className="flex items-center justify-end gap-2 pt-2">
+            <div className="flex items-center justify-end gap-2.5 pt-2">
               <button
                 onClick={() => setIsResetConfirmOpen(false)}
-                className="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-400 hover:bg-slate-800 cursor-pointer"
+                className="px-3.5 py-1.5 rounded-xl text-xs font-semibold text-slate-400 hover:bg-slate-800 cursor-pointer"
               >
                 Hủy
               </button>
               <button
                 onClick={handleConfirmReset}
-                className="px-3.5 py-1.5 rounded-lg text-xs font-bold bg-rose-600 hover:bg-rose-500 text-white cursor-pointer"
+                className="px-4 py-1.5 rounded-xl text-xs font-bold bg-rose-600 hover:bg-rose-500 text-white cursor-pointer transition-colors"
               >
                 Xóa sạch
               </button>
@@ -1255,9 +1274,9 @@ export const IsoDrawingManagerPage: React.FC = () => {
         </div>
       )}
 
-      {/* COMPACT FOOTER */}
-      <footer className="border-t border-slate-800/80 bg-slate-950 py-2.5 text-xs text-slate-500 text-center">
-        <div className="max-w-7xl mx-auto px-4 flex items-center justify-between text-[11px]">
+      {/* FULL-WIDTH COMPACT FOOTER */}
+      <footer className="border-t border-slate-800/80 bg-slate-950 py-3 text-xs text-slate-500 text-center w-full">
+        <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-10 flex items-center justify-between text-xs">
           <span>WebToolRush &bull; ISO Drawing Manager</span>
           <span className="font-mono text-slate-400">100% Client-Side In-Memory Execution</span>
         </div>
